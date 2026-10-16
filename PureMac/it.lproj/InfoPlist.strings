@@ -1,8 +1,12 @@
 /* Richieste di permesso di macOS */
-"NSAppleEventsUsageDescription" = "PureMac usa gli eventi Apple per interagire con il Finder quando mostra i file.";
-"NSDesktopFolderUsageDescription" = "PureMac richiede l'accesso alla Scrivania per trovare file inutili e residui.";
-"NSDocumentsFolderUsageDescription" = "PureMac richiede l'accesso ai Documenti per trovare file inutili e residui.";
-"NSDownloadsFolderUsageDescription" = "PureMac richiede l'accesso ai Download per trovare file inutili e residui.";
-"NSRemovableVolumesUsageDescription" = "PureMac richiede l'accesso ai volumi rimovibili per cercare file inutili.";
-"NSSystemAdministrationUsageDescription" = "PureMac richiede i privilegi di amministratore per pulire le cache e disinstallare completamente le app.";
+"NSAppleEventsUsageDescription" = "MacFresh usa gli eventi Apple per mostrare i file nel Finder e gestire gli elementi di login tramite System Events.";
+"NSDesktopFolderUsageDescription" = "MacFresh richiede l'accesso alla Scrivania per trovare file inutili e residui.";
+"NSDocumentsFolderUsageDescription" = "MacFresh richiede l'accesso ai Documenti per trovare file inutili e residui.";
+"NSDownloadsFolderUsageDescription" = "MacFresh richiede l'accesso ai Download per trovare file inutili e residui.";
+"NSRemovableVolumesUsageDescription" = "MacFresh richiede l'accesso ai volumi rimovibili per cercare file inutili.";
+"NSSystemAdministrationUsageDescription" = "MacFresh richiede i privilegi di amministratore per pulire le cache e disinstallare completamente le app.";
 "NSHumanReadableCopyright" = "Copyright 2026. Licenza MIT.";
+
+"NSBluetoothAlwaysUsageDescription" = "MacFresh legge il livello della batteria di tastiere, mouse e cuffie collegati per mostrarlo nel pannello della barra dei menu.";
+"NSLocationUsageDescription" = "MacFresh lo usa solo per mostrare il nome della tua rete Wi-Fi. macOS considera i nomi di rete come dati di posizione; MacFresh non legge mai dove ti trovi.";
+"NSLocationWhenInUseUsageDescription" = "MacFresh lo usa solo per mostrare il nome della tua rete Wi-Fi. macOS considera i nomi di rete come dati di posizione; MacFresh non legge mai dove ti trovi.";

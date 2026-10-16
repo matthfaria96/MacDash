@@ -143,6 +143,7 @@ enum DuplicateFinderError: LocalizedError, Equatable {
 
 actor DuplicateFinder {
     typealias ProgressHandler = @Sendable (DuplicateScanProgress) async -> Void
+    typealias GroupsHandler = @Sendable ([DuplicateGroup]) async -> Void
     typealias TrashHandler = (URL) throws -> Void
     typealias PreTrashHandler = (URL) throws -> Void
 
@@ -176,7 +177,8 @@ actor DuplicateFinder {
 
     func scan(
         folder rawFolder: URL,
-        progress: @escaping ProgressHandler = { _ in }
+        progress: @escaping ProgressHandler = { _ in },
+        foundGroups: GroupsHandler? = nil
     ) async throws -> DuplicateScanResult {
         let folder = rawFolder.standardizedFileURL
         guard Self.identity(at: folder) != nil, Self.isDirectory(at: folder) else {
@@ -270,7 +272,11 @@ actor DuplicateFinder {
             .filter { $0.value.count > 1 }
             .values
             .flatMap { $0 }
-            .sorted { $0.url.path.localizedStandardCompare($1.url.path) == .orderedAscending }
+            // Largest sizes first, so the biggest wins show up early.
+            .sorted {
+                if $0.identity.size != $1.identity.size { return $0.identity.size > $1.identity.size }
+                return $0.url.path.localizedStandardCompare($1.url.path) == .orderedAscending
+            }
         var filesByDigest: [DigestKey: [DuplicateFile]] = [:]
         var filesHashed = 0
         var bytesHashed: Int64 = 0
@@ -284,8 +290,18 @@ actor DuplicateFinder {
             currentURL: candidates.first?.url
         ))
 
-        for candidate in candidates {
+        var reportedGroups = 0
+        for (index, candidate) in candidates.enumerated() {
             try Task.checkCancellation()
+            // A size bucket is complete once the next file has another size:
+            // its groups are final and can be shown right away.
+            if let foundGroups, index > 0, candidates[index - 1].identity.size != candidate.identity.size {
+                let groups = Self.makeGroups(filesByDigest)
+                if groups.count != reportedGroups {
+                    reportedGroups = groups.count
+                    await foundGroups(groups)
+                }
+            }
             do {
                 let digest = try Self.hashFile(at: candidate.url)
                 if Self.identity(at: candidate.url) != candidate.identity {
@@ -321,23 +337,8 @@ actor DuplicateFinder {
             ))
         }
 
-        let groups = filesByDigest.values
-            .filter { $0.count > 1 }
-            .map { files -> DuplicateGroup in
-                let sortedFiles = files.sorted {
-                    if $0.modifiedAt != $1.modifiedAt {
-                        return ($0.modifiedAt ?? .distantPast) < ($1.modifiedAt ?? .distantPast)
-                    }
-                    return $0.url.path.localizedStandardCompare($1.url.path) == .orderedAscending
-                }
-                return DuplicateGroup(digest: sortedFiles[0].digest, files: sortedFiles)
-            }
-            .sorted {
-                if $0.reclaimableSize != $1.reclaimableSize {
-                    return $0.reclaimableSize > $1.reclaimableSize
-                }
-                return $0.keeper.url.path.localizedStandardCompare($1.keeper.url.path) == .orderedAscending
-            }
+        let groups = Self.makeGroups(filesByDigest)
+        await foundGroups?(groups)
         let uniqueSkipped = Dictionary(grouping: skipped, by: \.id)
             .compactMap { $0.value.first }
             .sorted { $0.url.path.localizedStandardCompare($1.url.path) == .orderedAscending }
@@ -394,6 +395,26 @@ actor DuplicateFinder {
         }
         try Self.validateKeeper(group.keeper, expectedDigest: group.digest)
         return DuplicateTrashReport(trashedFiles: trashed, failures: failures)
+    }
+
+    private static func makeGroups(_ filesByDigest: [DigestKey: [DuplicateFile]]) -> [DuplicateGroup] {
+        filesByDigest.values
+            .filter { $0.count > 1 }
+            .map { files -> DuplicateGroup in
+                let sortedFiles = files.sorted {
+                    if $0.modifiedAt != $1.modifiedAt {
+                        return ($0.modifiedAt ?? .distantPast) < ($1.modifiedAt ?? .distantPast)
+                    }
+                    return $0.url.path.localizedStandardCompare($1.url.path) == .orderedAscending
+                }
+                return DuplicateGroup(digest: sortedFiles[0].digest, files: sortedFiles)
+            }
+            .sorted {
+                if $0.reclaimableSize != $1.reclaimableSize {
+                    return $0.reclaimableSize > $1.reclaimableSize
+                }
+                return $0.keeper.url.path.localizedStandardCompare($1.keeper.url.path) == .orderedAscending
+            }
     }
 
     private static func validateKeeper(_ file: DuplicateFile, expectedDigest: String) throws {

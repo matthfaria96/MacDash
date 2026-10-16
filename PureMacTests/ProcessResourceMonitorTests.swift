@@ -5,7 +5,7 @@ final class ProcessResourceMonitorTests: XCTestCase {
     private func reading(pid: Int32 = 42, start: UInt64 = 100, path: String = "/Applications/Example.app/Contents/MacOS/Example", cpu: UInt64 = 0, memory: UInt64 = 100, time: UInt64 = 1_000_000_000) -> ProcessResourceReading {
         ProcessResourceReading(pid: pid, startSeconds: start, startMicroseconds: 1,
                                executablePath: path, name: URL(fileURLWithPath: path).lastPathComponent,
-                               cpuTicks: cpu, residentBytes: memory, sampledAt: time)
+                               cpuTicks: cpu, memoryBytes: memory, sampledAt: time)
     }
 
     func testCPUIsNormalizedToTotalMachineCapacity() throws {
@@ -50,7 +50,7 @@ final class ProcessResourceMonitorTests: XCTestCase {
         let app = try XCTUnwrap(result.first { $0.applicationPath == "/Applications/Example.app" })
         XCTAssertEqual(app.name, "Example")
         XCTAssertEqual(app.processCount, 2)
-        XCTAssertEqual(app.residentBytes, 500)
+        XCTAssertEqual(app.memoryBytes, 500)
         XCTAssertEqual(try XCTUnwrap(app.cpuFraction), 0.25, accuracy: 0.0001)
         XCTAssertFalse(app.cpuIsPartial)
     }
@@ -82,15 +82,57 @@ final class ProcessResourceMonitorTests: XCTestCase {
     }
 
     func testSortingAndSearchKeepMeasuredConsumersFirstAndUseStableTies() {
-        let a = ProcessResourceConsumer(id: "a", name: "Browser", applicationPath: nil, cpuFraction: 0.5, residentBytes: 100, processCount: 1)
-        let b = ProcessResourceConsumer(id: "b", name: "Editor", applicationPath: nil, cpuFraction: 0.1, residentBytes: 500, processCount: 1)
-        let c = ProcessResourceConsumer(id: "c", name: "Browser", applicationPath: nil, cpuFraction: nil, residentBytes: 900, processCount: 1)
+        let a = ProcessResourceConsumer(id: "a", name: "Browser", applicationPath: nil, cpuFraction: 0.5, memoryBytes: 100, processCount: 1)
+        let b = ProcessResourceConsumer(id: "b", name: "Editor", applicationPath: nil, cpuFraction: 0.1, memoryBytes: 500, processCount: 1)
+        let c = ProcessResourceConsumer(id: "c", name: "Browser", applicationPath: nil, cpuFraction: nil, memoryBytes: 900, processCount: 1)
         XCTAssertEqual(ProcessResourceMath.sorted([c, b, a], by: .cpu).map(\.id), ["a", "b", "c"])
         XCTAssertEqual(ProcessResourceMath.sorted([a, b, c], by: .memory).map(\.id), ["c", "b", "a"])
         XCTAssertEqual(ProcessResourceMath.sorted([a, b, c], by: .cpu, search: " BROW ").map(\.id), ["a", "c"])
         XCTAssertTrue(ProcessResourceMath.sorted([a], by: .cpu, search: "missing").isEmpty)
         XCTAssertEqual(ProcessResourceMath.sorted([a, b], by: .cpu, search: " \n").count, 2)
-        let tied = ProcessResourceConsumer(id: "d", name: a.name, applicationPath: nil, cpuFraction: a.cpuFraction, residentBytes: a.residentBytes, processCount: 1)
+        let tied = ProcessResourceConsumer(id: "d", name: a.name, applicationPath: nil, cpuFraction: a.cpuFraction, memoryBytes: a.memoryBytes, processCount: 1)
         XCTAssertEqual(ProcessResourceMath.sorted([tied, a], by: .cpu).map(\.id), ["a", "d"])
+    }
+
+    // MARK: - Heavy in the background
+
+    private func group(_ id: String, app: String? = nil, gb: Double = 0, cpu: Double? = nil) -> MemoryAppGroup {
+        MemoryAppGroup(id: id, name: id, appPath: app, bytes: UInt64(gb * 1_073_741_824), pids: [1], cpuFraction: cpu)
+    }
+
+    @MainActor
+    func testBackgroundShowsOnlyHeavyWorkOutsideOpenApps() {
+        let total: UInt64 = 16 * 1_073_741_824
+        let groups = [
+            group("/Applications/Safari.app", app: "/Applications/Safari.app", gb: 4),
+            group("family:spotlight", gb: 0.2, cpu: 0.4),
+            group("family:webContent", gb: 2),
+            group("/usr/libexec/quiet", gb: 0.1, cpu: 0.01)
+        ]
+        let heavy = PerformanceModel.heavyBackground(groups, openApps: ["/Applications/Safari.app"], total: total, shown: [])
+        XCTAssertEqual(Set(heavy.map(\.id)), ["family:spotlight", "family:webContent"])
+    }
+
+    @MainActor
+    func testBackgroundKeepsShownRowsUntilTheyDropWellBelowTheBar() {
+        let total: UInt64 = 16 * 1_073_741_824
+        let easing = [group("family:iCloud", cpu: 0.085)]
+        XCTAssertTrue(PerformanceModel.heavyBackground(easing, openApps: [], total: total, shown: []).isEmpty)
+        XCTAssertEqual(PerformanceModel.heavyBackground(easing, openApps: [], total: total, shown: ["family:iCloud"]).count, 1)
+    }
+
+    @MainActor
+    func testBackgroundIsCappedAndHeaviestFirst() {
+        let groups = (1...6).map { group("/usr/libexec/d\($0)", gb: Double($0)) }
+        let heavy = PerformanceModel.heavyBackground(groups, openApps: [], total: 16 * 1_073_741_824, shown: [])
+        XCTAssertEqual(heavy.count, PerformanceModel.backgroundLimit)
+        XCTAssertEqual(heavy.first?.id, "/usr/libexec/d6")
+    }
+
+    func testKnownServicesGroupUnderOneFamily() {
+        XCTAssertEqual(BackgroundFamily.matching(processName: "mdworker_shared"), .spotlight)
+        XCTAssertEqual(BackgroundFamily.matching(processName: "mds_stores"), .spotlight)
+        XCTAssertEqual(BackgroundFamily.matching(processName: "com.apple.WebKit.WebContent"), .webContent)
+        XCTAssertNil(BackgroundFamily.matching(processName: "node"))
     }
 }

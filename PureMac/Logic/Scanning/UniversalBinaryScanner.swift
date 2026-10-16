@@ -68,7 +68,7 @@ struct UniversalBinaryScanner: Sendable {
     }
 
     /// The machine's native architecture, asked of the kernel at runtime.
-    /// A compile-time #if arch check would follow whichever slice PureMac
+    /// A compile-time #if arch check would follow whichever slice MacFresh
     /// itself runs as — under Rosetta the x86_64 slice would classify every
     /// app's native arm64/arm64e slices as removable, and thinning would
     /// strip them. hw.optional.arm64 is absent on Intel hardware.
@@ -92,7 +92,7 @@ struct UniversalBinaryScanner: Sendable {
     /// found) and returns one finding per app that has at least one foreign
     /// slice to strip.
     ///
-    /// Skipped entirely: anything under /System, and PureMac itself (thinning
+    /// Skipped entirely: anything under /System, and MacFresh itself (thinning
     /// the running binary out from under the process is asking for trouble).
     /// App Store apps (Contents/_MASReceipt present) are still reported but
     /// flagged `appStore = true`.

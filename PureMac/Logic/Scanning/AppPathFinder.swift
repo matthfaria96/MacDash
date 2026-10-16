@@ -1,6 +1,6 @@
 //
 //  AppPathFinder.swift
-//  PureMac
+//  MacFresh
 //
 //  Heuristic file discovery engine that locates all filesystem artifacts
 //  belonging to a given macOS application. Uses multi-level matching
@@ -35,7 +35,7 @@ class AppPathFinder {
     private let locations: Locations
     private let sensitivity: Sensitivity
     private var collectionSet: Set<URL> = []
-    private let collectionQueue = DispatchQueue(label: "com.puremac.pathfinder.collection")
+    private let collectionQueue = DispatchQueue(label: "com.mactidy.pathfinder.collection")
 
     // Pre-computed cached identifiers (computed once in init, used in hot loop)
     private let normalizedBundleID: String

@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Premium Full Disk Access prompt that replaces the bare permission-denied
 /// alert. Auto-polls FDA state, auto-retries the failed operation on grant,
-/// and offers escape hatches for the "PureMac isn't in the list" case.
+/// and offers escape hatches for the "MacFresh isn't in the list" case.
 struct PermissionSheet: View {
     @ObservedObject private var coordinator = PermissionCoordinator.shared
     @State private var appeared = false
@@ -98,7 +98,7 @@ struct PermissionSheet: View {
 
     private var requestBody: some View {
         VStack(alignment: .leading, spacing: 18) {
-            // Two paths the user can choose between: drag the PureMac bundle
+            // Two paths the user can choose between: drag the MacFresh bundle
             // straight into the FDA list, OR have us reveal it in Finder so
             // they can drag from there. Drag-from-our-sheet is faster but
             // some users will still prefer the Finder flow they recognize.
@@ -112,7 +112,7 @@ struct PermissionSheet: View {
                         Haptics.tap()
                         coordinator.openSettingsAndReveal()
                     } label: {
-                        Label("Open Settings & reveal PureMac", systemImage: "gear")
+                        Label("Open Settings & reveal MacFresh", systemImage: "gear")
                             .font(.system(size: 13, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 4)
@@ -131,7 +131,7 @@ struct PermissionSheet: View {
 
             // Step-by-step strip
             HStack(spacing: 0) {
-                stepCell(number: 1, title: "Turn on PureMac",
+                stepCell(number: 1, title: "Turn on MacFresh",
                          caption: "Toggle the row that appears.")
                 stepDivider
                 stepCell(number: 2, title: "Authenticate",
@@ -162,7 +162,7 @@ struct PermissionSheet: View {
                     .font(.system(size: 11.5))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Button(LocalizedStringKey(showAdvanced ? "Hide help" : "PureMac not in the list?")) {
+                Button(LocalizedStringKey(showAdvanced ? "Hide help" : "MacFresh not in the list?")) {
                     withAnimation(.easeInOut(duration: 0.25)) { showAdvanced.toggle() }
                 }
                 .buttonStyle(.link)
@@ -185,7 +185,7 @@ struct PermissionSheet: View {
 
     private var advancedPanel: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Try this if PureMac doesn't appear:")
+            Text("Try this if MacFresh doesn't appear:")
                 .font(.system(size: 11.5, weight: .semibold))
                 .foregroundStyle(.secondary)
 
@@ -193,7 +193,7 @@ struct PermissionSheet: View {
                 advancedButton(
                     icon: "folder.badge.gearshape",
                     title: "Reveal app",
-                    subtitle: "Drag PureMac.app into the list"
+                    subtitle: "Drag MacFresh.app into the list"
                 ) {
                     FullDiskAccessManager.shared.revealAppInFinder()
                 }
@@ -222,7 +222,7 @@ struct PermissionSheet: View {
                                 action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 10) {
-                IconTile(systemName: icon, tint: Tint.orange, size: 30, corner: 7)
+                PremiumIcon(systemName: icon, tint: Tint.orange, size: 30)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(title)
                         .font(.system(size: 12.5, weight: .semibold))

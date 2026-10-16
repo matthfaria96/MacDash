@@ -1,6 +1,6 @@
 //
 //  Conditions.swift
-//  PureMac
+//  MacFresh
 //
 //  Per-app matching rules and system-level skip conditions for the heuristic scan engine.
 //  These define edge cases where bundle ID and app name matching alone is insufficient.
@@ -484,8 +484,8 @@ let skipReverse: [String] = [
     // Generic Infrastructure
     "ds_store", "caches", "crashreporter", "trash",
 
-    // PureMac itself (never flag our own files)
-    "puremac",
+    // MacFresh itself, and its former name (never flag our own files)
+    "macfresh", "mactidy",
 
     // Common SDKs and Shared Components
     "amsdatamigratortool", "arfilecache", "assistant", "chromium",

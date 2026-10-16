@@ -1,99 +1,98 @@
 import AppKit
 import SwiftUI
 
-struct ProtectionView: View {
-    private enum Phase {
+/// Keeps the security check's progress and result while the user moves
+/// between Protection tabs.
+@MainActor
+final class ProtectionAuditModel: ObservableObject {
+    enum Phase {
         case idle
         case running
         case complete(ProtectionSnapshot)
     }
 
+    @Published private(set) var phase: Phase = .idle
+
     private let audit: ProtectionAudit
-    @State private var phase: Phase = .idle
-    @State private var auditTask: Task<Void, Never>?
+    private var task: Task<Void, Never>?
 
     init(audit: ProtectionAudit = ProtectionAudit()) {
         self.audit = audit
     }
 
-    var body: some View {
-        ZStack {
-            Color(nsColor: .windowBackgroundColor)
-                .ignoresSafeArea()
+    var isRunning: Bool {
+        if case .running = phase { return true }
+        return false
+    }
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    header
-                    auditContent
-                    permissionsCard
-                    browserPrivacyCard
-                }
-                .frame(maxWidth: 920, alignment: .leading)
-                .padding(24)
-                .frame(maxWidth: .infinity)
-            }
-        }
-        .navigationTitle("Protection")
-        .onDisappear {
-            auditTask?.cancel()
-            auditTask = nil
-            if case .running = phase {
-                phase = .idle
-            }
+    var isIdle: Bool {
+        if case .idle = phase { return true }
+        return false
+    }
+
+    /// Safeguards that are off, once a check has finished.
+    var attentionCount: Int? {
+        guard case .complete(let snapshot) = phase else { return nil }
+        return snapshot.findings.filter { $0.status == .disabled }.count
+    }
+
+    /// The check only reads settings, so it runs by itself the first time the tab opens.
+    func runIfNeeded() {
+        if isIdle { run() }
+    }
+
+    func run() {
+        guard !isRunning else { return }
+        task?.cancel()
+        phase = .running
+        task = Task { [weak self, audit] in
+            let snapshot = await audit.run()
+            guard let self, !Task.isCancelled else { return }
+            withAnimation(MotionTokens.gentle) { self.phase = .complete(snapshot) }
+            self.task = nil
         }
     }
 
+    func stop() {
+        task?.cancel()
+        task = nil
+        withAnimation(MotionTokens.gentle) { phase = .idle }
+    }
+
+    func startOver() {
+        withAnimation(MotionTokens.gentle) { phase = .idle }
+    }
+}
+
+/// Protection › Security: reads the state of the macOS safeguards.
+struct ProtectionView: View {
+    @ObservedObject var model: ProtectionAuditModel
+
+    private let tint = SectionPalette.protection.accent
+
+    var body: some View {
+        ProtectionTabPage {
+            header
+            content
+        }
+        .task { model.runIfNeeded() }
+    }
+
     private var header: some View {
-        HStack(alignment: .top, spacing: 24) {
-            VStack(alignment: .leading, spacing: 7) {
-                Text("Protection")
-                    .font(.system(size: 28, weight: .bold))
-                Text("Review the macOS safeguards that protect apps, disks, network access, and system files.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Spacer(minLength: 20)
-
-            Button(action: runAudit) {
-                HStack(spacing: 8) {
-                    if case .running = phase {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "checkmark.shield")
-                    }
-                    Text(auditButtonTitle)
-                }
-            }
-            .buttonStyle(GlowProminentButtonStyle(tint: Tint.accent, gradient: TintGradient.of(Tint.accent)))
-            .disabled(isRunning)
-            .accessibilityLabel(auditButtonTitle)
+        ProtectionTabHeader(
+            title: "Security Check",
+            subtitle: "Gatekeeper, FileVault, the firewall, System Integrity Protection and XProtect.",
+            icon: "checkmark.shield.fill"
+        ) {
+            EmptyView()
         }
     }
 
     @ViewBuilder
-    private var auditContent: some View {
-        switch phase {
-        case .idle:
-            CardSurface(padding: 22, elevation: .standard, tint: Tint.accent) {
-                HStack(spacing: 18) {
-                    IconTile(systemName: "shield.checkered", tint: Tint.accent, size: 44, corner: 12)
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Check built-in safeguards")
-                            .font(.system(size: 17, weight: .semibold))
-                        Text("The audit reads current settings and does not change your Mac. It is a configuration review, not a malware scan.")
-                            .font(.system(size: 12.5))
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    Spacer(minLength: 0)
-                }
-            }
-        case .running:
-            CardSurface(padding: 0, elevation: .standard, tint: Tint.accent) {
+    private var content: some View {
+        switch model.phase {
+        case .idle, .running:
+            CardSurface(padding: 0, elevation: .standard, tint: tint) {
                 VStack(spacing: 0) {
                     ForEach(Array(ProtectionCheck.allCases.enumerated()), id: \.element.id) { index, check in
                         HStack(spacing: 12) {
@@ -117,133 +116,68 @@ struct ProtectionView: View {
                 }
             }
         case .complete(let snapshot):
-            VStack(alignment: .leading, spacing: 8) {
-                CardSurface(padding: 0, elevation: .standard) {
-                    VStack(spacing: 0) {
-                        ForEach(Array(snapshot.findings.enumerated()), id: \.element.id) { index, finding in
-                            ProtectionFindingRow(finding: finding)
-                                .padding(.horizontal, 18)
-                                .padding(.vertical, 13)
+            summary(snapshot)
 
-                            if index < snapshot.findings.count - 1 {
-                                Divider().padding(.leading, 58)
-                            }
+            CardSurface(padding: 0, elevation: .standard) {
+                VStack(spacing: 0) {
+                    ForEach(Array(snapshot.findings.enumerated()), id: \.element.id) { index, finding in
+                        ProtectionFindingRow(finding: finding)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 13)
+
+                        if index < snapshot.findings.count - 1 {
+                            Divider().padding(.leading, 58)
                         }
                     }
                 }
-
-                Text("Checked \(snapshot.checkedAt.formatted(date: .abbreviated, time: .shortened)). Unknown means the setting could not be confirmed.")
-                    .font(.system(size: 11.5))
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 4)
             }
+
+            ProtectionFootnote(
+                icon: "clock",
+                text: "Checked \(snapshot.checkedAt.formatted(date: .abbreviated, time: .shortened)). Unknown means the setting could not be confirmed."
+            )
         }
     }
 
-    private var permissionsCard: some View {
-        CardSurface(padding: 18, elevation: .flat) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 10) {
-                    IconTile(systemName: "hand.raised.fill", tint: Tint.purple, size: 31, corner: 8)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("App permissions")
-                            .font(.system(size: 15, weight: .semibold))
-                        Text("Review which apps can access private data and hardware.")
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                HStack(spacing: 8) {
-                    SettingsButton(title: "Full Disk Access", icon: "externaldrive.badge.person.crop") {
-                        ProtectionNavigation.openSettings("com.apple.preference.security?Privacy_AllFiles")
-                    }
-                    SettingsButton(title: "Location", icon: "location") {
-                        ProtectionNavigation.openSettings("com.apple.preference.security?Privacy_LocationServices")
-                    }
-                    SettingsButton(title: "Camera", icon: "video") {
-                        ProtectionNavigation.openSettings("com.apple.preference.security?Privacy_Camera")
-                    }
-                    SettingsButton(title: "Microphone", icon: "mic") {
-                        ProtectionNavigation.openSettings("com.apple.preference.security?Privacy_Microphone")
-                    }
-                }
+    private func summary(_ snapshot: ProtectionSnapshot) -> some View {
+        let enabled = snapshot.findings.filter { $0.status == .enabled }.count
+        let off = snapshot.findings.filter { $0.status == .disabled }.count
+        let allGood = off == 0
+        return HStack(spacing: 14) {
+            PremiumIcon(systemName: allGood ? "checkmark.seal.fill" : "exclamationmark.triangle.fill", tint: allGood ? Tint.green : Tint.orange, size: 38)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(allGood ? "Your Mac's safeguards are on" : "Some safeguards are off")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.white)
+                Text(String(format: String(localized: "%lld of %lld safeguards on"), Int64(enabled), Int64(snapshot.findings.count)))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.white.opacity(0.65))
             }
+            Spacer()
         }
-    }
-
-    private var browserPrivacyCard: some View {
-        CardSurface(padding: 18, elevation: .flat) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .top, spacing: 10) {
-                    IconTile(systemName: "safari", tint: Tint.blue, size: 31, corner: 8)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Browser privacy")
-                            .font(.system(size: 15, weight: .semibold))
-                        Text("Browser controls must be reviewed inside each browser. PureMac does not change cookies, history, site permissions, or extensions.")
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-
-                HStack(spacing: 10) {
-                    Link(destination: URL(string: "https://support.apple.com/guide/safari/sfri35610/mac")!) {
-                        Label("Safari privacy guide", systemImage: "arrow.up.right.square")
-                    }
-                    Link(destination: URL(string: "https://support.google.com/chrome/answer/17561599?hl=en")!) {
-                        Label("Chrome privacy guide", systemImage: "arrow.up.right.square")
-                    }
-                    Spacer()
-                    Text("Safari: Settings > Privacy")
-                        .font(.system(size: 11.5))
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.link)
-            }
-        }
-    }
-
-    private var isRunning: Bool {
-        if case .running = phase { return true }
-        return false
-    }
-
-    private var auditButtonTitle: String {
-        switch phase {
-        case .idle:
-            return String(localized: "Run audit")
-        case .running:
-            return String(localized: "Checking")
-        case .complete:
-            return String(localized: "Check again")
-        }
-    }
-
-    private func runAudit() {
-        guard !isRunning else { return }
-        auditTask?.cancel()
-        phase = .running
-        auditTask = Task {
-            let snapshot = await audit.run()
-            guard !Task.isCancelled else { return }
-            withAnimation(MotionTokens.gentle) {
-                phase = .complete(snapshot)
-            }
-            auditTask = nil
-        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 14)
+        .background(GlassPanelBackground(cornerRadius: 16))
     }
 }
 
 private struct ProtectionFindingRow: View {
     let finding: ProtectionFinding
 
+    private var symbol: String {
+        switch finding.check {
+        case .gatekeeper: return "checkmark.shield.fill"
+        case .fileVault: return "lock.fill"
+        case .firewall: return "network"
+        case .systemIntegrityProtection: return "shield.lefthalf.filled"
+        case .xProtect: return "ladybug.fill"
+        }
+    }
+
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            Image(systemName: finding.status.icon)
-                .font(.system(size: 19, weight: .semibold))
-                .foregroundStyle(finding.status.tint)
-                .frame(width: 28)
+            // Each safeguard has its own icon; green when on, orange when off.
+            PremiumIcon(systemName: symbol, tint: finding.status == .unknown ? Color(red: 0.6, green: 0.62, blue: 0.72) : finding.status.tint, size: 32)
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 7) {
@@ -271,24 +205,9 @@ private struct ProtectionFindingRow: View {
             Button(finding.check.actionTitle) {
                 ProtectionNavigation.openAction(for: finding.check)
             }
+            .buttonStyle(GlassButtonStyle())
             .controlSize(.small)
         }
-    }
-}
-
-private struct SettingsButton: View {
-    let title: LocalizedStringKey
-    let icon: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Label(title, systemImage: icon)
-                .font(.system(size: 11.5, weight: .medium))
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
     }
 }
 

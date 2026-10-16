@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Draggable PureMac.app affordance. The user grabs the icon out of our sheet
+/// Draggable MacFresh.app affordance. The user grabs the icon out of our sheet
 /// and drops it into the Full Disk Access list inside System Settings, which
 /// auto-adds the bundle without making them hunt for it in Finder.
 ///
@@ -40,7 +40,7 @@ struct AppBundleDragHandle: View {
             .animation(.easeOut(duration: 0.18), value: hovering)
 
             VStack(spacing: 1) {
-                Text("PureMac.app")
+                Text("MacFresh.app")
                     .font(.system(size: 11.5, weight: .semibold))
                 Text("Drag to the Settings list")
                     .font(.system(size: 10.5))

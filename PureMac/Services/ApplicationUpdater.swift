@@ -20,6 +20,9 @@ struct InstalledCaskPresentation: @unchecked Sendable {
     let bundlePath: String?
     let icon: NSImage?
     let isBundleMissing: Bool
+    /// Homebrew's one-line description of the app.
+    var summary: String? = nil
+    var homepage: URL? = nil
 }
 
 enum ApplicationUpdaterError: LocalizedError, Equatable {
@@ -36,7 +39,7 @@ enum ApplicationUpdaterError: LocalizedError, Equatable {
         case .homebrewNotInstalled:
             return String(localized: "Homebrew was not found in a standard installation location.")
         case .invalidResponse:
-            return String(localized: "Homebrew returned update information PureMac could not read.")
+            return String(localized: "Homebrew returned update information MacFresh could not read.")
         case .invalidCaskIdentifier(let token):
             return String(localized: "Homebrew returned an invalid cask identifier: \(token)")
         case .noSelection:
@@ -46,7 +49,7 @@ enum ApplicationUpdaterError: LocalizedError, Equatable {
         case .timedOut:
             return String(localized: "Homebrew did not finish before the operation timed out.")
         case .outputLimitExceeded:
-            return String(localized: "Homebrew produced more output than PureMac could safely retain.")
+            return String(localized: "Homebrew produced more output than MacFresh could safely retain.")
         }
     }
 }
@@ -65,6 +68,30 @@ final class ApplicationUpdater: ObservableObject {
     @Published private(set) var brewURL: URL?
     @Published private(set) var caskPresentations: [String: InstalledCaskPresentation] = [:]
     @Published var selectedTokens: Set<String> = []
+    /// Casks being upgraded right now.
+    @Published private(set) var upgradingTokens: Set<String> = []
+    private var upgradeTask: Task<Void, Never>?
+
+    /// Starts an upgrade that `cancelUpgrade()` can stop.
+    func startUpgrade(_ selection: [ManagedAppUpdate]) {
+        guard !isBusy, !selection.isEmpty else { return }
+        upgradingTokens = Set(selection.map(\.token))
+        upgradeTask = Task { [weak self] in
+            await self?.upgrade(selection)
+            self?.upgradingTokens = []
+            self?.upgradeTask = nil
+        }
+    }
+
+    /// Stops Homebrew; apps it already finished stay updated.
+    func cancelUpgrade() {
+        upgradeTask?.cancel()
+        upgradeTask = nil
+        upgradingTokens = []
+        isUpgrading = false
+    }
+
+    private var checkTask: Task<Void, Never>?
 
     init() {
         brewURL = Self.findBrewExecutable()
@@ -85,6 +112,35 @@ final class ApplicationUpdater: ObservableObject {
         } else {
             selectedTokens.remove(token)
         }
+    }
+
+    /// Starts a check that `cancelCheck()` can stop.
+    func startCheck() {
+        guard !isBusy else { return }
+        checkTask = Task { [weak self] in
+            await self?.checkForUpdates()
+        }
+    }
+
+    /// Stops a running check. Homebrew's process is terminated through task
+    /// cancellation and the screen returns to where it was before the check.
+    func cancelCheck() {
+        guard isChecking else { return }
+        checkTask?.cancel()
+        checkTask = nil
+        isChecking = false
+    }
+
+    /// Clears results so the screen shows its first state again.
+    func reset() {
+        guard !isUpgrading else { return }
+        cancelCheck()
+        updates = []
+        caskPresentations = [:]
+        selectedTokens = []
+        hasChecked = false
+        errorMessage = nil
+        statusMessage = nil
     }
 
     func checkForUpdates() async {
@@ -328,6 +384,16 @@ final class ApplicationUpdater: ObservableObject {
               )
         else { return [:] }
 
+        // Description and homepage, for the info popover.
+        var extras: [String: (summary: String?, homepage: URL?)] = [:]
+        if let root = try? JSONSerialization.jsonObject(with: output.stdout) as? [String: Any],
+           let casks = root["casks"] as? [[String: Any]] {
+            for cask in casks {
+                guard let token = cask["token"] as? String else { continue }
+                extras[token] = (cask["desc"] as? String, (cask["homepage"] as? String).flatMap(URL.init(string:)))
+            }
+        }
+        let extrasCopy = extras
         return await Task.detached(priority: .utility) {
             var presentations: [String: InstalledCaskPresentation] = [:]
             for (token, descriptor) in descriptors {
@@ -339,7 +405,9 @@ final class ApplicationUpdater: ObservableObject {
                     displayName: descriptor.displayName,
                     bundlePath: existingPath ?? descriptor.bundlePaths.first,
                     icon: icon,
-                    isBundleMissing: !descriptor.bundlePaths.isEmpty && existingPath == nil
+                    isBundleMissing: !descriptor.bundlePaths.isEmpty && existingPath == nil,
+                    summary: extrasCopy[token]?.summary,
+                    homepage: extrasCopy[token]?.homepage
                 )
             }
             return presentations

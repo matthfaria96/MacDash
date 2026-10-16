@@ -175,9 +175,9 @@ final class AppStateTests: XCTestCase {
     private func makeApp() -> InstalledApp {
         InstalledApp(
             id: UUID(),
-            appName: "PureMac",
-            bundleIdentifier: "com.puremac.app",
-            path: URL(fileURLWithPath: "/Applications/PureMac.app"),
+            appName: "MacFresh",
+            bundleIdentifier: "com.mactidy.app",
+            path: URL(fileURLWithPath: "/Applications/MacTidy.app"),
             icon: NSImage(size: NSSize(width: 32, height: 32)),
             size: 1
         )

@@ -72,6 +72,7 @@ enum SimilarPhotoFinderError: LocalizedError, Equatable {
 
 actor SimilarPhotoFinder {
     typealias ProgressHandler = @Sendable (SimilarPhotoScanProgress) async -> Void
+    typealias GroupsHandler = @Sendable ([SimilarPhotoGroup]) async -> Void
 
     private struct FileIdentity: Equatable, Sendable {
         let device: UInt64
@@ -115,7 +116,8 @@ actor SimilarPhotoFinder {
 
     func scan(
         folder rawFolder: URL,
-        progress: @escaping ProgressHandler = { _ in }
+        progress: @escaping ProgressHandler = { _ in },
+        foundGroups: GroupsHandler? = nil
     ) async throws -> SimilarPhotoScanResult {
         let folder = rawFolder.standardizedFileURL
         guard Self.isDirectory(at: folder),
@@ -201,34 +203,64 @@ actor SimilarPhotoFinder {
         }
         var analyzed: [AnalyzedPhoto] = []
         analyzed.reserveCapacity(orderedCandidates.count)
+        // Groups form while photos are analyzed: each new photo joins the first
+        // group whose first photo it matches, or pairs up with an unmatched one.
+        var clusters: [(members: [Int], scores: [Double])] = []
+        var singles: [Int] = []
+        let batchSize = 8
 
-        for candidate in orderedCandidates {
+        for start in stride(from: 0, to: orderedCandidates.count, by: batchSize) {
             try Task.checkCancellation()
-            if let photo = Self.analyze(candidate), Self.identity(at: candidate.url) == candidate.identity {
+            let batch = Array(orderedCandidates[start..<min(start + batchSize, orderedCandidates.count)])
+            // Thumbnails and signatures for a batch are built in parallel.
+            let results = await withTaskGroup(of: (Int, AnalyzedPhoto?).self) { group -> [AnalyzedPhoto?] in
+                for (offset, candidate) in batch.enumerated() {
+                    group.addTask {
+                        guard let photo = Self.analyze(candidate), Self.identity(at: candidate.url) == candidate.identity else {
+                            return (offset, nil)
+                        }
+                        return (offset, photo)
+                    }
+                }
+                var ordered = [AnalyzedPhoto?](repeating: nil, count: batch.count)
+                for await (offset, photo) in group { ordered[offset] = photo }
+                return ordered
+            }
+
+            let groupCountBefore = clusters.count
+            var grewGroup = false
+            for photo in results {
+                guard let photo else { skippedItems += 1; continue }
+                let index = analyzed.count
                 analyzed.append(photo)
-            } else {
-                skippedItems += 1
+                if let cluster = clusters.firstIndex(where: { Self.similarity(analyzed[$0.members[0]].signature, photo.signature) != nil }),
+                   let score = Self.similarity(analyzed[clusters[cluster].members[0]].signature, photo.signature) {
+                    clusters[cluster].members.append(index)
+                    clusters[cluster].scores.append(score)
+                    grewGroup = true
+                } else if let single = singles.firstIndex(where: { Self.similarity(analyzed[$0].signature, photo.signature) != nil }),
+                          let score = Self.similarity(analyzed[singles[single]].signature, photo.signature) {
+                    clusters.append((members: [singles[single], index], scores: [score]))
+                    singles.remove(at: single)
+                } else {
+                    singles.append(index)
+                }
             }
-            if analyzed.count == 1 || analyzed.count.isMultiple(of: 10) || candidate.url == orderedCandidates.last?.url {
-                await progress(SimilarPhotoScanProgress(
-                    phase: .analyzing,
-                    entriesVisited: entriesVisited,
-                    candidatesFound: orderedCandidates.count,
-                    photosAnalyzed: analyzed.count,
-                    currentURL: candidate.url
-                ))
+
+            if let foundGroups, clusters.count != groupCountBefore || grewGroup {
+                await foundGroups(Self.groups(from: clusters, photos: analyzed))
             }
+            await progress(SimilarPhotoScanProgress(
+                phase: .analyzing,
+                entriesVisited: entriesVisited,
+                candidatesFound: orderedCandidates.count,
+                photosAnalyzed: analyzed.count,
+                currentURL: batch.last?.url
+            ))
         }
 
         try Task.checkCancellation()
-        await progress(SimilarPhotoScanProgress(
-            phase: .comparing,
-            entriesVisited: entriesVisited,
-            candidatesFound: orderedCandidates.count,
-            photosAnalyzed: analyzed.count,
-            currentURL: nil
-        ))
-        let groups = try Self.makeGroups(from: analyzed)
+        let groups = Self.groups(from: clusters, photos: analyzed)
 
         return SimilarPhotoScanResult(
             folder: folder,
@@ -379,26 +411,9 @@ actor SimilarPhotoFinder {
         return data as Data
     }
 
-    private static func makeGroups(from photos: [AnalyzedPhoto]) throws -> [SimilarPhotoGroup] {
-        var remaining = Set(photos.indices)
-        var groups: [SimilarPhotoGroup] = []
-
-        for seedIndex in photos.indices where remaining.contains(seedIndex) {
-            try Task.checkCancellation()
-            remaining.remove(seedIndex)
-            var matches: [(index: Int, score: Double)] = []
-
-            for candidateIndex in remaining.sorted() {
-                try Task.checkCancellation()
-                if let score = similarity(photos[seedIndex].signature, photos[candidateIndex].signature) {
-                    matches.append((candidateIndex, score))
-                }
-            }
-            guard !matches.isEmpty else { continue }
-
-            let matchedIndices = matches.map(\.index)
-            remaining.subtract(matchedIndices)
-            let members = ([seedIndex] + matchedIndices)
+    private static func groups(from clusters: [(members: [Int], scores: [Double])], photos: [AnalyzedPhoto]) -> [SimilarPhotoGroup] {
+        clusters.map { cluster in
+            let members = cluster.members
                 .map { photos[$0].photo }
                 .sorted {
                     if $0.modifiedAt != $1.modifiedAt {
@@ -406,13 +421,9 @@ actor SimilarPhotoFinder {
                     }
                     return $0.url.path.localizedStandardCompare($1.url.path) == .orderedAscending
                 }
-            groups.append(SimilarPhotoGroup(
-                photos: members,
-                similarity: matches.map(\.score).min() ?? 1
-            ))
+            return SimilarPhotoGroup(photos: members, similarity: cluster.scores.min() ?? 1)
         }
-
-        return groups.sorted {
+        .sorted {
             if $0.totalSize != $1.totalSize { return $0.totalSize > $1.totalSize }
             return $0.id.path.localizedStandardCompare($1.id.path) == .orderedAscending
         }

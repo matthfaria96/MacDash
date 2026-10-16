@@ -92,9 +92,17 @@ final class SystemMonitor: ObservableObject {
         } else {
             sampleCPU()
             sampleMemory()
-            sampleDisk()
+            // Free space barely moves, and asking for it goes through the
+            // system's purgeable-space service, so it's read every 30 seconds.
+            let now = Date()
+            if lastDiskSample.map({ now.timeIntervalSince($0) >= 30 }) ?? true {
+                lastDiskSample = now
+                sampleDisk()
+            }
         }
     }
+
+    private var lastDiskSample: Date?
 
     deinit { timer?.invalidate() }
 

@@ -93,6 +93,20 @@ actor CleaningEngine {
                 continue
             }
 
+            if item.category == .virtualMachines || item.category == .dockerData {
+                // Whole machines and Docker data never take the delete path:
+                // Docker's own commands, or the Trash after checks.
+                let outcome = await removeVirtualizationItem(item)
+                result.freedSpace += outcome.freed
+                if outcome.cleaned {
+                    result.itemsCleaned += 1
+                    result.cleanedPaths.insert(item.path)
+                    if let trashed = outcome.trashedPath { result.trashedPaths.insert(trashed) }
+                }
+                if let error = outcome.error { result.errors.append(error) }
+                continue
+            }
+
             if item.category == .dockerCache && item.path.isEmpty {
                 // The virtual "Docker prune" entry (empty path, like
                 // purgeableSpace) reclaims space inside the Docker/OrbStack VM
@@ -198,8 +212,16 @@ actor CleaningEngine {
                             )
                         }
                     }
-                    // PureMac's safety contract is Trash-only for recoverable
+                    // MacFresh's safety contract is Trash-only for recoverable
                     // cleanup. XcodeBuildMCP DerivedData must not be unlinked.
+                    var resulting: NSURL?
+                    try fileManager.trashItem(at: resolvedURL, resultingItemURL: &resulting)
+                    if let trashedPath = resulting?.path {
+                        result.trashedPaths.insert(trashedPath)
+                    }
+                } else if item.category == .threats {
+                    // A flagged item may be a false positive, so it goes to
+                    // the Trash where it can be put back.
                     var resulting: NSURL?
                     try fileManager.trashItem(at: resolvedURL, resultingItemURL: &resulting)
                     if let trashedPath = resulting?.path {
@@ -331,7 +353,7 @@ actor CleaningEngine {
         }
 
         let tempFile = FileManager.default.temporaryDirectory
-            .appendingPathComponent("puremac-rm-\(UUID().uuidString)")
+            .appendingPathComponent("mactidy-rm-\(UUID().uuidString)")
         do {
             try payload.write(to: tempFile, options: [.atomic])
         } catch {
@@ -453,6 +475,73 @@ actor CleaningEngine {
         return (0, nil)
     }
 
+    // MARK: - Virtual machines and Docker data
+
+    /// Runs one Docker data command, or moves one machine or Docker disk to
+    /// the Trash after making sure nothing is using it.
+    private func removeVirtualizationItem(_ item: CleanableItem) async -> (freed: Int64, cleaned: Bool, trashedPath: String?, error: String?) {
+        if let action = DockerDataAction(itemPath: item.path) {
+            guard let docker = VirtualMachineFinder.dockerBinary(home: homeDirectory.path) else {
+                return (0, false, nil, String(localized: "Docker CLI not found — install Docker Desktop or OrbStack"))
+            }
+            var lastError = ""
+            for arguments in action.commands {
+                let run = runDocker(docker, arguments: arguments)
+                if run.status == 0 {
+                    let reclaimed = run.output.split(separator: "\n")
+                        .last { $0.contains("Total reclaimed space:") }
+                        .flatMap { $0.split(separator: ":").last }
+                        .flatMap { parseDockerBytes($0.trimmingCharacters(in: .whitespaces)) }
+                    Logger.shared.log("docker \(arguments.joined(separator: " ")) reclaimed \(reclaimed ?? 0) bytes", level: .info)
+                    return (reclaimed ?? 0, true, nil, nil)
+                }
+                lastError = run.error
+            }
+            if lastError.contains("Cannot connect") || lastError.contains("daemon") {
+                return (0, false, nil, String(localized: "Docker isn't running — start Docker Desktop or OrbStack, then clean again"))
+            }
+            Logger.shared.log("docker \(action.rawValue) failed: \(lastError)", level: .error)
+            return (0, false, nil, "\(item.name): \(lastError.trimmingCharacters(in: .whitespacesAndNewlines))")
+        }
+
+        guard let place = VirtualMachineFinder.place(for: item.path, home: homeDirectory.path),
+              !hasUnexpectedSymlink(in: item.path) else {
+            Logger.shared.log("Refusing to remove unexpected virtual machine path: \(item.path)", level: .warning)
+            return (0, false, nil, "Skipped symlink or unsafe path: \(item.path)")
+        }
+        guard fileManager.fileExists(atPath: item.path) else { return (0, true, nil, nil) }
+        if let tool = VirtualMachineFinder.runningTool(for: place) {
+            return (0, false, nil, String(format: String(localized: "Quit %@ first, then clean again: %@"), tool, item.name))
+        }
+        do {
+            var resulting: NSURL?
+            try fileManager.trashItem(at: URL(fileURLWithPath: item.path), resultingItemURL: &resulting)
+            return (item.size, true, resulting?.path, nil)
+        } catch {
+            return (0, false, nil, "\(item.name): \(error.localizedDescription)")
+        }
+    }
+
+    private func runDocker(_ docker: String, arguments: [String]) -> (status: Int32, output: String, error: String) {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: docker)
+        task.arguments = arguments
+        let stdoutPipe = Pipe()
+        let stderrPipe = Pipe()
+        task.standardOutput = stdoutPipe
+        task.standardError = stderrPipe
+        do {
+            try task.run()
+        } catch {
+            return (-1, "", error.localizedDescription)
+        }
+        // Drain before waiting: prune output can fill the pipe buffer.
+        let out = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+        let err = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+        task.waitUntilExit()
+        return (task.terminationStatus, String(decoding: out, as: UTF8.self), String(decoding: err, as: UTF8.self))
+    }
+
     // MARK: - Simulator Runtimes
 
     /// Deletes one simulator runtime disk image via
@@ -515,9 +604,9 @@ actor CleaningEngine {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
         task.arguments = ["apfs", "purgePurgeable", "/"]
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.standardError = Pipe()
+        // Nothing reads the output, so it must not go to a pipe that can fill up.
+        task.standardOutput = FileHandle.nullDevice
+        task.standardError = FileHandle.nullDevice
 
         do {
             try task.run()
@@ -581,6 +670,9 @@ actor CleaningEngine {
         }
         if item.category == .largeFiles {
             return isExplicitSingleFileDeletable(resolvedPath: resolvedPath)
+        }
+        if item.category == .threats {
+            return isThreatRemovalPath(resolvedPath)
         }
         return isSafeToDelete(resolvedPath: resolvedPath)
             || (includeUninstallPaths && isSafeUninstallEscalationPath(resolvedPath))
@@ -802,6 +894,21 @@ actor CleaningEngine {
             || isReceiptPath(normalized, rootedAt: "/var/db/receipts")
             || isPlistUnder(normalized, root: "/Library/LaunchDaemons")
             || isPlistUnder(normalized, root: "/Library/LaunchAgents")
+    }
+
+    /// Only the places Threat Check looks: launch plists directly inside the
+    /// launch folders, and items inside the user's support and extension
+    /// folders. Never a folder root itself.
+    private func isThreatRemovalPath(_ path: String) -> Bool {
+        let normalized = (path as NSString).standardizingPath
+        let home = homeDirectory.path
+        let launchFolders = ["\(home)/Library/LaunchAgents", "/Library/LaunchAgents", "/Library/LaunchDaemons"]
+        if launchFolders.contains(where: { isPlistUnder(normalized, root: $0) }) { return true }
+        let roots = ["\(home)/Library/Application Support", "\(home)/Library/Safari/Extensions"]
+        return roots.contains { root in
+            normalized != root && isInside(normalized, root: root)
+                && !ProviderPaths.isProviderOwned(normalized, homeDirectory: homeDirectory)
+        }
     }
 
     private func isAppBundlePath(_ path: String, rootedAt root: String) -> Bool {

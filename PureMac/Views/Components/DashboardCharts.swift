@@ -1,63 +1,6 @@
 import Charts
 import SwiftUI
 
-struct HealthRing: View {
-    let percent: Double
-    var size: CGFloat = 190
-    var lineWidth: CGFloat = 13
-    var tint: Color = Tint.accent
-    var warnTint: Color = Tint.orange
-    var stressThreshold: Double = 0.9
-    var subtitle: LocalizedStringKey = "USED"
-
-    @State private var reveal: Double = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private var clamped: Double {
-        max(0, min(1, percent))
-    }
-
-    private var ringTint: Color {
-        clamped >= stressThreshold ? warnTint : tint
-    }
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.primary.opacity(0.075), lineWidth: lineWidth)
-            Circle()
-                .trim(from: 0, to: reveal)
-                .stroke(ringTint, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-            VStack(spacing: 2) {
-                Text("\(Int((clamped * 100).rounded()))%")
-                    .font(.system(size: 38, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-                Text(subtitle)
-                    .font(.system(size: 9.5, weight: .semibold))
-                    .tracking(1)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .frame(width: size, height: size)
-        .onAppear { animate() }
-        .onChange(of: clamped) { _ in animate() }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(subtitle))
-        .accessibilityValue("\(Int((clamped * 100).rounded())) percent")
-    }
-
-    private func animate() {
-        if reduceMotion {
-            reveal = clamped
-        } else {
-            withAnimation(.easeOut(duration: 0.65)) {
-                reveal = clamped
-            }
-        }
-    }
-}
-
 struct StorageDonut: View {
     struct Segment: Identifiable {
         let id: String
@@ -65,23 +8,157 @@ struct StorageDonut: View {
         let color: Color
         let label: LocalizedStringKey
         let display: String
+        /// When this one slice stands for several areas, each one's own share,
+        /// listed in the hover tooltip.
+        var details: [Detail] = []
+
+        struct Detail: Identifiable {
+            let id: String
+            let value: Double
+            let label: LocalizedStringKey
+            let display: String
+        }
     }
 
     let segments: [Segment]
     var lineWidth: CGFloat = 16
     var gap: Double = 0.008
     var highlightedID: String? = nil
+    /// Content drawn in the ring's center. It lives inside the chart so the
+    /// hover tooltip always stacks above it.
+    var center: AnyView? = nil
 
     @State private var reveal: Double = 0
+    /// Segment under the pointer and where the pointer is, for the tooltip.
+    @State private var hoveredIndex: Int?
+    @State private var hoverPoint: CGPoint = .zero
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var total: Double {
         max(segments.reduce(0) { $0 + $1.value }, 0.0001)
     }
 
+    /// Gives every non-empty segment at least `minimum` of the ring so tiny
+    /// amounts (a few MB next to many GB) still show as a sliver of color.
+    /// The difference comes proportionally out of the larger segments.
+    static func visibleFractions(_ raw: [Double], minimum: Double) -> [Double] {
+        let nonEmpty = raw.filter { $0 > 0 }
+        guard nonEmpty.count > 1, minimum * Double(nonEmpty.count) < 1 else { return raw }
+        let isSmall = raw.map { $0 > 0 && $0 < minimum }
+        let boosted = Double(isSmall.filter { $0 }.count) * minimum
+        let largeTotal = zip(raw, isSmall).filter { !$0.1 }.reduce(0) { $0 + $1.0 }
+        guard boosted > 0, largeTotal > 0 else { return raw }
+        let scale = (1 - boosted) / largeTotal
+        return zip(raw, isSmall).map { value, small in
+            small ? minimum : value * scale
+        }
+    }
+
+    private func segmentOpacity(index: Int, id: String) -> Double {
+        if let hoveredIndex, segments.indices.contains(hoveredIndex) { return hoveredIndex == index ? 1 : 0.3 }
+        return highlightedID == nil || highlightedID == id ? 1 : 0.22
+    }
+
+    /// Which ring segment the point is over, or nil off the ring. Angle starts
+    /// at 12 o'clock and runs clockwise, like the drawn segments.
+    private func segmentIndex(at point: CGPoint, in size: CGSize, ranges: [(start: Double, end: Double)]) -> Int? {
+        let center = CGPoint(x: size.width / 2, y: size.height / 2)
+        let dx = point.x - center.x
+        let dy = point.y - center.y
+        let radius = (min(size.width, size.height) - lineWidth) / 2
+        let distance = (dx * dx + dy * dy).squareRoot()
+        // A little slack so thin rings are still easy to hit.
+        guard abs(distance - radius) <= lineWidth / 2 + 6 else { return nil }
+        var turns = atan2(dx, -dy) / (2 * .pi)
+        if turns < 0 { turns += 1 }
+        // Choose the segment whose range is nearest, so the thin gaps between
+        // segments do not flicker the tooltip off.
+        var best: (index: Int, distance: Double)?
+        for (index, range) in ranges.enumerated() where segments[index].value > 0 {
+            let distanceToRange = turns < range.start ? range.start - turns : (turns > range.end ? turns - range.end : 0)
+            if best == nil || distanceToRange < best!.distance { best = (index, distanceToRange) }
+        }
+        guard let best, best.distance < 0.02 else { return nil }
+        return best.index
+    }
+
+    private func percentText(_ value: Double) -> String {
+        let percent = value / total * 100
+        return percent < 1 && percent > 0 ? "<1%" : "\(Int(percent.rounded()))%"
+    }
+
+    @ViewBuilder
+    private func tooltip(for segment: Segment) -> some View {
+        if segment.details.isEmpty {
+            singleTooltip(for: segment)
+        } else {
+            groupTooltip(for: segment)
+        }
+    }
+
+    /// Tooltip for a slice that stands for several areas: its total, then each
+    /// area's own size.
+    private func groupTooltip(for segment: Segment) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Circle().fill(segment.color).frame(width: 8, height: 8)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(segment.label)
+                        .font(.system(size: 11.5, weight: .semibold))
+                    Text("\(percentText(segment.value)) · \(segment.display)")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white.opacity(0.75))
+                }
+            }
+            Divider().overlay(Color.white.opacity(0.25))
+            ForEach(segment.details) { member in
+                HStack(spacing: 14) {
+                    Text(member.label)
+                        .font(.system(size: 11))
+                    Spacer(minLength: 8)
+                    Text("\(percentText(member.value)) · \(member.display)")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white.opacity(0.75))
+                }
+            }
+        }
+        .foregroundStyle(.white)
+        .frame(minWidth: 190)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 9)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .background(Color.black.opacity(0.45), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.white.opacity(0.2), lineWidth: 0.6))
+        .shadow(color: .black.opacity(0.3), radius: 8, y: 3)
+    }
+
+    private func singleTooltip(for segment: Segment) -> some View {
+        let text = percentText(segment.value)
+        return HStack(spacing: 8) {
+            Circle().fill(segment.color).frame(width: 8, height: 8)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(segment.label)
+                    .font(.system(size: 11.5, weight: .semibold))
+                Text("\(text) · \(segment.display)")
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white.opacity(0.75))
+            }
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .background(Color.black.opacity(0.45), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.white.opacity(0.2), lineWidth: 0.6))
+        .shadow(color: .black.opacity(0.3), radius: 8, y: 3)
+    }
+
     var body: some View {
         let effectiveGap = segments.count <= 1 ? 0 : gap
-        let fractions = segments.map { $0.value / total }
+        let fractions = Self.visibleFractions(segments.map { $0.value / total }, minimum: 0.022 + effectiveGap)
         var cursor = 0.0
         var ranges: [(start: Double, end: Double)] = []
 
@@ -94,6 +171,7 @@ struct StorageDonut: View {
         return ZStack {
             Circle()
                 .stroke(Color.primary.opacity(0.065), lineWidth: lineWidth)
+            center
             ForEach(Array(segments.enumerated()), id: \.element.id) { index, segment in
                 Circle()
                     .trim(
@@ -105,143 +183,45 @@ struct StorageDonut: View {
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt)
                     )
                     .rotationEffect(.degrees(-90))
-                    .opacity(highlightedID == nil || highlightedID == segment.id ? 1 : 0.22)
+                    .opacity(segmentOpacity(index: index, id: segment.id))
             }
         }
         .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: highlightedID)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: hoveredIndex)
+        // While a tooltip is showing, draw the whole chart above its neighbors.
+        .zIndex(hoveredIndex == nil ? 0 : 1000)
+        .overlay {
+            GeometryReader { geometry in
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onContinuousHover { phase in
+                        switch phase {
+                        case .active(let point):
+                            hoverPoint = point
+                            hoveredIndex = segmentIndex(at: point, in: geometry.size, ranges: ranges)
+                        case .ended:
+                            hoveredIndex = nil
+                        }
+                    }
+                    .overlay(alignment: .topLeading) {
+                        if let index = hoveredIndex, segments.indices.contains(index) {
+                            tooltip(for: segments[index])
+                                .fixedSize()
+                                .position(
+                                    x: min(max(hoverPoint.x, 60), max(geometry.size.width - 60, 60)),
+                                    y: max(hoverPoint.y - 34, 14)
+                                )
+                                .allowsHitTesting(false)
+                                .transition(.opacity)
+                        }
+                    }
+            }
+        }
         .onAppear {
             if reduceMotion {
                 reveal = 1
             } else {
                 withAnimation(.easeOut(duration: 0.7)) {
-                    reveal = 1
-                }
-            }
-        }
-    }
-}
-
-struct CategoryBarChart: View {
-    struct Bar: Identifiable {
-        var id: String { category.rawValue }
-        let category: CleaningCategory
-        let size: Int64
-        var name: String { String(localized: String.LocalizationValue(category.rawValue)) }
-    }
-
-    let bars: [Bar]
-    @State private var reveal = 0.0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        let maxSize = bars.map(\.size).max() ?? 0
-        let upper = max(Int64(1), Int64(Double(maxSize) * 1.25))
-
-        Chart(bars) { bar in
-            BarMark(
-                x: .value("Size", Double(bar.size) * reveal),
-                y: .value(String(localized: "Category"), bar.name)
-            )
-            .foregroundStyle(bar.category.color)
-            .cornerRadius(4)
-            .annotation(position: .trailing, alignment: .leading) {
-                Text(ByteCountFormatter.string(fromByteCount: bar.size, countStyle: .file))
-                    .font(.system(size: 10, weight: .medium))
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-                    .opacity(reveal)
-            }
-        }
-        .chartXScale(domain: 0...upper)
-        .chartXAxis(.hidden)
-        .chartYAxis {
-            AxisMarks(preset: .aligned, position: .leading) { _ in
-                AxisValueLabel()
-            }
-        }
-        .chartLegend(.hidden)
-        .frame(height: max(120, CGFloat(bars.count) * 32))
-        .onAppear {
-            if reduceMotion {
-                reveal = 1
-            } else {
-                withAnimation(.easeOut(duration: 0.6)) {
-                    reveal = 1
-                }
-            }
-        }
-    }
-}
-
-struct LegendChip: View {
-    let color: Color
-    let label: LocalizedStringKey
-    let value: String
-    var percent: String? = nil
-
-    var body: some View {
-        HStack(spacing: 7) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(label)
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.secondary)
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text(value)
-                        .font(.system(size: 12, weight: .semibold))
-                        .monospacedDigit()
-                    if let percent {
-                        Text(percent)
-                            .font(.system(size: 9.5, weight: .medium))
-                            .foregroundStyle(.tertiary)
-                    }
-                }
-            }
-        }
-    }
-}
-
-struct StackedMeter: View {
-    struct Segment: Identifiable {
-        let id: String
-        let value: Double
-        let color: Color
-    }
-
-    let segments: [Segment]
-    var height: CGFloat = 12
-    var highlightedID: String? = nil
-
-    @State private var reveal: CGFloat = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private var total: Double {
-        max(segments.reduce(0) { $0 + $1.value }, 0.0001)
-    }
-
-    var body: some View {
-        GeometryReader { geometry in
-            let spacing: CGFloat = 2
-            let available = geometry.size.width - spacing * CGFloat(max(0, segments.count - 1))
-            HStack(spacing: spacing) {
-                ForEach(segments) { segment in
-                    let fraction = CGFloat(segment.value / total)
-                    RoundedRectangle(cornerRadius: height * 0.28, style: .continuous)
-                        .fill(segment.color)
-                        .frame(width: max(fraction > 0 ? 3 : 0, available * fraction * reveal))
-                        .opacity(highlightedID == nil || highlightedID == segment.id ? 1 : 0.24)
-                }
-            }
-        }
-        .frame(height: height)
-        .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: highlightedID)
-        .onAppear {
-            if reduceMotion {
-                reveal = 1
-            } else {
-                withAnimation(.easeOut(duration: 0.65)) {
                     reveal = 1
                 }
             }

@@ -104,10 +104,12 @@ struct AppFilesView: View {
                 )
             } else {
                 fileGroupsList
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 actionBar
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .task(id: appState.discoveredFiles) {
             let urls = appState.discoveredFiles
             let task = Task.detached(priority: .utility) {
@@ -121,6 +123,7 @@ struct AppFilesView: View {
             let sizes = await withTaskCancellationHandler(operation: { await task.value }, onCancel: { task.cancel() })
             guard !Task.isCancelled else { return }
             sizeCache = sizes
+            appState.appFileSizeHints = sizes
         }
         .disabled(appState.isRemovingAppFiles)
         .confirmationDialog("Remove selected app files?", isPresented: $showBulkConfirmation, titleVisibility: .visible) {
@@ -130,7 +133,7 @@ struct AppFilesView: View {
             }
             Button("Cancel", role: .cancel) { pendingRemoval = [] }
         } message: {
-            Text("PureMac will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing.")
+            Text("MacFresh will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing.")
         }
         .onChange(of: appState.removalNeedsFullDiskAccess) { needs in
             // FDA-fixable removals jump straight into the rich sheet, the
@@ -170,7 +173,7 @@ struct AppFilesView: View {
     // MARK: - Header
 
     private var header: some View {
-        CardSurface(padding: 16, tint: Tint.purple) {
+        CardSurface(padding: 16, tint: SectionPalette.apps.accent) {
             HStack(spacing: 14) {
                 Image(nsImage: app.icon)
                     .resizable()
@@ -194,15 +197,28 @@ struct AppFilesView: View {
                     VStack(alignment: .trailing, spacing: 2) {
                         CountUpBytes(bytes: totalSelectedSize)
                             .font(.system(size: 18, weight: .bold))
-                        Text(filesCountText(count: appState.discoveredFiles.count))
+                        Text(String(format: String(localized: "%lld selected"), Int64(appState.selectedFiles.count)))
                             .font(.system(size: 11))
                             .foregroundStyle(.secondary)
                             .monospacedDigit()
                             .contentTransition(.numericText())
                     }
                     .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.9),
-                               value: appState.discoveredFiles.count)
+                               value: appState.selectedFiles.count)
                 }
+
+                Button {
+                    appState.closeSelectedApp()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 11, weight: .bold))
+                        .frame(width: 14, height: 14)
+                }
+                .buttonStyle(GlassButtonStyle())
+                .keyboardShortcut(.cancelAction)
+                .disabled(appState.isRemovingAppFiles)
+                .help(appState.isScanningAppFiles ? "Stop and close this app (Esc)" : "Close this app (Esc)")
+                .accessibilityLabel("Close")
             }
         }
     }
@@ -259,6 +275,7 @@ struct AppFilesView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
         .id(app.id)
     }
 
@@ -282,7 +299,7 @@ struct AppFilesView: View {
             .toggleStyle(AnimatedCheckboxStyle())
             .labelsHidden()
 
-            IconTile(systemName: group.icon, tint: group.tint, size: 22, corner: 6)
+            CategoryBadge(systemName: group.icon, tint: group.tint, size: 22)
             Text(LocalizedStringKey(group.rawValue))
                 .font(.system(size: 12.5, weight: .semibold))
             Text("\(urls.count)")
@@ -328,13 +345,13 @@ struct AppFilesView: View {
             Button("Select All") {
                 appState.selectedFiles = Set(appState.discoveredFiles)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(GlassButtonStyle())
             .controlSize(.small)
 
             Button("Deselect All") {
                 appState.selectedFiles.removeAll()
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(GlassButtonStyle())
             .controlSize(.small)
 
             Spacer()
@@ -344,9 +361,10 @@ struct AppFilesView: View {
                     pendingRemoval = appState.selectedFiles
                     showBulkConfirmation = true
                 } label: {
-                    Text(removeFilesLabel)
+                    Label("Remove", systemImage: "trash")
                 }
                 .buttonStyle(GlowProminentButtonStyle(tint: Tint.red, gradient: TintGradient.destructive))
+                .controlSize(.regular)
                 .transition(
                     reduceMotion
                         ? .opacity
@@ -358,28 +376,16 @@ struct AppFilesView: View {
                    value: appState.selectedFiles.isEmpty)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(.bar)
+        .background(Color.white.opacity(0.05))
         .overlay(alignment: .top) {
-            Divider().opacity(0.6)
+            Rectangle().fill(Color.white.opacity(0.1)).frame(height: 0.75)
         }
     }
 
     // MARK: - Helpers
 
-    private func filesCountText(count: Int) -> String {
-        String(format: String(localized: "%lld files"), Int64(count))
-    }
-
     private func checkingLocationsText(count: Int) -> String {
         String(format: String(localized: "Checking %lld locations..."), Int64(count))
-    }
-
-    private var removeFilesLabel: String {
-        String(
-            format: String(localized: "Remove %lld files (%@)"),
-            Int64(appState.selectedFiles.count),
-            ByteCountFormatter.string(fromByteCount: totalSelectedSize, countStyle: .file)
-        )
     }
 
     private func fileSelectionBinding(for url: URL) -> Binding<Bool> {
@@ -452,7 +458,7 @@ struct FileRow: View {
     var body: some View {
         Toggle(isOn: $isSelected) {
             HStack {
-                Image(nsImage: NSWorkspace.shared.icon(forFile: fileURL.path))
+                Image(nsImage: IconCache.icon(forFile: fileURL.path))
                     .resizable()
                     .frame(width: 16, height: 16)
 

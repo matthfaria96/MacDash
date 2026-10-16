@@ -194,7 +194,7 @@ actor BinaryThinner {
         // Hidden sibling so the rename into place stays on the same volume
         // (atomic) and Finder never shows the work-in-progress copy.
         let stagingPath = (parentDir as NSString)
-            .appendingPathComponent(".\(bundleName).puremac-staging-\(UUID().uuidString)")
+            .appendingPathComponent(".\(bundleName).mactidy-staging-\(UUID().uuidString)")
         do {
             try fileManager.copyItem(atPath: appPath, toPath: stagingPath)
         } catch {
@@ -247,7 +247,7 @@ actor BinaryThinner {
         // Swap: park the original, move the verified copy into place, then
         // delete the original. Both renames stay inside parentDir.
         let oldPath = (parentDir as NSString)
-            .appendingPathComponent(".\(bundleName).puremac-old-\(UUID().uuidString)")
+            .appendingPathComponent(".\(bundleName).mactidy-old-\(UUID().uuidString)")
         do {
             try fileManager.moveItem(atPath: appPath, toPath: oldPath)
         } catch {

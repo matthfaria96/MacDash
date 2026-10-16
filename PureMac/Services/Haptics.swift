@@ -27,7 +27,7 @@ enum Haptics {
 
     /// Defaults key for the user-facing "Play sound effects" toggle
     /// (Settings → General). Defaults to on.
-    static let soundEffectsKey = "PureMac.SoundEffects"
+    static let soundEffectsKey = "MacFresh.SoundEffects"
 
     private static var soundEnabled: Bool {
         UserDefaults.standard.object(forKey: soundEffectsKey) as? Bool ?? true

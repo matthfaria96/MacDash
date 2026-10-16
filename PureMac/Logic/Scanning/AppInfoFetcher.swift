@@ -8,6 +8,8 @@ struct InstalledApp: Identifiable, Hashable {
     let path: URL
     let icon: NSImage
     let size: Int64
+    /// When macOS last recorded the app being opened; nil if it never was.
+    var lastUsed: Date? = nil
 
     var formattedSize: String {
         ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
@@ -97,7 +99,7 @@ final class AppInfoFetcher {
     }
 
     /// Build an `InstalledApp` from a single bundle URL. Used by the Finder
-    /// Services handler ("Uninstall with PureMac") to resolve a right-clicked
+    /// Services handler ("Uninstall with MacFresh") to resolve a right-clicked
     /// .app into the uninstaller without re-scanning every app. Enforces the
     /// same protections as the full scan: no /System apps, and no protected
     /// Apple bundle IDs (Safari, Mail, Xcode, App Store, …) — so a right-click
@@ -128,7 +130,8 @@ final class AppInfoFetcher {
             bundleIdentifier: bundleID,
             path: url,
             icon: icon,
-            size: size
+            size: size,
+            lastUsed: UnusedAppsFinder.spotlightLastUsed(at: url)
         )
     }
 

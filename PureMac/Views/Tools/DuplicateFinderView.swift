@@ -13,6 +13,7 @@ struct DuplicateFinderView: View {
     @State private var state: ScreenState = .idle
     @State private var result: DuplicateScanResult?
     @State private var selectedFolder: URL?
+    @State private var location: ScanLocation = .startupDisk
     @State private var progress = DuplicateScanProgress(
         phase: .discovering,
         filesInspected: 0,
@@ -22,6 +23,8 @@ struct DuplicateFinderView: View {
         currentURL: nil
     )
     @State private var selectedIDs: Set<URL> = []
+    /// Groups confirmed so far, shown while the scan keeps going.
+    @State private var liveGroups: [DuplicateGroup] = []
     @State private var expandedGroupIDs: Set<String> = []
     @State private var scanGeneration = UUID()
     @State private var scanTask: Task<Void, Never>?
@@ -35,18 +38,16 @@ struct DuplicateFinderView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color(nsColor: .windowBackgroundColor)
-                .ignoresSafeArea()
-            VStack(spacing: 14) {
-                header
-                content
-                if result?.groups.isEmpty == false {
-                    selectionBar
-                }
+        VStack(alignment: .leading, spacing: 16) {
+            header
+            content
+            if result?.groups.isEmpty == false {
+                selectionBar
             }
-            .padding(24)
         }
+        .padding(24)
+        .frame(maxWidth: 1040, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .confirmationDialog(
             "Move selected duplicates to Trash?",
             isPresented: $showsTrashConfirmation,
@@ -74,39 +75,25 @@ struct DuplicateFinderView: View {
     }
 
     private var header: some View {
-        CardSurface(padding: 18, elevation: .flat, tint: Tint.accent) {
-            HStack(spacing: 14) {
-                IconTile(systemName: "square.on.square", tint: Tint.accent, size: 42, corner: 11)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Duplicate Finder")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                    Text(headerSubtitle)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                }
-                Spacer(minLength: 16)
+        FeaturePageHeader(
+            title: Text("Duplicate Finder"),
+            systemImage: "doc.on.doc.fill",
+            tint: SectionPalette.duplicates.accent,
+            detail: {
+                Text(headerSubtitle)
+                    .lineLimit(2)
+                    .truncationMode(.middle)
+            },
+            accessory: {
                 if state == .scanning {
-                    Button("Cancel", role: .cancel) {
-                        scanTask?.cancel()
-                    }
-                    .buttonStyle(.bordered)
-                    .keyboardShortcut(.cancelAction)
-                    .accessibilityHint("Stops scanning without changing any files")
-                } else {
-                    Button {
-                        chooseFolder()
-                    } label: {
-                        Label(result == nil ? "Choose Folder" : "Scan Another Folder", systemImage: "folder.badge.plus")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Tint.accent)
-                    .disabled(isMovingToTrash)
-                    .accessibilityHint("Opens a folder picker")
+                    StopActionButton { scanTask?.cancel() }
+                        .accessibilityHint("Stops scanning without changing any files")
+                } else if state != .idle {
+                    StartOverButton { resetToIdle() }
+                        .disabled(isMovingToTrash)
                 }
             }
-        }
+        )
     }
 
     @ViewBuilder
@@ -133,32 +120,29 @@ struct DuplicateFinderView: View {
         CardSurface(padding: 0, elevation: .flat) {
             VStack(spacing: 15) {
                 Spacer()
-                ZStack {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(Tint.accent.opacity(0.09))
-                        .frame(width: 116, height: 100)
-                    Image(systemName: "doc.on.doc")
-                        .font(.system(size: 44, weight: .light))
-                        .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(Tint.accent)
-                }
+                GlassOrbIcon(systemImage: "doc.text.magnifyingglass", tint: SectionPalette.duplicates.accent, size: 150)
                 Text("Find copies that are exactly the same")
                     .font(.system(size: 18, weight: .semibold))
-                Text("Choose a folder. PureMac compares file sizes first, then verifies matching files byte for byte. Nothing is selected or removed automatically.")
+                Text("Choose where to look. MacFresh compares file sizes first, then verifies matching files byte for byte. Nothing is selected or removed automatically.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 480)
+                ScanLocationPicker(selection: $location, tint: SectionPalette.duplicates.accent, isDisabled: isMovingToTrash)
+                    .padding(.top, 6)
                 Button {
-                    chooseFolder()
+                    startScan(location.url)
                 } label: {
-                    Label("Choose a Folder", systemImage: "folder")
+                    Label("Analyze", systemImage: "magnifyingglass")
+                        .padding(.horizontal, 14)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Tint.accent)
-                .controlSize(.large)
+                .buttonStyle(GlassProminentButtonStyle(large: true))
+                .keyboardShortcut(.defaultAction)
                 .disabled(isMovingToTrash)
-                .padding(.top, 3)
+                .padding(.top, 2)
+                Text("This can take a while.")
+                    .font(.system(size: 11.5))
+                    .foregroundStyle(.tertiary)
                 Spacer()
             }
             .padding(24)
@@ -166,28 +150,93 @@ struct DuplicateFinderView: View {
         }
     }
 
+    /// Until the first match is confirmed, the progress ring; after that, a
+    /// slim progress line and the groups found so far, growing as the scan goes.
+    @ViewBuilder
     private var scanningState: some View {
-        CardSurface(padding: 28, elevation: .flat, tint: Tint.accent) {
+        if liveGroups.isEmpty {
+            scanningRing
+        } else {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 12) {
+                    ProgressView().controlSize(.small)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(progressSummary)
+                            .font(.system(size: 13, weight: .semibold))
+                            .monospacedDigit()
+                            .foregroundStyle(.white)
+                        Text(String(format: String(localized: "%lld groups so far · %@ to reclaim"),
+                                    Int64(liveGroups.count),
+                                    format(liveGroups.reduce(0) { $0 + $1.reclaimableSize })))
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
+                    Spacer()
+                    if let fraction = progress.fractionCompleted {
+                        GlowProgressBar(progress: fraction, tint: SectionPalette.duplicates.accent)
+                            .frame(width: 160, height: 6)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(GlassPanelBackground(cornerRadius: 16))
+
+                CardSurface(padding: 0, elevation: .flat) {
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(liveGroups) { group in
+                                HStack(spacing: 12) {
+                                    Image(nsImage: IconCache.icon(forFile: group.keeper.url.path))
+                                        .resizable()
+                                        .frame(width: 28, height: 28)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(group.keeper.url.lastPathComponent)
+                                            .font(.system(size: 12.5, weight: .medium))
+                                            .lineLimit(1)
+                                            .truncationMode(.middle)
+                                        Text(String(format: String(localized: "%lld copies"), Int64(group.files.count)))
+                                            .font(.system(size: 11))
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    Text(format(group.reclaimableSize))
+                                        .font(.system(size: 12.5, weight: .semibold, design: .rounded))
+                                        .monospacedDigit()
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .transition(.opacity)
+                                Divider().opacity(0.3).padding(.leading, 56)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var scanningRing: some View {
+        CardSurface(padding: 28, elevation: .flat, tint: SectionPalette.duplicates.accent) {
             VStack(spacing: 20) {
                 Spacer()
                 ZStack {
                     Circle()
-                        .stroke(Tint.accent.opacity(0.14), lineWidth: 9)
+                        .stroke(SectionPalette.duplicates.accent.opacity(0.14), lineWidth: 9)
                         .frame(width: 104, height: 104)
                     if let fraction = progress.fractionCompleted {
                         Circle()
                             .trim(from: 0, to: fraction)
-                            .stroke(Tint.accent, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                            .stroke(SectionPalette.duplicates.accent, style: StrokeStyle(lineWidth: 9, lineCap: .round))
                             .rotationEffect(.degrees(-90))
                             .frame(width: 104, height: 104)
                     } else {
                         ProgressView()
                             .controlSize(.large)
-                            .tint(Tint.accent)
+                            .tint(SectionPalette.duplicates.accent)
                     }
                     Image(systemName: progress.phase == .discovering ? "folder" : "number")
                         .font(.system(size: 25, weight: .medium))
-                        .foregroundStyle(Tint.accent)
+                        .foregroundStyle(SectionPalette.duplicates.accent)
                 }
                 VStack(spacing: 7) {
                     Text(progress.phase == .discovering ? "Looking through files" : "Verifying possible matches")
@@ -216,7 +265,7 @@ struct DuplicateFinderView: View {
         CardSurface(padding: 0, elevation: .flat, tint: Tint.red) {
             VStack(spacing: 14) {
                 Spacer()
-                IconTile(systemName: "exclamationmark.triangle.fill", tint: Tint.red, size: 54, corner: 14)
+                GlassOrbIcon(systemImage: "exclamationmark.triangle.fill", tint: Tint.red, size: 78)
                 Text("Scan could not finish")
                     .font(.system(size: 18, weight: .semibold))
                 Text(message)
@@ -227,12 +276,12 @@ struct DuplicateFinderView: View {
                 HStack {
                     if let folder = selectedFolder {
                         Button("Try Again") { startScan(folder) }
-                            .buttonStyle(.borderedProminent)
-                            .tint(Tint.accent)
+                            .buttonStyle(GlassProminentButtonStyle())
+                            .tint(SectionPalette.duplicates.accent)
                             .disabled(isMovingToTrash)
                     }
-                    Button("Choose Another Folder") { chooseFolder() }
-                        .buttonStyle(.bordered)
+                    Button("Change Location") { resetToIdle() }
+                        .buttonStyle(GlassButtonStyle())
                         .disabled(isMovingToTrash)
                 }
                 Spacer()
@@ -246,7 +295,7 @@ struct DuplicateFinderView: View {
         CardSurface(padding: 0, elevation: .flat, tint: Tint.green) {
             VStack(spacing: 14) {
                 Spacer()
-                IconTile(systemName: "checkmark.seal.fill", tint: Tint.green, size: 58, corner: 16)
+                GlassOrbIcon(systemImage: "checkmark.seal.fill", tint: Tint.green, size: 84)
                 Text("No exact duplicates found")
                     .font(.system(size: 19, weight: .semibold))
                 Text("Inspected \(result.filesInspected.formatted()) files in \(result.folder.lastPathComponent). \(skippedSummary(result.skippedFiles))")
@@ -254,9 +303,6 @@ struct DuplicateFinderView: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 500)
-                Button("Scan Again") { startScan(result.folder) }
-                    .buttonStyle(.bordered)
-                    .disabled(isMovingToTrash)
                 Spacer()
             }
             .padding(24)
@@ -285,22 +331,19 @@ struct DuplicateFinderView: View {
     private func summaryCard(_ result: DuplicateScanResult) -> some View {
         CardSurface(padding: 14, elevation: .flat) {
             HStack(spacing: 0) {
-                summaryMetric(value: result.groups.count.formatted(), label: "Duplicate groups", icon: "square.stack.3d.up", tint: Tint.accent)
+                summaryMetric(value: result.groups.count.formatted(), label: "Duplicate groups", icon: "square.stack.3d.up", tint: SectionPalette.duplicates.accent)
                 Divider().frame(height: 38)
                 summaryMetric(value: result.duplicateFileCount.formatted(), label: "Matching files", icon: "doc.on.doc", tint: Tint.purple)
                 Divider().frame(height: 38)
                 summaryMetric(value: format(result.reclaimableSize), label: "Available to review", icon: "internaldrive", tint: Tint.green)
                 Spacer(minLength: 10)
-                Button("Rescan") { startScan(result.folder) }
-                    .buttonStyle(.bordered)
-                    .disabled(isMovingToTrash)
             }
         }
     }
 
     private func summaryMetric(value: String, label: LocalizedStringKey, icon: String, tint: Color) -> some View {
         HStack(spacing: 9) {
-            IconTile(systemName: icon, tint: tint, size: 30, corner: 8)
+            CategoryBadge(systemName: icon, tint: tint, size: 30)
             VStack(alignment: .leading, spacing: 1) {
                 Text(value)
                     .font(.system(size: 15, weight: .semibold).monospacedDigit())
@@ -314,10 +357,10 @@ struct DuplicateFinderView: View {
     }
 
     private func groupCard(_ group: DuplicateGroup) -> some View {
-        CardSurface(padding: 0, elevation: .flat, tint: Tint.accent) {
+        CardSurface(padding: 0, elevation: .flat, tint: SectionPalette.duplicates.accent) {
             VStack(spacing: 0) {
                 HStack(spacing: 12) {
-                    IconTile(systemName: "doc.on.doc.fill", tint: Tint.accent, size: 34, corner: 9)
+                    CategoryBadge(systemName: "doc.on.doc.fill", tint: SectionPalette.duplicates.accent, size: 34)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(group.keeper.url.lastPathComponent)
                             .font(.system(size: 14, weight: .semibold))
@@ -331,7 +374,7 @@ struct DuplicateFinderView: View {
                     Button(groupCandidatesSelected(group) ? "Clear" : "Select copies") {
                         toggleGroupSelection(group)
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(GlassButtonStyle())
                     .disabled(isMovingToTrash)
                     Button {
                         toggleExpanded(group)
@@ -371,15 +414,11 @@ struct DuplicateFinderView: View {
             } else {
                 Toggle("", isOn: selectionBinding(for: file.url))
                     .labelsHidden()
-                    .toggleStyle(AnimatedCheckboxStyle(tint: Tint.accent))
+                    .toggleStyle(AnimatedCheckboxStyle(tint: SectionPalette.duplicates.accent))
                     .disabled(isMovingToTrash)
                     .accessibilityLabel("Select \(file.url.lastPathComponent)")
             }
-            Image(nsImage: NSWorkspace.shared.icon(forFile: file.url.path))
-                .resizable()
-                .interpolation(.high)
-                .frame(width: 24, height: 24)
-                .accessibilityHidden(true)
+            FileIcon(path: file.url.path, size: 24)
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 7) {
                     Text(file.url.lastPathComponent)
@@ -449,7 +488,7 @@ struct DuplicateFinderView: View {
                 .padding(.top, 10)
             } label: {
                 HStack {
-                    IconTile(systemName: "exclamationmark.triangle", tint: Tint.orange, size: 30, corner: 8)
+                    CategoryBadge(systemName: "exclamationmark.triangle", tint: Tint.orange, size: 30)
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Skipped items")
                             .font(.system(size: 14, weight: .semibold))
@@ -463,7 +502,7 @@ struct DuplicateFinderView: View {
     }
 
     private var selectionBar: some View {
-        CardSurface(padding: 14, elevation: .raised, tint: selectedIDs.isEmpty ? nil : Tint.accent) {
+        CardSurface(padding: 14, elevation: .raised, tint: selectedIDs.isEmpty ? nil : SectionPalette.duplicates.accent) {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(selectedIDs.isEmpty ? "Nothing selected" : "\(selectedIDs.count) selected")
@@ -489,7 +528,7 @@ struct DuplicateFinderView: View {
                         Label("Move to Trash", systemImage: "trash")
                     }
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(GlassProminentButtonStyle())
                 .tint(Tint.red)
                 .disabled(selectedIDs.isEmpty || isMovingToTrash || state == .scanning)
                 .accessibilityHint("Shows a confirmation before moving the selected copies")
@@ -501,7 +540,7 @@ struct DuplicateFinderView: View {
         if state == .scanning, let current = progress.currentURL {
             return current.deletingLastPathComponent().path
         }
-        return selectedFolder?.path ?? String(localized: "Exact-match cleanup with a protected copy in every group")
+        return selectedFolder?.path ?? String(localized: "Identical file cleanup")
     }
 
     private var progressSummary: String {
@@ -557,23 +596,6 @@ struct DuplicateFinderView: View {
         }
     }
 
-    private func chooseFolder() {
-        guard !isMovingToTrash else { return }
-        let panel = NSOpenPanel()
-        panel.title = String(localized: "Choose a folder to check for duplicate files")
-        panel.prompt = String(localized: "Scan Folder")
-        panel.message = String(localized: "PureMac reads the selected folder and does not change anything during a scan.")
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        panel.canCreateDirectories = false
-        panel.resolvesAliases = false
-        panel.treatsFilePackagesAsDirectories = false
-        if panel.runModal() == .OK, let folder = panel.url {
-            startScan(folder)
-        }
-    }
-
     private func startScan(_ folder: URL) {
         guard !isMovingToTrash else { return }
         scanTask?.cancel()
@@ -583,6 +605,7 @@ struct DuplicateFinderView: View {
         selectedIDs.removeAll()
         expandedGroupIDs.removeAll()
         result = nil
+        liveGroups = []
         progress = DuplicateScanProgress(
             phase: .discovering,
             filesInspected: 0,
@@ -600,15 +623,21 @@ struct DuplicateFinderView: View {
                 }
             }
             do {
-                let scanResult = try await finder.scan(folder: folder) { update in
+                let scanResult = try await finder.scan(folder: folder, progress: { update in
                     await MainActor.run {
                         guard scanGeneration == generation else { return }
                         progress = update
                     }
-                }
+                }, foundGroups: { groups in
+                    await MainActor.run {
+                        guard scanGeneration == generation else { return }
+                        withAnimation(.easeOut(duration: 0.25)) { liveGroups = groups }
+                    }
+                })
                 try Task.checkCancellation()
                 guard scanGeneration == generation else { return }
                 result = scanResult
+                UsageStats.shared.recordScan(.duplicates, filesChecked: scanResult.filesInspected)
                 expandedGroupIDs = Set(scanResult.groups.prefix(3).map(\.id))
                 state = .finished
             } catch is CancellationError {
@@ -622,6 +651,26 @@ struct DuplicateFinderView: View {
                 scanTask = nil
             }
         }
+    }
+
+    private func resetToIdle() {
+        guard !isMovingToTrash else { return }
+        scanGeneration = UUID()
+        scanTask?.cancel()
+        scanTask = nil
+        state = .idle
+        result = nil
+        selectedFolder = nil
+        selectedIDs.removeAll()
+        expandedGroupIDs.removeAll()
+        progress = DuplicateScanProgress(
+            phase: .discovering,
+            filesInspected: 0,
+            filesToHash: 0,
+            filesHashed: 0,
+            bytesHashed: 0,
+            currentURL: nil
+        )
     }
 
     private func moveSelectedToTrash() {
@@ -660,6 +709,9 @@ struct DuplicateFinderView: View {
                   result?.folder == folder,
                   !Task.isCancelled else { return }
             applyTrashResult(movedFiles)
+            if !movedFiles.isEmpty {
+                UsageStats.shared.recordCleanup(.duplicates, bytes: movedFiles.reduce(0) { $0 + $1.size })
+            }
             if failures.isEmpty {
                 actionMessage = ActionMessage(
                     title: String(localized: "Moved to Trash"),

@@ -1,8 +1,12 @@
 /* macOS permission prompts */
-"NSAppleEventsUsageDescription" = "PureMac 需要与访达交互，以显示所选文件。";
-"NSDesktopFolderUsageDescription" = "PureMac 需要访问桌面，以查找可清理文件和应用残留。";
-"NSDocumentsFolderUsageDescription" = "PureMac 需要访问文稿文件夹，以查找可清理文件和应用残留。";
-"NSDownloadsFolderUsageDescription" = "PureMac 需要访问下载文件夹，以查找可清理文件和应用残留。";
-"NSRemovableVolumesUsageDescription" = "PureMac 需要访问可移动磁盘，以扫描可清理的文件。";
-"NSSystemAdministrationUsageDescription" = "PureMac 需要管理员权限，以清理受保护的缓存和应用文件。";
+"NSAppleEventsUsageDescription" = "MacFresh 使用 Apple 事件在访达中显示文件，并通过“系统事件”管理你的登录项。";
+"NSDesktopFolderUsageDescription" = "MacFresh 需要访问桌面，以查找可清理文件和应用残留。";
+"NSDocumentsFolderUsageDescription" = "MacFresh 需要访问文稿文件夹，以查找可清理文件和应用残留。";
+"NSDownloadsFolderUsageDescription" = "MacFresh 需要访问下载文件夹，以查找可清理文件和应用残留。";
+"NSRemovableVolumesUsageDescription" = "MacFresh 需要访问可移动磁盘，以扫描可清理的文件。";
+"NSSystemAdministrationUsageDescription" = "MacFresh 需要管理员权限，以清理受保护的缓存和应用文件。";
 "NSHumanReadableCopyright" = "版权所有 © 2026，采用 MIT 许可证。";
+
+"NSBluetoothAlwaysUsageDescription" = "MacFresh 会读取已连接键盘、鼠标和耳机的电量，并在菜单栏面板中显示。";
+"NSLocationUsageDescription" = "MacFresh 仅用此显示你的 Wi-Fi 网络名称。macOS 将网络名称视为位置信息；MacFresh 从不读取你的位置。";
+"NSLocationWhenInUseUsageDescription" = "MacFresh 仅用此显示你的 Wi-Fi 网络名称。macOS 将网络名称视为位置信息；MacFresh 从不读取你的位置。";

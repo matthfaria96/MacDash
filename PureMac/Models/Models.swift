@@ -17,8 +17,15 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     case dockerCache = "Docker Cache"
     case universalBinaries = "Universal Binaries"
     case languageFiles = "Language Files"
+    case threats = "Threat Check"
+    case virtualMachines = "Virtual Machines"
+    case dockerData = "Docker Images & Volumes"
 
     var id: String { rawValue }
+
+    var displayTitle: LocalizedStringKey {
+        self == .largeFiles ? "Large Files" : LocalizedStringKey(rawValue)
+    }
 
     var icon: String {
         switch self {
@@ -36,6 +43,9 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         case .dockerCache: return "shippingbox.fill"
         case .universalBinaries: return "cpu"
         case .languageFiles: return "globe"
+        case .threats: return "checkmark.shield.fill"
+        case .virtualMachines: return "server.rack"
+        case .dockerData: return "externaldrive.fill.badge.xmark"
         }
     }
 
@@ -55,6 +65,9 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         case .dockerCache: return "Docker images, containers, and build cache"
         case .universalBinaries: return "Unused CPU architecture slices in app binaries"
         case .languageFiles: return "Unused app localizations"
+        case .threats: return "Known adware and suspicious launch items"
+        case .virtualMachines: return "Whole virtual machines from UTM, Parallels, VMware and others"
+        case .dockerData: return "All unused images, volumes and build cache, or Docker's whole disk"
         }
     }
 
@@ -63,19 +76,33 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         case .smartScan: return .accentColor
         case .systemJunk: return .purple
         case .userCache: return .blue
-        case .aiApps: return .teal
+        case .aiApps: return CleanupBundle.developerColor
         case .mailAttachments: return .orange
         case .trashBins: return .red
-        case .largeFiles: return .yellow
+        case .largeFiles: return Color(red: 0.38, green: 0.88, blue: 0.48)
         case .purgeableSpace: return .green
-        case .xcodeJunk: return .cyan
-        case .brewCache: return .mint
-        case .nodeCache: return .pink
-        case .dockerCache: return .indigo
+        case .xcodeJunk, .brewCache, .nodeCache, .dockerCache: return CleanupBundle.developerColor
         case .universalBinaries: return .brown
         case .languageFiles: return .gray
+        case .threats: return Color(red: 1.00, green: 0.42, blue: 0.36)
+        case .virtualMachines: return Color(red: 1.00, green: 0.62, blue: 0.24)
+        case .dockerData: return Color(red: 1.00, green: 0.48, blue: 0.30)
         }
     }
+
+    /// The essential, low-risk areas Smart Care scans. Everything else lives in
+    /// Advanced Cleanup, so the two screens never share an area.
+    static var smartCare: [CleaningCategory] {
+        [.systemJunk, .userCache, .trashBins, .mailAttachments, .threats].filter(scannable.contains)
+    }
+
+    /// Areas whose findings are counted rather than weighed: a flagged launch
+    /// agent is a few hundred bytes, so its size says nothing.
+    var reportsCount: Bool { self == .threats }
+
+    /// Areas whose items are whole machines or data someone may still need.
+    /// They start switched off and nothing in them is preselected.
+    var isRisky: Bool { self == .virtualMachines || self == .dockerData }
 
     // Categories to scan in Smart Scan mode.
     //
@@ -83,7 +110,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     // reserved and reclaimed by macOS itself — no third-party app can reliably
     // enumerate or free it, and the Finder's own purgeable figure is known to
     // be inaccurate. We still SHOW it in the storage breakdown for
-    // transparency, but we never present it as junk PureMac can delete.
+    // transparency, but we never present it as junk MacFresh can delete.
     // Honest > impressive.
     // `appModifying` is excluded too — see the note on that property. Both of
     // those categories are withdrawn as of 2.9.5 and must not be scanned,
@@ -135,6 +162,100 @@ enum ScanState: Equatable {
     }
 }
 
+// MARK: - Cleanup bundles
+
+/// Groups of cleaning categories that are scanned and reviewed together on a
+/// single screen.
+enum CleanupBundle: String, CaseIterable, Identifiable, Hashable {
+    case systemSweep
+    case devAI
+    case virtualization
+
+    var id: String { rawValue }
+
+    var categories: [CleaningCategory] {
+        let all: [CleaningCategory]
+        switch self {
+        case .systemSweep:
+            all = [.largeFiles]
+        case .devAI:
+            all = [.aiApps, .xcodeJunk, .brewCache, .nodeCache, .dockerCache]
+        case .virtualization:
+            all = [.virtualMachines, .dockerData]
+        }
+        return all.filter(CleaningCategory.scannable.contains)
+    }
+
+    /// Orphaned files from uninstalled apps are part of the system sweep.
+    var includesOrphans: Bool { self == .systemSweep }
+
+    /// Apps unused for months are listed in the Files column too.
+    var includesUnusedApps: Bool { self == .systemSweep }
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .systemSweep: return "Files"
+        case .devAI: return "Developer"
+        case .virtualization: return "Virtual Machines"
+        }
+    }
+
+    var subtitle: LocalizedStringKey {
+        switch self {
+        case .systemSweep: return "Large files, leftovers from removed apps and apps you no longer use."
+        case .devAI: return "Xcode, Homebrew, Node, Docker and local AI app data in one pass."
+        case .virtualization: return "Whole virtual machines and Docker images. Riskier: nothing is preselected and machines go to the Trash."
+        }
+    }
+
+    /// One cyan shared by every developer area, so they read as a single group.
+    static let developerColor = Color(red: 0.36, green: 0.86, blue: 1.00)
+
+    /// Color of the orphaned-files area (not a cleaning category).
+    static let orphanColor = Color(red: 1.00, green: 0.38, blue: 0.40)
+
+    /// Color of the unused-apps area (not a cleaning category).
+    static let unusedAppsColor = Color(red: 1.00, green: 0.40, blue: 0.82)
+
+    /// Accent for the group's card on the General Cleanup overview.
+    var cardTint: Color {
+        switch self {
+        case .systemSweep: return Color(red: 0.45, green: 0.95, blue: 0.45)
+        case .devAI: return Color(red: 0.36, green: 0.86, blue: 1.00)
+        case .virtualization: return Color(red: 1.00, green: 0.58, blue: 0.26)
+        }
+    }
+
+    /// Groups whose items can't simply be regenerated.
+    var isRisky: Bool { self == .virtualization }
+
+    var tabIcon: String {
+        switch self {
+        case .systemSweep: return "doc.fill"
+        case .devAI: return "chevron.left.forwardslash.chevron.right"
+        case .virtualization: return "server.rack"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .systemSweep: return "wand.and.stars"
+        case .devAI: return "chevron.left.forwardslash.chevron.right"
+        case .virtualization: return "server.rack"
+        }
+    }
+
+    static func containing(_ category: CleaningCategory) -> CleanupBundle? {
+        allCases.first { $0.categories.contains(category) }
+    }
+}
+
+/// Which screen owns the current scan, so each screen only shows its own run.
+enum ScanScope: Equatable {
+    case smartCare
+    case generalCleanup
+}
+
 // MARK: - Cleanable Item
 
 struct CleanableItem: Identifiable, Hashable {
@@ -142,6 +263,9 @@ struct CleanableItem: Identifiable, Hashable {
     /// rather than a filesystem unlink. The UUID after the colon is the
     /// runtime disk-image identifier from `simctl runtime list`.
     static let simctlRuntimePathPrefix = "simctl-runtime:"
+    /// Path prefix for Docker commands offered as items, such as removing
+    /// every unused image. The rest names the command (see DockerDataAction).
+    static let dockerActionPathPrefix = "docker-action:"
 
     let id = UUID()
     let name: String
@@ -158,7 +282,7 @@ struct CleanableItem: Identifiable, Hashable {
     /// True for action-only items (Docker prune, simctl runtimes) that have
     /// no real filesystem path to reveal in Finder.
     var isActionItem: Bool {
-        path.isEmpty || path.hasPrefix(Self.simctlRuntimePathPrefix)
+        path.isEmpty || path.hasPrefix(Self.simctlRuntimePathPrefix) || path.hasPrefix(Self.dockerActionPathPrefix)
     }
 
     var simctlRuntimeIdentifier: String? {
@@ -224,7 +348,7 @@ struct ScheduleConfig: Codable {
     var interval: ScheduleInterval = .daily
     var autoClean: Bool = false
     var autoPurge: Bool = false
-    var categoriesToScan: [CleaningCategory] = CleaningCategory.scannable
+    var categoriesToScan: [CleaningCategory] = CleaningCategory.smartCare
     var lastRunDate: Date?
     var nextRunDate: Date?
     var notifyOnCompletion: Bool = true

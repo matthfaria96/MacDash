@@ -2,15 +2,38 @@ import SwiftUI
 
 struct AppListView: View {
     @EnvironmentObject var appState: AppState
-    @State private var searchText = ""
     @State private var selection: InstalledApp.ID?
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var sortOrder: [KeyPathComparator<InstalledApp>] = [
-        .init(\.appName, order: .forward)
-    ]
+    @AppStorage("apps.sortKey") private var sortKey: AppSortKey = .name
+    @AppStorage("apps.sortAscending") private var sortAscending = true
+
+    private enum AppSortKey: String, CaseIterable, Identifiable {
+        case name, lastUsed, size
+
+        var id: String { rawValue }
+
+        var title: LocalizedStringKey {
+            switch self {
+            case .name: return "Name"
+            case .lastUsed: return "Last used"
+            case .size: return "Size"
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .name: return "textformat"
+            case .lastUsed: return "clock"
+            case .size: return "internaldrive"
+            }
+        }
+
+        /// A–Z for names; most recent and biggest first for the others.
+        var defaultAscending: Bool { self == .name }
+    }
 
     private var filteredApps: [InstalledApp] {
         let base: [InstalledApp]
+        let searchText = appState.appSearchText
         if searchText.isEmpty {
             base = appState.installedApps
         } else {
@@ -20,55 +43,57 @@ struct AppListView: View {
                 $0.bundleIdentifier.lowercased().contains(query)
             }
         }
-        return base.sorted(using: sortOrder)
+        return base.sorted { left, right in
+            switch sortKey {
+            case .name:
+                let order = left.appName.localizedStandardCompare(right.appName)
+                return sortAscending ? order == .orderedAscending : order == .orderedDescending
+            case .lastUsed:
+                let l = left.lastUsed ?? .distantPast, r = right.lastUsed ?? .distantPast
+                return sortAscending ? l < r : l > r
+            case .size:
+                return sortAscending ? left.size < right.size : left.size > right.size
+            }
+        }
     }
 
     var body: some View {
-        HSplitView {
-            // Cap the left pane's maxWidth so dragging the splitter cannot
-            // push it past half the window and break the layout (#60).
+        // Fixed-width list so selecting or closing an app never shifts the layout.
+        HStack(spacing: 16) {
             appTable
-                .frame(minWidth: 300, idealWidth: 380, maxWidth: 600)
+                .background(GlassPanelBackground())
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .frame(width: 330)
 
             fileDetail
-                .frame(minWidth: 300)
+                .background(GlassPanelBackground())
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .frame(maxWidth: .infinity)
         }
-        .searchable(text: $searchText, prompt: "Search apps")
-        .navigationTitle(installedAppsTitle)
-        .toolbar {
-            ToolbarItemGroup {
-                Button {
-                    appState.loadInstalledApps()
-                } label: {
-                    Label("Refresh", systemImage: "arrow.clockwise")
-                }
+        .padding(.horizontal, 28)
+        .padding(.top, 4)
+        .padding(.bottom, 20)
 
-                // ToolbarItems can't run insertion transitions on macOS 13 —
-                // keep the button mounted and fade it with the selection.
-                Button(uninstallLabel(count: appState.selectedFiles.count), role: .destructive) {
-                    appState.removeSelectedFiles()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.red)
-                .opacity(appState.selectedFiles.isEmpty ? 0 : 1)
-                .disabled(appState.selectedFiles.isEmpty)
-                .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.8),
-                           value: appState.selectedFiles.isEmpty)
-            }
-        }
     }
 
     private var installedAppsTitle: String {
         String(format: String(localized: "Installed Apps (%lld)"), Int64(appState.installedApps.count))
     }
 
-    private func uninstallLabel(count: Int) -> String {
-        String(format: String(localized: "Uninstall (%lld files)"), Int64(count))
-    }
-
     // MARK: - App Table (left side)
 
     private var appTable: some View {
+        VStack(spacing: 0) {
+            InlineSearchField(prompt: "Search apps", text: $appState.appSearchText)
+                .padding(.horizontal, 10)
+                .padding(.top, 10)
+                .padding(.bottom, 8)
+            appTableContent
+                .frame(maxHeight: .infinity)
+        }
+    }
+
+    private var appTableContent: some View {
         Group {
             if appState.isLoadingApps {
                 VStack(spacing: 12) {
@@ -84,21 +109,15 @@ struct AppListView: View {
                     actionLabel: "Retry"
                 )
             } else {
-                Table(filteredApps, selection: $selection, sortOrder: $sortOrder) {
-                    TableColumn("Application", value: \.appName) { app in
-                        HStack(spacing: 8) {
-                            HoverScaleIcon(icon: app.icon)
-                            Text(app.appName)
-                        }
+                VStack(spacing: 0) {
+                    listHeader
+                    List(filteredApps, selection: $selection) { app in
+                        AppListRow(app: app, showsLastUsed: sortKey == .lastUsed)
+                            .tag(app.id)
+                            .listRowSeparator(.hidden)
                     }
-                    .width(min: 150)
-
-                    TableColumn("Size", value: \.size) { app in
-                        Text(app.formattedSize)
-                            .monospacedDigit()
-                            .foregroundStyle(.secondary)
-                    }
-                    .width(ideal: 70)
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
                 }
                 .onChange(of: selection) { newValue in
                     guard let id = newValue,
@@ -127,6 +146,86 @@ struct AppListView: View {
         }
     }
 
+    private var listHeader: some View {
+        HStack(spacing: 8) {
+            Text("Apps")
+                .font(.system(size: 11.5, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.85))
+            Text("\(filteredApps.count)")
+                .font(.system(size: 10, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(.white.opacity(0.6))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.white.opacity(0.08)))
+            Spacer()
+            sortMenu
+        }
+        .padding(.leading, 16)
+        .padding(.trailing, 10)
+        .padding(.vertical, 7)
+        .background(Color.white.opacity(0.05))
+        .overlay(alignment: .top) {
+            Rectangle().fill(Color.white.opacity(0.08)).frame(height: 0.75)
+        }
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Color.white.opacity(0.1)).frame(height: 0.75)
+        }
+    }
+
+    /// Order picker plus a direction flip, sized to sit inside the header row.
+    private var sortMenu: some View {
+        HStack(spacing: 2) {
+            Menu {
+                ForEach(AppSortKey.allCases) { key in
+                    Button {
+                        guard key != sortKey else { return }
+                        sortKey = key
+                        sortAscending = key.defaultAscending
+                    } label: {
+                        if key == sortKey {
+                            Label(key.title, systemImage: "checkmark")
+                        } else {
+                            Text(key.title)
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: sortKey.icon)
+                        .font(.system(size: 9.5, weight: .semibold))
+                    Text(sortKey.title)
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 7.5, weight: .bold))
+                        .opacity(0.6)
+                }
+                .font(.system(size: 11.5, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .padding(.horizontal, 9)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(Color.white.opacity(0.08)))
+                .contentShape(Capsule())
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help(Text("Sort"))
+
+            Button {
+                sortAscending.toggle()
+            } label: {
+                Image(systemName: sortAscending ? "arrow.up" : "arrow.down")
+                    .font(.system(size: 9.5, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.75))
+                    .frame(width: 22, height: 22)
+                    .background(Circle().fill(Color.white.opacity(0.08)))
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .help(Text(sortAscending ? "Ascending" : "Descending"))
+        }
+    }
+
     // MARK: - File Detail (right side)
 
     @ViewBuilder
@@ -138,9 +237,39 @@ struct AppListView: View {
                 "Select an App",
                 systemImage: "cursorarrow.click.2",
                 description: "Select an app from the list to see all its related files across your system.",
-                tint: Tint.purple
+                tint: SectionPalette.apps.accent
             )
         }
+    }
+}
+
+private struct AppListRow: View {
+    let app: InstalledApp
+    var showsLastUsed = false
+
+    private var trailingText: String {
+        guard showsLastUsed else { return app.formattedSize }
+        guard let lastUsed = app.lastUsed else { return String(localized: "Never") }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: lastUsed, relativeTo: Date())
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            HoverScaleIcon(icon: app.icon)
+            Text(app.appName)
+                .font(.system(size: 13, weight: .medium))
+                .lineLimit(1)
+                .truncationMode(.tail)
+            Spacer(minLength: 8)
+            Text(trailingText)
+                .font(.system(size: 11.5, weight: .medium, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 3)
+        .help(app.bundleIdentifier)
     }
 }
 

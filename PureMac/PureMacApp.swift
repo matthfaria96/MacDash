@@ -6,14 +6,40 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// Owns the optional menu-bar status item. Nil until the monitor is enabled.
     private var menuBarController: MenuBarController?
 
-    /// Normally PureMac quits when its window closes. When the menu-bar system
-    /// monitor is enabled the app stays resident so the meters keep updating in
-    /// the menu bar; "Open PureMac" in that menu reopens the window.
+    override init() {
+        super.init()
+        Self.migrateFromMacTidy()
+        MenuBarPreferences.registerDefaults()
+        // The menu bar panel is on unless the user turns it off in Settings.
+        UserDefaults.standard.register(defaults: ["settings.general.menuBarMonitor": true])
+    }
+
+    /// MacFresh was called Mac Tidy (`com.mactidy.app`). On the first launch
+    /// under the new name, its settings come along: onboarding, language,
+    /// menu bar, schedules, exclusions and the rest.
+    private static func migrateFromMacTidy() {
+        let defaults = UserDefaults.standard
+        let marker = "MacFresh.migratedFromMacTidy"
+        guard !defaults.bool(forKey: marker) else { return }
+        defaults.set(true, forKey: marker)
+        guard let old = UserDefaults(suiteName: "com.mactidy.app")?.persistentDomain(forName: "com.mactidy.app") else { return }
+        for (key, value) in old where defaults.object(forKey: key) == nil {
+            defaults.set(value, forKey: key)
+        }
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         !UserDefaults.standard.bool(forKey: "settings.general.menuBarMonitor")
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        #if DEBUG
+        if let path = UserDefaults.standard.string(forKey: "DebugIconGallery") {
+            PremiumIconGallery.render(to: path)
+            NSApp.terminate(nil)
+            return
+        }
+        #endif
         NSWindow.allowsAutomaticWindowTabbing = false
 
         // Install the menu-bar monitor if the user has it enabled. Never under
@@ -25,18 +51,37 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 name: .pureMacMenuBarMonitorChanged, object: nil
             )
         }
-        // Touch TCC-protected paths so macOS registers PureMac in the
+        // Touch TCC-protected paths so macOS registers MacFresh in the
         // Full Disk Access pane on first launch (fixes issue #75).
         FullDiskAccessManager.shared.triggerRegistration()
-        // Register the Finder Services provider so "Uninstall with PureMac"
+        // Register the Finder Services provider so "Uninstall with MacFresh"
         // appears when an .app bundle is right-clicked (issue #109).
         NSApp.servicesProvider = self
         NSUpdateDynamicServices()
     }
 
+    /// Create or tear down the menu-bar status item to match the current
+    /// Settings toggle. Posted to whenever the toggle flips so it takes effect
+    /// without a relaunch.
+    @objc func syncMenuBarMonitor() {
+        let enabled = UserDefaults.standard.bool(forKey: "settings.general.menuBarMonitor")
+        if enabled, menuBarController == nil {
+            menuBarController = MenuBarController()
+            #if DEBUG
+            if let detail = UserDefaults.standard.string(forKey: "DebugMenuBarPanel") {
+                let controller = menuBarController
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { controller?.debugOpen(detail) }
+            }
+            #endif
+        } else if !enabled, let controller = menuBarController {
+            controller.teardown()
+            menuBarController = nil
+        }
+    }
+
     /// Finder Services entry point. Declared in Info.plist as NSMessage
     /// `uninstallApp`; receives the right-clicked .app via the pasteboard and
-    /// hands it to AppState through a notification. Brings PureMac forward so
+    /// hands it to AppState through a notification. Brings MacFresh forward so
     /// the user lands on the uninstall scan.
     @objc func uninstallApp(_ pboard: NSPasteboard,
                             userData: String?,
@@ -57,42 +102,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             userInfo: ["path": appURL.path]
         )
     }
-
-    /// Create or tear down the menu-bar status item to match the current
-    /// Settings toggle. Posted to whenever the toggle flips so it takes effect
-    /// without a relaunch.
-    @objc func syncMenuBarMonitor() {
-        let enabled = UserDefaults.standard.bool(forKey: "settings.general.menuBarMonitor")
-        if enabled, menuBarController == nil {
-            menuBarController = MenuBarController()
-        } else if !enabled, let controller = menuBarController {
-            controller.teardown()
-            menuBarController = nil
-        }
-    }
 }
 
 extension Notification.Name {
     /// Posted when the "Show system monitor in menu bar" Settings toggle flips,
     /// so AppDelegate can add/remove the status item live.
-    static let pureMacMenuBarMonitorChanged = Notification.Name("PureMac.MenuBarMonitorChanged")
+    static let pureMacMenuBarMonitorChanged = Notification.Name("MacFresh.MenuBarMonitorChanged")
 }
 
 @main
 struct PureMacApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var appState = AppState(performStartupTasks: NSClassFromString("XCTestCase") == nil)
-    @StateObject private var theme = ThemeManager.shared
-    @AppStorage("PureMac.OnboardingComplete") private var onboardingComplete = false
+    @AppStorage("MacTidy.OnboardingComplete") private var onboardingComplete = false
 
     init() {
-        // Enter CLI mode only when the first arg is a known command. Xcode and
-        // LaunchServices inject args like -NSDocumentRevisionsDebugMode and
-        // -psn_<pid> that must not be interpreted as CLI commands.
-        if let first = CommandLine.arguments.dropFirst().first,
-           CLI.isKnownCommand(first) {
-            CLI.run()
-        }
+        AppAppearance.enforceDark()
     }
 
     var body: some Scene {
@@ -101,12 +126,12 @@ struct PureMacApp: App {
                 if onboardingComplete {
                     MainWindow()
                         .environmentObject(appState)
-                        .frame(minWidth: 960, minHeight: 640)
+                        .frame(minWidth: 1040, minHeight: 680)
                 } else {
                     OnboardingView(isComplete: $onboardingComplete)
                 }
             }
-            .environmentObject(theme)
+            .preferredColorScheme(.dark)
             // Record the openWindow action so the menu-bar popover can reopen
             // this window after it's been closed (the popover lives outside the
             // scene graph and can't use openWindow itself).
@@ -115,32 +140,18 @@ struct PureMacApp: App {
         .windowStyle(.automatic)
         .windowToolbarStyle(.unified)
         .windowResizability(.contentMinSize)
-        .defaultSize(width: 1120, height: 740)
+        .defaultSize(width: 1200, height: 780)
         .commands {
             CommandGroup(replacing: .newItem) {}
-            CommandMenu("Updates") {
-                Button("Check for Updates") {
-                    appState.showUpdateSettings = true
-                    WindowOpener.shared.showMainWindow()
-                    NSApp.activate(ignoringOtherApps: true)
-                    UpdateService.shared.checkForUpdates()
-                }
-                .keyboardShortcut("u", modifiers: [.command, .shift])
-            }
         }
 
         Settings {
             SettingsView(standalone: true)
                 .environmentObject(appState)
-                .environmentObject(theme)
+                .environment(\.premiumIconsEnabled, false)
+                .preferredColorScheme(.dark)
                 .frame(minWidth: 680, idealWidth: 760, minHeight: 580, idealHeight: 700)
         }
 
-        // The opt-in menu-bar system monitor is an AppKit NSStatusItem managed
-        // by AppDelegate/MenuBarController rather than a SwiftUI MenuBarExtra:
-        // a conditional `.window`-style MenuBarExtra fails to type-check, and an
-        // unconditional one sets up status-item machinery that hangs the XCTest
-        // host. The AppKit controller is only created when enabled and never
-        // under tests, sidestepping both problems.
     }
 }

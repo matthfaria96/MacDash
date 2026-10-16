@@ -5,7 +5,7 @@ import Foundation
 /// Centralized coordinator for Full Disk Access (FDA) prompts and retry flow.
 ///
 /// Replaces the bare "Open System Settings" alert with a sheet-driven flow that:
-/// - Auto-opens the Settings pane and reveals PureMac.app in Finder so users can
+/// - Auto-opens the Settings pane and reveals MacFresh.app in Finder so users can
 ///   drag the bundle into the FDA list when macOS hasn't auto-registered it
 ///   (common with Homebrew installs that strip the quarantine attribute).
 /// - Polls `FullDiskAccessManager.hasFullDiskAccess` once per second while the
@@ -98,7 +98,7 @@ final class PermissionCoordinator: ObservableObject {
         startPolling()
     }
 
-    /// Open System Settings AND reveal PureMac.app in Finder so the user can
+    /// Open System Settings AND reveal MacFresh.app in Finder so the user can
     /// drag the bundle directly into the FDA list. Side-by-side windows are
     /// the fastest path when macOS hasn't auto-registered the app.
     func openSettingsAndReveal() {
@@ -109,8 +109,8 @@ final class PermissionCoordinator: ObservableObject {
         }
     }
 
-    /// Reset PureMac's TCC entry and re-prime registration. Use when the user
-    /// reports PureMac doesn't appear in the FDA list (typical after Homebrew
+    /// Reset MacFresh's TCC entry and re-prime registration. Use when the user
+    /// reports MacFresh doesn't appear in the FDA list (typical after Homebrew
     /// reinstall replaces the bundle with a different code signature).
     func resetAndReprime() {
         _ = FullDiskAccessManager.shared.resetFullDiskAccess()

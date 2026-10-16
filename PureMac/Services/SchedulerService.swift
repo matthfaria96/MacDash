@@ -8,7 +8,7 @@ class SchedulerService: ObservableObject {
     }
 
     private var timer: Timer?
-    private let configKey = "PureMac.ScheduleConfig"
+    private let configKey = "MacFresh.ScheduleConfig"
     private var onTrigger: (() async -> Void)?
 
     init() {
@@ -97,7 +97,7 @@ class SchedulerService: ObservableObject {
     // MARK: - LaunchAgent Management
 
     func installLaunchAgent() {
-        let plistName = "com.puremac.scheduler"
+        let plistName = "com.mactidy.scheduler"
         let plistPath = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/LaunchAgents/\(plistName).plist")
 
@@ -134,7 +134,7 @@ class SchedulerService: ObservableObject {
     }
 
     func uninstallLaunchAgent() {
-        let plistName = "com.puremac.scheduler"
+        let plistName = "com.mactidy.scheduler"
         let plistPath = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/LaunchAgents/\(plistName).plist")
 

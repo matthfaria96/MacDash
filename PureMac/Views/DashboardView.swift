@@ -1,26 +1,96 @@
+import Darwin
 import SwiftUI
 
 struct DashboardView: View {
+    @ObservedObject private var activity = AppActivity.shared
     @EnvironmentObject var appState: AppState
     var onNavigate: (AppSection) -> Void = { _ in }
 
     @State private var showConfirmation = false
-    @State private var hoveredSegment: String?
     @State private var pendingCleanItems: [CleanableItem] = []
+    @State private var reviewingCategory: ReviewTarget?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
+        ZStack {
+        if reviewingCategory != nil, careState == .completed {
+            // Full-window review: categories on the left, contents on the right.
+            CleanupReviewScreen(
+                reviewing: $reviewingCategory,
+                categories: CleaningCategory.smartCare,
+                accent: SectionPalette.smartCare.accent
+            )
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                // In the review the floating button gives way to the same bar
+                // Advanced Cleanup uses.
+                CleanupActionBar(
+                    selectedCount: appState.smartCareResults.flatMap(\.items).filter(appState.isItemSelected).count,
+                    selectedSize: appState.smartCareSelectedSize,
+                    deep: SectionPalette.smartCare.deep,
+                    isDisabled: appState.scanState.isActive
+                ) {
+                    prepareCleanupConfirmation()
+                }
+            }
+            .transition(reduceMotion ? .opacity : .opacity.combined(with: .move(edge: .trailing)))
+        } else {
+        ScrollViewReader { scroller in
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                pageHeader
-                stateContent
+                Color.clear.frame(height: 0).id("dashboardTop")
+                if careState == .idle {
+                    stateContent
+                        .overlay(alignment: .topTrailing) { pageHeader }
+                } else if usesImmersiveLayout {
+                    stateContent
+                } else {
+                    pageHeader
+                    stateContent
+                }
             }
             .padding(.horizontal, 28)
             .padding(.vertical, 24)
+            .padding(.bottom, 120)
             .frame(maxWidth: 1180, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .top)
         }
+        #if DEBUG
+        .onChange(of: careState) { state in
+            // Debug builds: `-DebugReview userCache` opens that review after a scan.
+            if state == .completed, let raw = UserDefaults.standard.string(forKey: "DebugReview"),
+               let category = CleaningCategory.allCases.first(where: { "\($0)" == raw }) {
+                reviewingCategory = .category(category)
+            }
+        }
+        #endif
+        .onChange(of: reviewingCategory) { _ in
+            scroller.scrollTo("dashboardTop", anchor: .top)
+        }
+        }
+        }
+        }
+        .animation(reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.88), value: reviewingCategory)
+        .onChange(of: careState) { state in
+            if state != .completed { reviewingCategory = nil }
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .bottom) {
+            if let floatingAction {
+                ZStack(alignment: .bottom) {
+                    LinearGradient(
+                        colors: [.clear, SectionPalette.smartCare.deep.opacity(0.55), SectionPalette.smartCare.deep.opacity(0.85)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 120)
+                    .allowsHitTesting(false)
+                    floatingAction
+                        .padding(.bottom, 4)
+                }
+                .transition(.scale(scale: 0.86).combined(with: .opacity))
+            }
+        }
         .confirmationDialog(
             cleanConfirmationTitle,
             isPresented: $showConfirmation,
@@ -38,23 +108,66 @@ struct DashboardView: View {
         }
     }
 
+    /// Smart Care only reflects its own scans; another screen's run reads as idle.
+    private var careState: ScanState { appState.scanState(in: .smartCare) }
+
+    private var usesImmersiveLayout: Bool {
+        switch careState {
+        case .scanning, .completed: return true
+        default: return false
+        }
+    }
+
+    private var floatingAction: AnyView? {
+        switch careState {
+        case .idle:
+            guard !appState.isBusy(outside: .smartCare), !appState.isSearchingOrphans else { return nil }
+            return AnyView(floatingScanButton)
+        case .scanning:
+            return AnyView(
+                StopScanButton(progress: appState.scanProgress, animated: !reduceMotion) {
+                    appState.cancelScan()
+                }
+            )
+        case .completed where appState.smartCareSelectedSize > 0 && reviewingCategory == nil:
+            return AnyView(
+                PulsingScanButton(
+                    title: "Clean",
+                    subtitle: ByteCountFormatter.string(fromByteCount: appState.smartCareSelectedSize, countStyle: .file),
+                    accent: SectionPalette.smartCare.accent,
+                    deep: SectionPalette.smartCare.primary,
+                    animated: !reduceMotion
+                ) {
+                    prepareCleanupConfirmation()
+                }
+                .accessibilityLabel(cleanSelectedLabel)
+            )
+        default:
+            return nil
+        }
+    }
+
     private var pageHeader: some View {
         HStack(alignment: .top, spacing: 16) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Smart Care")
-                    .font(.system(size: 28, weight: .semibold))
-                    .tracking(-0.45)
-                    .accessibilityAddTraits(.isHeader)
-                Text(headerSubtitle)
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
+            if careState != .idle {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Smart Care")
+                        .font(.system(size: 28, weight: .semibold))
+                        .tracking(-0.45)
+                        .accessibilityAddTraits(.isHeader)
+                    Text(headerSubtitle)
+                        .font(.system(size: 13))
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Spacer(minLength: 20)
 
             VStack(alignment: .trailing, spacing: 7) {
-                let status = headerStatus
-                StatusChip(label: status.label, systemImage: status.icon, tint: status.tint)
+                if careState != .idle {
+                    let status = headerStatus
+                    StatusChip(label: status.label, systemImage: status.icon, tint: status.tint)
+                }
                 TimelineView(.periodic(from: .now, by: 60)) { timeline in
                     Text(lastCareText(relativeTo: timeline.date))
                         .font(.system(size: 10.5))
@@ -66,7 +179,7 @@ struct DashboardView: View {
 
     @ViewBuilder
     private var stateContent: some View {
-        switch appState.scanState {
+        switch careState {
         case .idle:
             idleContent
                 .transition(stateTransition)
@@ -90,7 +203,7 @@ struct DashboardView: View {
     }
 
     private var headerSubtitle: String {
-        switch appState.scanState {
+        switch careState {
         case .idle:
             return String(localized: "A clear view of reclaimable storage and the tools that manage it.")
         case .scanning:
@@ -107,7 +220,7 @@ struct DashboardView: View {
     }
 
     private var headerStatus: (label: String, icon: String, tint: Color) {
-        switch appState.scanState {
+        switch careState {
         case .idle:
             return appState.hasFullDiskAccess
                 ? (String(localized: "Ready"), "checkmark.circle.fill", Tint.green)
@@ -140,415 +253,179 @@ struct DashboardView: View {
     }
 
     private var idleContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            GeometryReader { geometry in
-                let diskWidth = min(390, max(286, geometry.size.width * 0.38))
-                HStack(alignment: .top, spacing: 14) {
-                    scanIntroduction
-                        .frame(width: geometry.size.width - diskWidth - 14, height: 246)
-                    diskOverview
-                        .frame(width: diskWidth, height: 246)
-                }
-            }
-            .frame(height: 246)
-
-            dashboardSection("Tools", detail: "Focused utilities for storage, apps, and system maintenance")
-
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 210, maximum: 280), spacing: 14)],
-                spacing: 14
-            ) {
-                DashboardToolCard(
-                    title: "Space Explorer",
-                    detail: "Find what uses the most disk space",
-                    icon: "square.3.layers.3d.down.right",
-                    tint: Tint.accent
-                ) {
-                    onNavigate(.spaceExplorer)
-                }
-                DashboardToolCard(
-                    title: "Duplicate Finder",
-                    detail: "Review matching files side by side",
-                    icon: "doc.on.doc",
-                    tint: Tint.purple
-                ) {
-                    onNavigate(.duplicates)
-                }
-                DashboardToolCard(
-                    title: "Similar Photos",
-                    detail: "Compare visually similar photos",
-                    icon: "photo.stack",
-                    tint: Tint.pink
-                ) {
-                    onNavigate(.similarPhotos)
-                }
-                DashboardToolCard(
-                    title: "Uninstaller",
-                    detail: "Remove apps and their related files",
-                    icon: "app.dashed",
-                    tint: Tint.blue
-                ) {
-                    onNavigate(.apps)
-                }
-                DashboardToolCard(
-                    title: "App Updates",
-                    detail: "Check installed apps for new versions",
-                    icon: "arrow.triangle.2.circlepath",
-                    tint: Tint.accent
-                ) {
-                    onNavigate(.appUpdates)
-                }
-                DashboardToolCard(
-                    title: "Protection",
-                    detail: "Review built-in privacy and safety checks",
-                    icon: "shield.checkered",
-                    tint: Tint.green
-                ) {
-                    onNavigate(.protection)
-                }
-                DashboardToolCard(
-                    title: "Performance",
-                    detail: "Inspect memory and background activity",
-                    icon: "gauge.with.dots.needle.67percent",
-                    tint: Tint.cyan
-                ) {
-                    onNavigate(.performance)
-                }
-            }
+        VStack(alignment: .leading, spacing: 19) {
+            scanHero
+            MacHealthPanel(onNavigate: onNavigate)
         }
     }
 
-    private var scanIntroduction: some View {
-        CardSurface(padding: 24, elevation: .standard, tint: Tint.accent) {
-            VStack(alignment: .leading, spacing: 18) {
-                HStack {
-                    IconTile(systemName: "sparkles", tint: Tint.accent, size: 38, corner: 10, vivid: true)
-                    Spacer()
-                    Text("\(CleaningCategory.scannable.count) areas")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.secondary)
+    private var scanHero: some View {
+        HStack(alignment: .center, spacing: 26) {
+            // The picture takes whatever the text column leaves, about two thirds.
+            heroArtwork
+                .aspectRatio(1460.0 / 1078.0, contentMode: .fit)
+                .frame(minWidth: 340, maxWidth: 440)
+                .layoutPriority(1)
+            scanIntroduction
+                .frame(minWidth: 250, idealWidth: 340, maxWidth: 420, alignment: .leading)
+        }
+        .padding(.horizontal, 8)
+        .padding(.top, 12)
+    }
+
+    /// The monitor sits still while a soft glow breathes and two faint rings
+    /// swell outward behind it, all on Core Animation.
+    private var heroArtwork: some View {
+        GeometryReader { geometry in
+            let size = geometry.size.width
+            let animate = !reduceMotion
+            ZStack {
+                RippleRings(color: SectionPalette.smartCare.accent.opacity(0.22), diameter: size * 0.72, count: 2,
+                            period: 6, growth: 0.42, lineWidth: 1.2, animate: animate)
+                    .frame(width: size * 1.1, height: size * 1.1)
+                LayerMotion(kind: .breathe, period: 4.8, amount: 0.2, animate: animate) {
+                    heroGlow(size: size)
                 }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Find space to reclaim.")
-                        .font(.system(size: 25, weight: .semibold))
-                        .tracking(-0.35)
-                    Text("PureMac checks caches, logs, developer data, downloads, and Trash. You review the result before anything is removed.")
-                        .font(.system(size: 13))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer()
-
-                HStack(spacing: 12) {
-                    Button {
-                        appState.startSmartScan()
-                    } label: {
-                        Label("Scan this Mac", systemImage: "magnifyingglass")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .tint(Tint.accent)
-
-                    Label("Local and private", systemImage: "lock")
-                        .font(.system(size: 11.5, weight: .medium))
-                        .foregroundStyle(.secondary)
-                }
+                .frame(width: size * 1.1, height: size * 1.1)
+                SmartCareMonitorArtwork()
+                    .frame(width: size, height: geometry.size.height)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
     }
 
-    private var diskOverview: some View {
-        CardSurface(padding: 22, elevation: .standard) {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Mac storage")
-                            .font(.system(size: 15, weight: .semibold))
-                        Text("\(appState.diskInfo.formattedFree) available")
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Button {
-                        appState.loadDiskInfo()
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                    }
-                    .buttonStyle(.borderless)
-                    .help("Refresh disk information")
-                }
-
-                HStack(spacing: 16) {
-                    ZStack {
-                        StorageDonut(
-                            segments: diskSegments,
-                            lineWidth: 13,
-                            highlightedID: hoveredSegment
-                        )
-                        VStack(spacing: 0) {
-                            Text("\(usedPercent)%")
-                                .font(.system(size: 24, weight: .semibold, design: .rounded))
-                                .monospacedDigit()
-                            Text("USED")
-                                .font(.system(size: 8.5, weight: .semibold))
-                                .tracking(0.8)
-                                .foregroundStyle(.tertiary)
-                        }
-                    }
-                    .frame(width: 108, height: 108)
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        diskLegendRow(
-                            id: "used",
-                            color: Color.primary.opacity(0.56),
-                            label: "Used",
-                            value: appState.diskInfo.formattedUsed
-                        )
-                        if appState.diskInfo.purgeableSpace > 0 {
-                            diskLegendRow(
-                                id: "purgeable",
-                                color: Tint.cyan,
-                                label: "Purgeable",
-                                value: appState.diskInfo.formattedPurgeable
-                            )
-                        }
-                        diskLegendRow(
-                            id: "free",
-                            color: Tint.accent,
-                            label: "Available",
-                            value: appState.diskInfo.formattedFree
-                        )
-                    }
-                }
-
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        }
-    }
-
-    private func diskLegendRow(id: String, color: Color, label: LocalizedStringKey, value: String) -> some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(color)
-                .frame(width: 7, height: 7)
-            Text(label)
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
-            Spacer()
-            Text(value)
-                .font(.system(size: 11, weight: .semibold))
-                .monospacedDigit()
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
-        }
-        .opacity(hoveredSegment == nil || hoveredSegment == id ? 1 : 0.38)
-        .contentShape(Rectangle())
-        .onHover { hovering in
-            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.15)) {
-                hoveredSegment = hovering ? id : nil
-            }
-        }
-    }
-
-    private var diskSegments: [StorageDonut.Segment] {
-        let info = appState.diskInfo
-        let used = max(0, info.usedSpace - info.purgeableSpace)
-        var segments = [
-            StorageDonut.Segment(
-                id: "used",
-                value: Double(used),
-                color: Color.primary.opacity(0.56),
-                label: "Used",
-                display: ByteCountFormatter.string(fromByteCount: used, countStyle: .file)
-            )
-        ]
-        if info.purgeableSpace > 0 {
-            segments.append(
-                StorageDonut.Segment(
-                    id: "purgeable",
-                    value: Double(info.purgeableSpace),
-                    color: Tint.cyan,
-                    label: "Purgeable",
-                    display: info.formattedPurgeable
+    private func heroGlow(size: CGFloat) -> some View {
+        Circle()
+            .fill(
+                RadialGradient(
+                    colors: [SectionPalette.smartCare.accent.opacity(0.42), Tint.purple.opacity(0.18), .clear],
+                    center: .center,
+                    startRadius: 12,
+                    endRadius: size * 0.55
                 )
             )
-        }
-        segments.append(
-            StorageDonut.Segment(
-                id: "free",
-                value: Double(max(0, info.freeSpace)),
-                color: Tint.accent,
-                label: "Available",
-                display: info.formattedFree
-            )
-        )
-        return segments
+            .frame(width: size * 1.1, height: size * 1.1)
+            .drawingGroup()
     }
 
-    private var usedPercent: Int {
-        guard appState.diskInfo.totalSpace > 0 else { return 0 }
-        let used = appState.diskInfo.totalSpace - appState.diskInfo.freeSpace
-        return Int((Double(max(0, used)) / Double(appState.diskInfo.totalSpace) * 100).rounded())
+    /// Title, one sentence and the areas checked, set like a macOS settings
+    /// pane: system type, monochrome symbols, hairline rows, no extra chrome.
+    private var scanIntroduction: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Smart Care")
+                    .font(.system(size: 34, weight: .bold))
+                    .tracking(-0.6)
+                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.primary)
+                    .accessibilityAddTraits(.isHeader)
+
+                Text("Checks where junk builds up and looks for known threats, then lets you choose what goes.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.7) : Color.secondary)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            checkedAreas
+
+            Text("Runs on this Mac. Nothing is removed without your approval.")
+                .font(.system(size: 11))
+                .foregroundStyle(.white.opacity(0.45))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    /// Short hints that fit on one line next to each area.
+    private func heroHint(for category: CleaningCategory) -> LocalizedStringKey {
+        switch category {
+        case .systemJunk: return "Logs and temporary files"
+        case .userCache: return "App and browser caches"
+        case .trashBins: return "Files in your Trash"
+        case .mailAttachments: return "Downloaded attachments"
+        case .threats: return "Known adware only, not an antivirus"
+        default: return LocalizedStringKey(category.description)
+        }
+    }
+
+    /// What the last scan found in one area: a count for Threat Check, a size
+    /// for everything else.
+    private func lastFinding(for category: CleaningCategory) -> (text: String, isClear: Bool)? {
+        guard let result = appState.categoryResults[category], appState.lastScanDate != nil else { return nil }
+        if category.reportsCount {
+            return result.itemCount > 0
+                ? (String(format: String(localized: "%lld found"), Int64(result.itemCount)), false)
+                : (String(localized: "All clear"), true)
+        }
+        return result.totalSize > 0
+            ? (ByteCountFormatter.string(fromByteCount: result.totalSize, countStyle: .file), false)
+            : (String(localized: "All clear"), true)
+    }
+
+    /// The places Smart Care checks, each with what the last scan found. The
+    /// one-line explanations live in tooltips so the list reads at a glance.
+    private var checkedAreas: some View {
+        let areas = CleaningCategory.smartCare
+        return VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(areas.enumerated()), id: \.element) { index, category in
+                HStack(spacing: 12) {
+                    PremiumIcon(systemName: category.icon, tint: category.color, size: 24, style: .glass)
+                    Text(category.displayTitle)
+                        .font(.system(size: 13))
+                        .foregroundStyle(.white.opacity(0.92))
+                        .lineLimit(1)
+                    Spacer(minLength: 8)
+                    if let finding = lastFinding(for: category) {
+                        Text(finding.text)
+                            .font(.system(size: 12))
+                            .monospacedDigit()
+                            .foregroundStyle(finding.isClear ? .white.opacity(0.45) : .white.opacity(0.85))
+                    }
+                }
+                .padding(.vertical, 8)
+                .contentShape(Rectangle())
+                .help(Text(heroHint(for: category)))
+                if index < areas.count - 1 {
+                    Rectangle().fill(Color.white.opacity(0.1)).frame(height: 0.5).padding(.leading, 34)
+                }
+            }
+            if let date = appState.lastScanDate {
+                HStack(spacing: 4) {
+                    Text("Last scan")
+                    Text(date, style: .relative)
+                }
+                .font(.system(size: 11))
+                .foregroundStyle(.white.opacity(0.45))
+                .padding(.top, 8)
+            }
+        }
+    }
+
+    private var floatingScanButton: some View {
+        PulsingScanButton(
+            title: "Scan",
+            accent: SectionPalette.smartCare.accent,
+            deep: SectionPalette.smartCare.primary,
+            animated: !reduceMotion
+        ) {
+            appState.startSmartScan()
+        }
+        .accessibilityLabel("Scan this Mac")
     }
 
     private var scanningContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            CardSurface(padding: 28, elevation: .standard, tint: Tint.accent) {
-                HStack(spacing: 34) {
-                    ScanningGauge(progress: appState.scanProgress, tint: Tint.accent)
-                        .frame(width: 164, height: 164)
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Scanning your Mac")
-                            .font(.system(size: 25, weight: .semibold))
-                            .tracking(-0.35)
-                        Text(LocalizedStringKey(appState.currentScanCategory))
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(Tint.accent)
-                        ScanPathTicker(ticker: appState.scanTicker)
-                            .frame(maxWidth: 520, alignment: .leading)
-                        ProgressView(value: appState.scanProgress)
-                            .progressViewStyle(.linear)
-                            .tint(Tint.accent)
-                            .frame(maxWidth: 480)
-                        HStack(spacing: 10) {
-                            Button("Stop scan", role: .cancel) {
-                                appState.cancelScan()
-                            }
-                            .buttonStyle(.bordered)
-                            Text("Stopping keeps the results found so far.")
-                                .font(.system(size: 10.5))
-                                .foregroundStyle(.tertiary)
-                        }
-                    }
-                    Spacer()
-                }
-            }
-
-            if !appState.allResults.isEmpty {
-                dashboardSection("Found so far", detail: "\(appState.totalItemCount) items")
-                resultRows(results: Array(appState.allResults.sorted { $0.totalSize > $1.totalSize }.prefix(6)))
-            }
-        }
+        SmartCareScanningView()
     }
 
     private var resultsContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            CardSurface(padding: 24, elevation: .standard, tint: appState.scanWasCancelled ? Tint.orange : Tint.accent) {
-                HStack(alignment: .center, spacing: 24) {
-                    IconTile(
-                        systemName: appState.scanWasCancelled ? "stop.circle" : "checklist",
-                        tint: appState.scanWasCancelled ? Tint.orange : Tint.accent,
-                        size: 52,
-                        corner: 14
-                    )
-
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(appState.scanWasCancelled ? "Scan stopped" : "Scan complete")
-                            .font(.system(size: 23, weight: .semibold))
-                            .tracking(-0.3)
-                        Text(resultSummary)
-                            .font(.system(size: 12.5))
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text("Selected")
-                            .font(.system(size: 10.5))
-                            .foregroundStyle(.secondary)
-                        CountUpBytes(bytes: appState.totalSelectedSize)
-                            .font(.system(size: 26, weight: .semibold, design: .rounded))
-                    }
-
-                    VStack(spacing: 8) {
-                        if appState.totalSelectedSize > 0 {
-                            Button {
-                                prepareCleanupConfirmation()
-                            } label: {
-                                Label(cleanSelectedLabel, systemImage: "trash")
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.large)
-                            .tint(Tint.accent)
-                        }
-                        Button("Scan again") {
-                            appState.startSmartScan()
-                        }
-                        .buttonStyle(.borderless)
-                    }
+        SmartCareResultsView(
+            reviewing: $reviewingCategory,
+            onBackToStart: {
+                withAnimation(reduceMotion ? nil : MotionTokens.gentle) {
+                    appState.resetSmartCareToStart()
                 }
-            }
-
-            if appState.allResults.isEmpty {
-                emptyResults
-            } else {
-                dashboardSection(
-                    appState.scanWasCancelled ? "Partial results" : "Cleanup plan",
-                    detail: "Open a category to review individual items"
-                )
-                resultRows(results: appState.allResults.sorted { $0.totalSize > $1.totalSize })
-            }
-        }
-    }
-
-    private var resultSummary: String {
-        if appState.allResults.isEmpty {
-            return appState.scanWasCancelled
-                ? String(localized: "No reclaimable items were found before the scan stopped.")
-                : String(localized: "No reclaimable items were found in the areas checked.")
-        }
-        let size = ByteCountFormatter.string(fromByteCount: appState.totalJunkSize, countStyle: .file)
-        if appState.scanWasCancelled {
-            return String(format: String(localized: "%@ found before the scan stopped. Results may be incomplete."), size)
-        }
-        return String(format: String(localized: "%@ found across %lld categories."), size, Int64(appState.allResults.count))
-    }
-
-    private var emptyResults: some View {
-        CardSurface(padding: 28, elevation: .flat) {
-            HStack(spacing: 18) {
-                SuccessMedal(tint: Tint.green, size: 72)
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(appState.scanWasCancelled ? "No results yet" : "Nothing to clean")
-                        .font(.system(size: 18, weight: .semibold))
-                    Text(
-                        appState.scanWasCancelled
-                            ? "Run the scan again when you are ready to check every area."
-                            : "PureMac did not find removable items in the selected scan areas."
-                    )
-                    .font(.system(size: 12.5))
-                    .foregroundStyle(.secondary)
-                }
-                Spacer()
-            }
-        }
-    }
-
-    private func resultRows(results: [CategoryResult]) -> some View {
-        CardSurface(padding: 0, elevation: .flat) {
-            VStack(spacing: 0) {
-                ForEach(Array(results.enumerated()), id: \.element.id) { index, result in
-                    CategoryResultRow(
-                        result: result,
-                        selectedCount: appState.selectedCountInCategory(result.category),
-                        selection: appState.categoryBinding(for: result.category)
-                    ) {
-                        onNavigate(.cleaning(result.category))
-                    }
-                    if index < results.count - 1 {
-                        Divider()
-                            .padding(.leading, 58)
-                    }
-                }
-            }
-        }
+            },
+            onScanAgain: { appState.startSmartScan() }
+        )
     }
 
     private var cleaningContent: some View {
@@ -559,7 +436,7 @@ struct DashboardView: View {
                 VStack(spacing: 6) {
                     Text("Cleaning selected items")
                         .font(.system(size: 24, weight: .semibold))
-                    Text("Keep PureMac open until this pass finishes.")
+                    Text("Keep MacFresh open until this pass finishes.")
                         .font(.system(size: 12.5))
                         .foregroundStyle(.secondary)
                 }
@@ -596,7 +473,7 @@ struct DashboardView: View {
                             .lineLimit(3)
                     }
                     Button("Done") {
-                        appState.scanState = .idle
+                        appState.resetSmartCareToStart()
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
@@ -625,7 +502,7 @@ struct DashboardView: View {
     }
 
     private func prepareCleanupConfirmation() {
-        pendingCleanItems = appState.allResults
+        pendingCleanItems = appState.smartCareResults
             .flatMap(\.items)
             .filter(appState.isItemSelected)
         showConfirmation = !pendingCleanItems.isEmpty
@@ -634,116 +511,121 @@ struct DashboardView: View {
     private var cleanSelectedLabel: String {
         String(
             format: String(localized: "Clean %@"),
-            ByteCountFormatter.string(fromByteCount: appState.totalSelectedSize, countStyle: .file)
+            ByteCountFormatter.string(fromByteCount: appState.smartCareSelectedSize, countStyle: .file)
         )
-    }
-
-    private func dashboardSection(_ title: LocalizedStringKey, detail: LocalizedStringKey? = nil) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(title)
-                .font(.system(size: 16, weight: .semibold))
-                .accessibilityAddTraits(.isHeader)
-            Spacer()
-            if let detail {
-                Text(detail)
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.tertiary)
-            }
-        }
     }
 }
 
-private struct DashboardToolCard: View {
+private struct SmartCareMonitorArtwork: View {
+    var body: some View {
+        Image("SmartCareCore")
+            .resizable()
+            .interpolation(.high)
+            .antialiased(true)
+            .scaledToFit()
+            .shadow(color: Tint.pink.opacity(0.22), radius: 18, y: 8)
+            // Rasterize once on the GPU so the float animation only moves a
+            // layer; the padding keeps the soft shadow from being clipped.
+            .padding(40)
+            .drawingGroup()
+            .padding(-40)
+            .accessibilityHidden(true)
+    }
+}
+
+struct PulsingScanButton: View {
+    @ObservedObject private var activity = AppActivity.shared
     let title: LocalizedStringKey
-    let detail: LocalizedStringKey
-    let icon: String
-    let tint: Color
+    var subtitle: String? = nil
+    let accent: Color
+    let deep: Color
+    let animated: Bool
     let action: () -> Void
 
     @State private var hovering = false
+    @State private var pressed = false
+
+    private let diameter: CGFloat = 100
+    private let period: Double = 2.4
+    private let waveCount = 3
 
     var body: some View {
         Button(action: action) {
-            CardSurface(padding: 16, elevation: .flat, tint: hovering ? tint : nil) {
-                HStack(spacing: 12) {
-                    IconTile(systemName: icon, tint: tint, size: 36, corner: 10)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(title)
-                            .font(.system(size: 13.5, weight: .semibold))
-                            .foregroundStyle(.primary)
-                        Text(detail)
-                            .font(.system(size: 10.5))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
-                    Spacer(minLength: 5)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(.tertiary)
+            // The waves, glow, breathing and rim run on Core Animation, so the
+            // button keeps pulsing without redrawing the screen every frame.
+            ZStack {
+                RippleRings(color: accent.opacity(0.75), diameter: diameter, count: waveCount, period: period,
+                            growth: 0.75, fillOpacity: 0.12, lineWidth: 2, animate: animated)
+                    .frame(width: diameter * 1.8, height: diameter * 1.8)
+
+                LayerMotion(kind: .breathe, period: 1.6, amount: 0.45, animate: animated) {
+                    Circle()
+                        .fill(accent.opacity(0.5))
+                        .frame(width: diameter, height: diameter)
+                        .blur(radius: 26)
+                        .frame(width: diameter * 1.8, height: diameter * 1.8)
                 }
-                .frame(maxWidth: .infinity, minHeight: 46, alignment: .leading)
+                .frame(width: diameter * 1.8, height: diameter * 1.8)
+
+                ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color(red: 1.0, green: 0.55, blue: 0.93), accent, deep],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .overlay {
+                                Circle()
+                                    .fill(
+                                        RadialGradient(
+                                            colors: [.white.opacity(0.42), .clear],
+                                            center: UnitPoint(x: 0.32, y: 0.22),
+                                            startRadius: 0,
+                                            endRadius: diameter * 0.55
+                                        )
+                                    )
+                            }
+                            .frame(width: diameter, height: diameter)
+                            .shadow(color: accent.opacity(0.7), radius: 18, y: 4)
+
+                        SpinningRim(
+                            colors: [.white.opacity(0.95), accent.opacity(0.2), .white.opacity(0.6), accent.opacity(0.2), .white.opacity(0.95)],
+                            diameter: diameter,
+                            lineWidth: 2,
+                            period: 4,
+                            animate: animated
+                        )
+                        .frame(width: diameter, height: diameter)
+
+                        VStack(spacing: 1) {
+                            Text(title)
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                            if let subtitle {
+                                Text(subtitle)
+                                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                    .monospacedDigit()
+                                    .opacity(0.9)
+                            }
+                        }
+                        .foregroundStyle(.white)
+                        .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+                }
+                .frame(width: diameter * 1.4, height: diameter * 1.4)
             }
+            .scaleEffect((hovering ? 1.06 : 1) * (pressed ? 0.94 : 1))
+            .frame(width: diameter * 1.8, height: diameter * 1.8)
+            .contentShape(Circle().inset(by: diameter * 0.4))
         }
         .buttonStyle(.plain)
-        .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .onHover { hovering = $0 }
-    }
-}
-
-private struct CategoryResultRow: View {
-    let result: CategoryResult
-    let selectedCount: Int
-    @Binding var selection: Bool
-    let open: () -> Void
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Toggle("", isOn: $selection)
-                .labelsHidden()
-                .toggleStyle(AnimatedCheckboxStyle(tint: Tint.accent))
-            IconTile(systemName: result.category.icon, tint: result.category.color, size: 30, corner: 8)
-            Button(action: open) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(LocalizedStringKey(result.category.rawValue))
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(.primary)
-                        Text("\(selectedCount) of \(result.itemCount) selected")
-                            .font(.system(size: 10.5))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Text(result.formattedSize)
-                        .font(.system(size: 12.5, weight: .semibold))
-                        .monospacedDigit()
-                        .foregroundStyle(.primary)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(.tertiary)
-                }
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
+        .onHover { isHovering in
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) { hovering = isHovering }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 11)
-    }
-}
-
-private struct ScanPathTicker: View {
-    @ObservedObject var ticker: ScanProgressTicker
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "folder")
-                .font(.system(size: 10))
-            Text(ticker.path.isEmpty ? String(localized: "Preparing the next area…") : ticker.path)
-                .lineLimit(1)
-                .truncationMode(.middle)
-        }
-        .font(.system(size: 10.5, design: .monospaced))
-        .foregroundStyle(.secondary)
-        .accessibilityLabel("Current scan path")
-        .accessibilityValue(ticker.path)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in if !pressed { withAnimation(.easeOut(duration: 0.1)) { pressed = true } } }
+                .onEnded { _ in withAnimation(.spring(response: 0.3, dampingFraction: 0.55)) { pressed = false } }
+        )
     }
 }
