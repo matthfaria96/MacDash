@@ -17,7 +17,7 @@ final class SavedWiFiModel: ObservableObject {
     @Published var selection: Set<String> = []
     @Published private(set) var isForgetting = false
     @Published private(set) var connection: SavedWiFiNetworks.ConnectionDetails?
-    /// Passwords by SSID, kept in memory until hidden or MacFresh quits.
+    /// Passwords by SSID, kept in memory until hidden or MacDash quits.
     @Published private(set) var passwords: [String: String] = [:]
     /// Networks whose password is being read right now.
     @Published private(set) var revealing: Set<String> = []
@@ -452,7 +452,7 @@ private struct PasswordInfoButton: View {
             VStack(alignment: .leading, spacing: 12) {
                 Label("How to see a password", systemImage: "key.fill")
                     .font(.system(size: 13, weight: .semibold))
-                Text("Wi-Fi passwords are protected by macOS. Every time you show one, macOS asks for your Mac account. This is required by Apple, and MacFresh can't skip it.")
+                Text("Wi-Fi passwords are protected by macOS. Every time you show one, macOS asks for your Mac account. This is required by Apple, and MacDash can't skip it.")
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

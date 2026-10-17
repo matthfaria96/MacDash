@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// First launch: what MacFresh does, the permissions it needs (checked live
+/// First launch: what MacDash does, the permissions it needs (checked live
 /// with macOS), then straight into the app. Skipping is always possible;
 /// everything here can be done later in Settings › Permissions.
 struct OnboardingView: View {
@@ -91,7 +91,7 @@ struct OnboardingView: View {
             Spacer()
 
             if page == .ready {
-                Button("Start using MacFresh") { isComplete = true }
+                Button("Start using MacDash") { isComplete = true }
                     .buttonStyle(GlassProminentButtonStyle(large: true))
                     .keyboardShortcut(.defaultAction)
             } else {
@@ -146,7 +146,7 @@ private struct WelcomeScene: View {
             .staggered(0, baseDelay: 0.08)
 
             VStack(spacing: 10) {
-                Text("Welcome to MacFresh")
+                Text("Welcome to MacDash")
                     .font(.system(size: 36, weight: .semibold, design: .rounded))
                     .tracking(-0.6)
                     .foregroundStyle(.white)

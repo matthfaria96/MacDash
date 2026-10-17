@@ -39,7 +39,7 @@ enum ApplicationUpdaterError: LocalizedError, Equatable {
         case .homebrewNotInstalled:
             return String(localized: "Homebrew was not found in a standard installation location.")
         case .invalidResponse:
-            return String(localized: "Homebrew returned update information MacFresh could not read.")
+            return String(localized: "Homebrew returned update information MacDash could not read.")
         case .invalidCaskIdentifier(let token):
             return String(localized: "Homebrew returned an invalid cask identifier: \(token)")
         case .noSelection:
@@ -49,7 +49,7 @@ enum ApplicationUpdaterError: LocalizedError, Equatable {
         case .timedOut:
             return String(localized: "Homebrew did not finish before the operation timed out.")
         case .outputLimitExceeded:
-            return String(localized: "Homebrew produced more output than MacFresh could safely retain.")
+            return String(localized: "Homebrew produced more output than MacDash could safely retain.")
         }
     }
 }

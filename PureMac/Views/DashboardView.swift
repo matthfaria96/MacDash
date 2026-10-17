@@ -436,7 +436,7 @@ struct DashboardView: View {
                 VStack(spacing: 6) {
                     Text("Cleaning selected items")
                         .font(.system(size: 24, weight: .semibold))
-                    Text("Keep MacFresh open until this pass finishes.")
+                    Text("Keep MacDash open until this pass finishes.")
                         .font(.system(size: 12.5))
                         .foregroundStyle(.secondary)
                 }

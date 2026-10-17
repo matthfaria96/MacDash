@@ -648,7 +648,7 @@ struct MenuBarPanelView: View {
                     Image(nsImage: NSApp.applicationIconImage)
                         .resizable()
                         .frame(width: 18, height: 18)
-                    Text("Open MacFresh")
+                    Text("Open MacDash")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.white.opacity(0.9))
                 }

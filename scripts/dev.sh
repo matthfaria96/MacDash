@@ -8,7 +8,7 @@
 set -euo pipefail
 
 ROOT="${0:A:h:h}"
-APP="$ROOT/build/derived/Build/Products/Debug/MacFresh.app"
+APP="$ROOT/build/derived/Build/Products/Debug/MacDash.app"
 export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
 
 cd "$ROOT"
@@ -30,7 +30,7 @@ case "${1:-run}" in
     ;;
   run)
     build
-    pkill -x MacFresh 2>/dev/null || true
+    pkill -x MacDash 2>/dev/null || true
     sleep 1
     open "$APP"
     echo "Opened $APP"

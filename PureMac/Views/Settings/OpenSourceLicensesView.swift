@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The licenses of the open-source work MacFresh is built from, shown in
+/// The licenses of the open-source work MacDash is built from, shown in
 /// full so the notices travel with the app.
 struct OpenSourceLicensesView: View {
     @Environment(\.dismiss) private var dismiss
@@ -208,7 +208,7 @@ struct OpenSourceLicensesView: View {
             Divider()
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    Text("MacFresh is built on the open-source projects below. Their copyright notices and licenses are kept here as those licenses require.")
+                    Text("MacDash is built on the open-source projects below. Their copyright notices and licenses are kept here as those licenses require.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                     ForEach(entries) { entry in

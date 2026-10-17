@@ -388,7 +388,7 @@ struct PerformanceSample: Identifiable, Equatable {
 }
 
 /// Live memory, CPU and temperature for the Performance page. Sampling runs
-/// only while the page is on screen and MacFresh is the frontmost app.
+/// only while the page is on screen and MacDash is the frontmost app.
 @MainActor
 final class PerformanceModel: ObservableObject {
     static let historyLength = 90

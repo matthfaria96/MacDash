@@ -53,7 +53,7 @@ enum SparkleInstaller {
         guard let kind = archiveKind(of: downloadURL) else { throw InstallError.unsupportedFormat }
 
         let workspace = FileManager.default.temporaryDirectory
-            .appendingPathComponent("MacFreshUpdate-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("MacDashUpdate-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: workspace, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: workspace) }
 

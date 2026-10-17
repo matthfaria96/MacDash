@@ -1,12 +1,12 @@
 /* macOS permission prompts */
-"NSAppleEventsUsageDescription" = "MacFresh использует Apple Events, чтобы показывать файлы в Finder и управлять объектами входа через System Events.";
-"NSDesktopFolderUsageDescription" = "MacFresh требуется доступ к папке «Рабочий стол», чтобы находить мусорные и остаточные файлы.";
-"NSDocumentsFolderUsageDescription" = "MacFresh требуется доступ к папке «Документы», чтобы находить мусорные и остаточные файлы.";
-"NSDownloadsFolderUsageDescription" = "MacFresh требуется доступ к папке «Загрузки», чтобы находить мусорные и остаточные файлы.";
-"NSRemovableVolumesUsageDescription" = "MacFresh требуется доступ к съёмным томам для поиска мусорных файлов.";
-"NSSystemAdministrationUsageDescription" = "MacFresh требуются права администратора, чтобы полностью очищать кэши и удалять приложения.";
+"NSAppleEventsUsageDescription" = "MacDash использует Apple Events, чтобы показывать файлы в Finder и управлять объектами входа через System Events.";
+"NSDesktopFolderUsageDescription" = "MacDash требуется доступ к папке «Рабочий стол», чтобы находить мусорные и остаточные файлы.";
+"NSDocumentsFolderUsageDescription" = "MacDash требуется доступ к папке «Документы», чтобы находить мусорные и остаточные файлы.";
+"NSDownloadsFolderUsageDescription" = "MacDash требуется доступ к папке «Загрузки», чтобы находить мусорные и остаточные файлы.";
+"NSRemovableVolumesUsageDescription" = "MacDash требуется доступ к съёмным томам для поиска мусорных файлов.";
+"NSSystemAdministrationUsageDescription" = "MacDash требуются права администратора, чтобы полностью очищать кэши и удалять приложения.";
 "NSHumanReadableCopyright" = "© 2026. Лицензия MIT.";
 
-"NSBluetoothAlwaysUsageDescription" = "MacFresh считывает уровень заряда подключённых клавиатур, мышей и наушников, чтобы показать его в панели строки меню.";
-"NSLocationUsageDescription" = "MacFresh использует это только для показа имени вашей сети Wi-Fi. macOS считает имена сетей данными о местоположении; MacFresh никогда не узнаёт, где вы.";
-"NSLocationWhenInUseUsageDescription" = "MacFresh использует это только для показа имени вашей сети Wi-Fi. macOS считает имена сетей данными о местоположении; MacFresh никогда не узнаёт, где вы.";
+"NSBluetoothAlwaysUsageDescription" = "MacDash считывает уровень заряда подключённых клавиатур, мышей и наушников, чтобы показать его в панели строки меню.";
+"NSLocationUsageDescription" = "MacDash использует это только для показа имени вашей сети Wi-Fi. macOS считает имена сетей данными о местоположении; MacDash никогда не узнаёт, где вы.";
+"NSLocationWhenInUseUsageDescription" = "MacDash использует это только для показа имени вашей сети Wi-Fi. macOS считает имена сетей данными о местоположении; MacDash никогда не узнаёт, где вы.";

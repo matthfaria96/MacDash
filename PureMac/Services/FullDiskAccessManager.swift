@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 
-/// Detects whether Full Disk Access (FDA) has been granted to MacFresh.
+/// Detects whether Full Disk Access (FDA) has been granted to MacDash.
 /// Without FDA, macOS TCC blocks access to ~/Library/Mail, ~/Library/Safari,
 /// /Library/Application Support/com.apple.TCC, and other protected locations.
 final class FullDiskAccessManager {
@@ -29,7 +29,7 @@ final class FullDiskAccessManager {
     }
 
     /// Real-read probe. Performs the syscall TCC actually evaluates, so
-    /// the OS records MacFresh as the requester and adds it to the FDA pane.
+    /// the OS records MacDash as the requester and adds it to the FDA pane.
     /// Directories use contentsOfDirectory; files use FileHandle.
     @discardableResult
     private func canActuallyRead(path: String) -> Bool {
@@ -53,19 +53,19 @@ final class FullDiskAccessManager {
         }
     }
 
-    /// Force MacFresh to appear in the Full Disk Access list.
+    /// Force MacDash to appear in the Full Disk Access list.
     ///
     /// The OS only registers an app in the FDA pane after that app itself
     /// makes a TCC-gated syscall. Metadata lookups (fileExists, isReadableFile)
     /// don't qualify, and delegating to Finder via AppleScript registers
-    /// *Finder* — not MacFresh. So at launch we touch a small set of paths
+    /// *Finder* — not MacDash. So at launch we touch a small set of paths
     /// gated specifically by the SystemPolicyAllFiles (FDA) service. The reads
     /// will fail until the user grants access — that's fine, the failed
     /// attempts are what register us.
     ///
     /// We intentionally do NOT probe Messages, Contacts, Calendars, or other
     /// paths gated by separate TCC services. Touching those would register
-    /// MacFresh in unrelated permission lists ("Messages", "Contacts", etc.)
+    /// MacDash in unrelated permission lists ("Messages", "Contacts", etc.)
     /// even though we never use them — confusing and a privacy regression.
     func triggerRegistration() {
         DispatchQueue.global(qos: .utility).async {
@@ -93,7 +93,7 @@ final class FullDiskAccessManager {
         NSWorkspace.shared.open(url)
     }
 
-    /// Reveal the running MacFresh.app bundle in Finder so the user can drag
+    /// Reveal the running MacDash.app bundle in Finder so the user can drag
     /// it into the Full Disk Access list when the OS hasn't auto-registered
     /// it (common with Homebrew installs that strip the quarantine attribute).
     func revealAppInFinder() {
@@ -101,13 +101,13 @@ final class FullDiskAccessManager {
         NSWorkspace.shared.activateFileViewerSelecting([bundleURL])
     }
 
-    /// Reset MacFresh's TCC entries so the OS can re-register the bundle.
+    /// Reset MacDash's TCC entries so the OS can re-register the bundle.
     /// Useful when the bundle was replaced (Homebrew upgrade, manual move)
     /// and the existing TCC row points at a stale code-signing identity.
     /// Returns true if the reset command exited cleanly.
     @discardableResult
     func resetFullDiskAccess() -> Bool {
-        let bundleID = Bundle.main.bundleIdentifier ?? "com.macfresh.app"
+        let bundleID = Bundle.main.bundleIdentifier ?? "com.macdash.app"
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
         process.arguments = ["reset", "SystemPolicyAllFiles", bundleID]

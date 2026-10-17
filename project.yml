@@ -1,6 +1,6 @@
 name: PureMac
 options:
-  bundleIdPrefix: com.macfresh
+  bundleIdPrefix: com.macdash
   deploymentTarget:
     macOS: "13.0"
   xcodeVersion: "27.0"
@@ -17,7 +17,7 @@ settings:
     CODE_SIGN_STYLE: "Automatic"
     CODE_SIGN_ENTITLEMENTS: "PureMac/PureMac.entitlements"
     INFOPLIST_FILE: "PureMac/Info.plist"
-    PRODUCT_BUNDLE_IDENTIFIER: "com.macfresh.app"
+    PRODUCT_BUNDLE_IDENTIFIER: "com.macdash.app"
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
     GENERATE_INFOPLIST_FILE: "NO"
@@ -32,7 +32,7 @@ targets:
       - PureMac
     settings:
       base:
-        PRODUCT_NAME: MacFresh
+        PRODUCT_NAME: MacDash
         PRODUCT_MODULE_NAME: PureMac
         SWIFT_EMIT_LOC_STRINGS: "YES"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"

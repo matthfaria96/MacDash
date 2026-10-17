@@ -712,7 +712,7 @@ private struct SpaceLensList: View {
                     Image(systemName: folder.isUnreadable ? "lock.fill" : "tray")
                         .font(.system(size: 22))
                         .foregroundStyle(.secondary)
-                    Text(folder.isUnreadable ? "MacFresh can't read this folder." : "This folder is empty.")
+                    Text(folder.isUnreadable ? "MacDash can't read this folder." : "This folder is empty.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)

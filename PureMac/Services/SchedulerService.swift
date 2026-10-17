@@ -8,7 +8,7 @@ class SchedulerService: ObservableObject {
     }
 
     private var timer: Timer?
-    private let configKey = "MacFresh.ScheduleConfig"
+    private let configKey = "MacDash.ScheduleConfig"
     private var onTrigger: (() async -> Void)?
 
     init() {

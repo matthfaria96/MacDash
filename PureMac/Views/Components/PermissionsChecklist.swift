@@ -82,7 +82,7 @@ struct PermissionsChecklist: View {
             .animation(reduceMotion ? nil : .spring(response: 0.6, dampingFraction: 0.8), value: granted)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(LocalizedStringKey(permissions.allRequiredGranted ? "You're all set" : "Allow what MacFresh needs"))
+                Text(LocalizedStringKey(permissions.allRequiredGranted ? "You're all set" : "Allow what MacDash needs"))
                     .font(.system(size: 26, weight: .semibold, design: .rounded))
                     .tracking(-0.4)
                     .foregroundStyle(.white)
@@ -127,7 +127,7 @@ private struct RequiredPermissionCard: View {
                 if !granted {
                     HStack(spacing: 14) {
                         step(1, String(localized: "Open System Settings"))
-                        step(2, String(localized: "Turn on MacFresh in the list"))
+                        step(2, String(localized: "Turn on MacDash in the list"))
                     }
                     .padding(.top, 2)
                     .transition(.opacity)

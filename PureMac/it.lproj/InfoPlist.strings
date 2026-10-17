@@ -1,12 +1,12 @@
 /* Richieste di permesso di macOS */
-"NSAppleEventsUsageDescription" = "MacFresh usa gli eventi Apple per mostrare i file nel Finder e gestire gli elementi di login tramite System Events.";
-"NSDesktopFolderUsageDescription" = "MacFresh richiede l'accesso alla Scrivania per trovare file inutili e residui.";
-"NSDocumentsFolderUsageDescription" = "MacFresh richiede l'accesso ai Documenti per trovare file inutili e residui.";
-"NSDownloadsFolderUsageDescription" = "MacFresh richiede l'accesso ai Download per trovare file inutili e residui.";
-"NSRemovableVolumesUsageDescription" = "MacFresh richiede l'accesso ai volumi rimovibili per cercare file inutili.";
-"NSSystemAdministrationUsageDescription" = "MacFresh richiede i privilegi di amministratore per pulire le cache e disinstallare completamente le app.";
+"NSAppleEventsUsageDescription" = "MacDash usa gli eventi Apple per mostrare i file nel Finder e gestire gli elementi di login tramite System Events.";
+"NSDesktopFolderUsageDescription" = "MacDash richiede l'accesso alla Scrivania per trovare file inutili e residui.";
+"NSDocumentsFolderUsageDescription" = "MacDash richiede l'accesso ai Documenti per trovare file inutili e residui.";
+"NSDownloadsFolderUsageDescription" = "MacDash richiede l'accesso ai Download per trovare file inutili e residui.";
+"NSRemovableVolumesUsageDescription" = "MacDash richiede l'accesso ai volumi rimovibili per cercare file inutili.";
+"NSSystemAdministrationUsageDescription" = "MacDash richiede i privilegi di amministratore per pulire le cache e disinstallare completamente le app.";
 "NSHumanReadableCopyright" = "Copyright 2026. Licenza MIT.";
 
-"NSBluetoothAlwaysUsageDescription" = "MacFresh legge il livello della batteria di tastiere, mouse e cuffie collegati per mostrarlo nel pannello della barra dei menu.";
-"NSLocationUsageDescription" = "MacFresh lo usa solo per mostrare il nome della tua rete Wi-Fi. macOS considera i nomi di rete come dati di posizione; MacFresh non legge mai dove ti trovi.";
-"NSLocationWhenInUseUsageDescription" = "MacFresh lo usa solo per mostrare il nome della tua rete Wi-Fi. macOS considera i nomi di rete come dati di posizione; MacFresh non legge mai dove ti trovi.";
+"NSBluetoothAlwaysUsageDescription" = "MacDash legge il livello della batteria di tastiere, mouse e cuffie collegati per mostrarlo nel pannello della barra dei menu.";
+"NSLocationUsageDescription" = "MacDash lo usa solo per mostrare il nome della tua rete Wi-Fi. macOS considera i nomi di rete come dati di posizione; MacDash non legge mai dove ti trovi.";
+"NSLocationWhenInUseUsageDescription" = "MacDash lo usa solo per mostrare il nome della tua rete Wi-Fi. macOS considera i nomi di rete come dati di posizione; MacDash non legge mai dove ti trovi.";

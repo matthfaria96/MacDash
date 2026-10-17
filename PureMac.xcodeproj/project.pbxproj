@@ -164,7 +164,7 @@
 		28181F034530331A550C6A3D /* SchedulerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerService.swift; sourceTree = "<group>"; };
 		2A8DE5D45BA19E2670B57DC5 /* CleaningEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleaningEngine.swift; sourceTree = "<group>"; };
 		2D3F9FEDC493A8E49E910F67 /* AppBundleDragHandle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBundleDragHandle.swift; sourceTree = "<group>"; };
-		311078221878708524283765 /* MacFresh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacFresh.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		311078221878708524283765 /* MacDash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacDash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		340D303C60FF878B019056B6 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		3667D46D8E2004EB4D73835A /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		374A3BE46E71E54B6927E9EF /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/ServicesMenu.strings; sourceTree = "<group>"; };
@@ -359,7 +359,7 @@
 		4562CA9E5625FA4EEEFECB6D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				311078221878708524283765 /* MacFresh.app */,
+				311078221878708524283765 /* MacDash.app */,
 				607B9A8C7B34D6A7DCF4FFE2 /* PureMacTests.xctest */,
 			);
 			name = Products;
@@ -555,8 +555,8 @@
 			name = PureMac;
 			packageProductDependencies = (
 			);
-			productName = MacFresh;
-			productReference = 311078221878708524283765 /* MacFresh.app */;
+			productName = MacDash;
+			productReference = 311078221878708524283765 /* MacDash.app */;
 			productType = "com.apple.product-type.application";
 		};
 		FBA8B0DE95746207A043B802 /* PureMacTests */ = {
@@ -897,8 +897,8 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.macfresh.app;
-				PRODUCT_NAME = MacFresh;
+				PRODUCT_BUNDLE_IDENTIFIER = com.macdash.app;
+				PRODUCT_NAME = MacDash;
 				PRODUCT_MODULE_NAME = PureMac;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -914,7 +914,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = PureMac/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_NAME = MacFresh;
+				PRODUCT_NAME = MacDash;
 				PRODUCT_MODULE_NAME = PureMac;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -936,7 +936,7 @@
 					"@loader_path/../Frameworks",
 				);
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacFresh.app/Contents/MacOS/MacFresh";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacDash.app/Contents/MacOS/MacDash";
 			};
 			name = Debug;
 		};
@@ -955,7 +955,7 @@
 					"@loader_path/../Frameworks",
 				);
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacFresh.app/Contents/MacOS/MacFresh";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacDash.app/Contents/MacOS/MacDash";
 			};
 			name = Release;
 		};
@@ -1018,8 +1018,8 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.macfresh.app;
-				PRODUCT_NAME = MacFresh;
+				PRODUCT_BUNDLE_IDENTIFIER = com.macdash.app;
+				PRODUCT_NAME = MacDash;
 				PRODUCT_MODULE_NAME = PureMac;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -1035,7 +1035,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = PureMac/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_NAME = MacFresh;
+				PRODUCT_NAME = MacDash;
 				PRODUCT_MODULE_NAME = PureMac;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;

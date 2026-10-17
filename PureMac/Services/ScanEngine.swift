@@ -317,7 +317,7 @@ actor ScanEngine {
     /// `ThreatSignatures`. Known adware families come preselected; launch items
     /// flagged only by their arguments wait for the user to review them.
     private func scanThreats() -> CategoryResult {
-        let ownPrefixes = [Bundle.main.bundleIdentifier, "com.macfresh", "com.mactidy"].compactMap { $0 }
+        let ownPrefixes = [Bundle.main.bundleIdentifier, "com.macdash", "com.mactidy"].compactMap { $0 }
         // (folder, recursive depth, file extensions to consider; empty = any)
         let targets: [(path: String, depth: Int, extensions: Set<String>)] = [
             ("\(home)/Library/LaunchAgents", 1, ["plist"]),

@@ -21,7 +21,7 @@ enum LaunchItemControl {
         var errorDescription: String? {
             switch self {
             case .automationDenied:
-                return String(localized: "MacFresh isn't allowed to control System Events. Allow it in System Settings › Privacy & Security › Automation.")
+                return String(localized: "MacDash isn't allowed to control System Events. Allow it in System Settings › Privacy & Security › Automation.")
             case .commandFailed(let message):
                 return message.isEmpty ? String(localized: "The change could not be made.") : message
             }

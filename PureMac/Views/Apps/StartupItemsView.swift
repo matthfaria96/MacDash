@@ -305,7 +305,7 @@ struct StartupItemsView: View {
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Allow access to System Events")
                                 .font(.system(size: 13, weight: .semibold))
-                            Text("Login items are read through System Events. Allow MacFresh under Automation, then try again.")
+                            Text("Login items are read through System Events. Allow MacDash under Automation, then try again.")
                                 .font(.system(size: 11.5))
                                 .foregroundStyle(.white.opacity(0.65))
                                 .fixedSize(horizontal: false, vertical: true)

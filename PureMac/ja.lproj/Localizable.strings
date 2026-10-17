@@ -2,7 +2,7 @@
 "Applications" = "アプリケーション";
 "Cleanup" = "クリーンアップ";
 "Orphaned Files" = "孤立ファイル";
-"MacFresh" = "MacFresh";
+"MacDash" = "MacDash";
 "Limited access" = "アクセスが制限されています";
 
 /* FDA toast + clean error alert (MainWindow) */
@@ -69,7 +69,7 @@
 
 /* Onboarding */
 "Back" = "戻る";
-"Welcome to MacFresh" = "MacFreshへようこそ";
+"Welcome to MacDash" = "MacDashへようこそ";
 "Orphan Finder" = "孤立ファイル検出";
 "Full Disk Access" = "フルディスクアクセス";
 "Trash" = "ゴミ箱";
@@ -81,8 +81,8 @@
 /* Settings */
 "General" = "一般";
 "Cleaning" = "クリーニング";
-"About" = "MacFreshについて";
-"Launch MacFresh at login" = "ログイン時にMacFreshを起動";
+"About" = "MacDashについて";
+"Launch MacDash at login" = "ログイン時にMacDashを起動";
 "App Scanning" = "アプリスキャン";
 "Search sensitivity" = "検索の精度";
 "Strict" = "厳格";
@@ -92,7 +92,7 @@
 "Includes partial name matching and bundle ID components." = "部分的な名前一致やバンドルID要素も含めます。";
 "Includes company name, entitlements, and team identifier matching." = "会社名、エンタイトルメント、チームIDの一致を含めます。";
 "Language" = "言語";
-"Restart MacFresh to apply the selected language." = "選択した言語を適用するにはMacFreshを再起動してください。";
+"Restart MacDash to apply the selected language." = "選択した言語を適用するにはMacDashを再起動してください。";
 "Relaunch Now" = "今すぐ再起動";
 "System Default" = "システムデフォルト";
 "English" = "英語";
@@ -198,16 +198,16 @@
 " and %lld more" = " 他 %lld 件";
 "Access granted. Retrying…" = "アクセスが許可されました。再試行中…";
 "1-tap setup. We'll detect the change automatically." = "ワンタップ設定。変更は自動的に検出されます。";
-"Open Settings & reveal MacFresh" = "設定を開き MacFresh を表示";
-"Turn on MacFresh" = "MacFresh をオンにする";
+"Open Settings & reveal MacDash" = "設定を開き MacDash を表示";
+"Turn on MacDash" = "MacDash をオンにする";
 "Toggle the row that appears." = "表示された行をオンに切り替えてください。";
 "Authenticate" = "認証";
 "Touch ID or password." = "Touch ID またはパスワード。";
 "We auto-retry — no need to come back." = "自動的に再試行します - 戻る必要はありません。";
 "Watching for permission change…" = "権限の変更を待機中…";
-"MacFresh not in the list?" = "MacFresh がリストに表示されない？";
+"MacDash not in the list?" = "MacDash がリストに表示されない？";
 "Hide help" = "ヘルプを隠す";
-"Try this if MacFresh doesn't appear:" = "MacFresh が表示されない場合はこれを試してください:";
+"Try this if MacDash doesn't appear:" = "MacDash が表示されない場合はこれを試してください:";
 "Reveal app" = "アプリを表示";
 "Reset + reprompt" = "リセットして再表示";
 "Clear stale TCC entry" = "古い TCC エントリを削除";
@@ -265,8 +265,8 @@
 "CPU" = "CPU";
 "Memory" = "メモリ";
 "Disk" = "ディスク";
-"Open MacFresh" = "MacFreshを開く";
-"Quit MacFresh" = "MacFreshを終了";
+"Open MacDash" = "MacDashを開く";
+"Quit MacDash" = "MacDashを終了";
 
 /* Finder Service */
 "Select an application (.app) to uninstall." = "アンインストールするアプリケーション（.app）を選択してください。";
@@ -288,7 +288,7 @@
 
 /* Current dashboard, tools, and cleanup review — English fallback until translated */
 "%@ %@ to %@" = "%@ %@ to %@";
-"%@ could not be removed because MacFresh does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "%@ could not be removed because MacFresh does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again.";
+"%@ could not be removed because MacDash does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "%@ could not be removed because MacDash does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again.";
 "%@ did not finish within the allowed time." = "%@ did not finish within the allowed time.";
 "%@ exited with status %d%@" = "%@ exited with status %d%@";
 "%@ files inspected" = "%@ files inspected";
@@ -383,9 +383,9 @@
 "Homebrew finished, but %lld selected apps still report updates." = "Homebrew finished, but %lld selected apps still report updates.";
 "Homebrew finished, but 1 selected app still reports an update." = "Homebrew finished, but 1 selected app still reports an update.";
 "Homebrew finished. Check again to verify installed versions." = "Homebrew finished. Check again to verify installed versions.";
-"Homebrew produced more output than MacFresh could safely retain." = "Homebrew produced more output than MacFresh could safely retain.";
+"Homebrew produced more output than MacDash could safely retain." = "Homebrew produced more output than MacDash could safely retain.";
 "Homebrew returned an invalid cask identifier: %@" = "Homebrew returned an invalid cask identifier: %@";
-"Homebrew returned update information MacFresh could not read." = "Homebrew returned update information MacFresh could not read.";
+"Homebrew returned update information MacDash could not read." = "Homebrew returned update information MacDash could not read.";
 "Homebrew updated the %lld selected apps." = "Homebrew updated the %lld selected apps.";
 "Homebrew updated the selected app." = "Homebrew updated the selected app.";
 "Homebrew was not found in a standard installation location." = "Homebrew was not found in a standard installation location.";
@@ -397,7 +397,7 @@
 "Installed" = "Installed";
 "Installed %@" = "Installed %@";
 "Keep" = "Keep";
-"Keep MacFresh open until this pass finishes." = "Keep MacFresh open until this pass finishes.";
+"Keep MacDash open until this pass finishes." = "Keep MacDash open until this pass finishes.";
 "Keep alive" = "Keep alive";
 "Largest first" = "Largest first";
 "Last activity: %@" = "Last activity: %@";
@@ -446,11 +446,11 @@
 "Protected copy" = "Protected copy";
 "Protected system locations and processes are restricted." = "Protected system locations and processes are restricted.";
 "Protection" = "Protection";
-"MacFresh builds small local thumbnails, compares their visual structure and color, then groups likely matches for review." = "MacFresh builds small local thumbnails, compares their visual structure and color, then groups likely matches for review.";
-"MacFresh could not confirm the local XProtect installation." = "MacFresh could not confirm the local XProtect installation.";
-"MacFresh could not read this setting." = "MacFresh could not read this setting.";
-"MacFresh did not find removable items in the selected scan areas." = "MacFresh did not find removable items in the selected scan areas.";
-"MacFresh will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing." = "MacFresh will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing.";
+"MacDash builds small local thumbnails, compares their visual structure and color, then groups likely matches for review." = "MacDash builds small local thumbnails, compares their visual structure and color, then groups likely matches for review.";
+"MacDash could not confirm the local XProtect installation." = "MacDash could not confirm the local XProtect installation.";
+"MacDash could not read this setting." = "MacDash could not read this setting.";
+"MacDash did not find removable items in the selected scan areas." = "MacDash did not find removable items in the selected scan areas.";
+"MacDash will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing." = "MacDash will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing.";
 "MacTidy.app" = "MacTidy.app";
 "Refresh disk information" = "Refresh disk information";
 "Refused to delete %lld protected item(s) (home credential directory or similar)." = "Refused to delete %lld protected item(s) (home credential directory or similar).";
@@ -500,7 +500,7 @@
 "System daemon" = "System daemon";
 "System update" = "System update";
 "System-wide agent" = "System-wide agent";
-"The analyzed photos did not meet MacFresh's visual similarity threshold." = "The analyzed photos did not meet MacFresh's visual similarity threshold.";
+"The analyzed photos did not meet MacDash's visual similarity threshold." = "The analyzed photos did not meet MacDash's visual similarity threshold.";
 "The check timed out." = "The check timed out.";
 "The copy marked Keep is missing or changed: %@" = "The copy marked Keep is missing or changed: %@";
 "The inspected user and third-party launch folders are empty." = "The inspected user and third-party launch folders are empty.";
@@ -544,7 +544,7 @@
 "Build %@" = "ビルド %@";
 "Homebrew" = "Homebrew";
 
-"Make MacFresh work your way." = "Make MacFresh work your way.";
+"Make MacDash work your way." = "Make MacDash work your way.";
 "Measuring apps and processes…" = "Measuring apps and processes…";
 "Process information is unavailable. Try Activity Monitor for more detail." = "Process information is unavailable. Try Activity Monitor for more detail.";
 "Settings" = "設定";
@@ -626,8 +626,8 @@
 
 "Next run" = "次回の実行";
 "How automatic scanning works" = "自動スキャンのしくみ";
-"While MacFresh is open, it checks the clock once a minute and runs a scan when the chosen interval has passed since the last run." = "MacFresh が開いている間、1分ごとに時刻を確認し、前回の実行から選んだ間隔が過ぎるとスキャンを実行します。";
-"It only runs while the app is open. It does not start the app by itself, so nothing happens while MacFresh is quit." = "アプリが開いている間だけ動作します。アプリを自動で起動することはないため、MacFresh を終了している間は何も起こりません。";
+"While MacDash is open, it checks the clock once a minute and runs a scan when the chosen interval has passed since the last run." = "MacDash が開いている間、1分ごとに時刻を確認し、前回の実行から選んだ間隔が過ぎるとスキャンを実行します。";
+"It only runs while the app is open. It does not start the app by itself, so nothing happens while MacDash is quit." = "アプリが開いている間だけ動作します。アプリを自動で起動することはないため、MacDash を終了している間は何も起こりません。";
 "It scans the same areas as Smart Care. Orphaned files, duplicates and similar photos are never included." = "スマートケアと同じ領域をスキャンします。孤立ファイル、重複、類似写真は対象外です。";
 "It waits if another scan, a cleanup or a confirmation is in progress, and skips a run while scan results are open on screen." = "別のスキャン、クリーンアップ、確認が進行中のときは待機し、結果が画面に開いている間は実行をスキップします。";
 "With Auto-clean on, items selected by default are permanently deleted once at least 100 MB are selected. Large files and personal data are unselected by default, so they are never removed automatically. Excluded paths are always kept." = "自動クリーンアップをオンにすると、デフォルトで選択された項目は、選択が100 MB以上になった時点で完全に削除されます。大きなファイルと個人データは初期状態で未選択のため、自動で削除されることはありません。除外したパスは常に保持されます。";
@@ -646,7 +646,7 @@
 "Choose" = "選択";
 "%@ free of %@" = "%@ 空き / 全体 %@";
 "Change Location" = "場所を変更";
-"Choose where to look. MacFresh compares file sizes first, then verifies matching files byte for byte. Nothing is selected or removed automatically." = "検索する場所を選んでください。MacFresh はまずファイルサイズを比較し、一致したファイルをバイト単位で検証します。自動で選択・削除されることはありません。";
+"Choose where to look. MacDash compares file sizes first, then verifies matching files byte for byte. Nothing is selected or removed automatically." = "検索する場所を選んでください。MacDash はまずファイルサイズを比較し、一致したファイルをバイト単位で検証します。自動で選択・削除されることはありません。";
 "Find photos that look alike" = "似た写真を見つける";
 
 "Groups" = "グループ";
@@ -657,7 +657,7 @@
 
 "Checking for updates" = "アップデートを確認中";
 "Check your apps for updates" = "アプリのアップデートを確認";
-"MacFresh reads the update feed of every app that has its own updater, and asks Homebrew about the apps it manages." = "MacFresh は独自のアップデータを持つ各アプリのフィードを読み、Homebrew が管理するアプリについて問い合わせます。";
+"MacDash reads the update feed of every app that has its own updater, and asks Homebrew about the apps it manages." = "MacDash は独自のアップデータを持つ各アプリのフィードを読み、Homebrew が管理するアプリについて問い合わせます。";
 "Apps with their own updater are up to date (%lld checked)." = "独自のアップデータを持つアプリは最新です（%lld 個を確認）。";
 "Apps with their own updater" = "独自のアップデータを持つアプリ";
 "Open App Store" = "App Store を開く";
@@ -665,7 +665,7 @@
 "Homebrew is not installed, so cask apps were not checked." = "Homebrew がインストールされていないため、Cask アプリは確認していません。";
 "Couldn't check Homebrew" = "Homebrew を確認できませんでした";
 "Homebrew apps are up to date." = "Homebrew のアプリは最新です。";
-"MacFresh isn't allowed to control System Events. Allow it in System Settings › Privacy & Security › Automation." = "MacFresh は System Events を制御できません。システム設定 › プライバシーとセキュリティ › オートメーションで許可してください。";
+"MacDash isn't allowed to control System Events. Allow it in System Settings › Privacy & Security › Automation." = "MacDash は System Events を制御できません。システム設定 › プライバシーとセキュリティ › オートメーションで許可してください。";
 "The change could not be made." = "変更できませんでした。";
 "The change could not be made" = "変更できませんでした";
 "System Settings" = "システム設定";
@@ -674,7 +674,7 @@
 "Open when you log in" = "ログイン時に開く";
 "Reading login items…" = "ログイン項目を読み込み中…";
 "Allow access to System Events" = "System Events へのアクセスを許可してください";
-"Login items are read through System Events. Allow MacFresh under Automation, then try again." = "ログイン項目は System Events 経由で読み込みます。オートメーションで MacFresh を許可してから、もう一度お試しください。";
+"Login items are read through System Events. Allow MacDash under Automation, then try again." = "ログイン項目は System Events 経由で読み込みます。オートメーションで MacDash を許可してから、もう一度お試しください。";
 "Open Settings" = "設定を開く";
 "No login items." = "ログイン項目はありません。";
 "Switch off so it no longer starts" = "オフにすると起動しなくなります";
@@ -713,7 +713,7 @@
 "Reading permissions" = "アクセス権を読み込み中";
 "Looking at what macOS has allowed each app to do." = "macOS が各アプリに許可している内容を確認しています。";
 "Full Disk Access needed" = "フルディスクアクセスが必要です";
-"macOS keeps its permission list in a protected database. Give MacFresh Full Disk Access, then check again." = "macOS はアクセス権の一覧を保護されたデータベースに保存しています。MacFresh にフルディスクアクセスを許可してから、もう一度確認してください。";
+"macOS keeps its permission list in a protected database. Give MacDash Full Disk Access, then check again." = "macOS はアクセス権の一覧を保護されたデータベースに保存しています。MacDash にフルディスクアクセスを許可してから、もう一度確認してください。";
 "Open Full Disk Access" = "フルディスクアクセスを開く";
 "macOS doesn't let other apps change these permissions. Turn one off in System Settings › Privacy & Security; the app asks again the next time it needs it." = "macOS では他のアプリがこれらのアクセス権を変更することはできません。システム設定 › プライバシーとセキュリティでオフにしてください。アプリは必要なときに再度確認します。";
 "Can control: %@" = "操作できるアプリ：%@";
@@ -725,7 +725,7 @@
 "This extension was installed by a management policy, so %@ would reinstall it. If you don't recognize it, look for unknown profiles in System Settings › General › Device Management." = "この機能拡張は管理ポリシーによってインストールされたため、%@ が再インストールします。心当たりがない場合は、システム設定 › 一般 › デバイス管理で不明なプロファイルを確認してください。";
 "This extension is built into %@ and can't be removed." = "この機能拡張は %@ に組み込まれているため削除できません。";
 "Safari extensions come with apps and are managed by macOS. Turn them off in Safari › Settings › Extensions, or uninstall the app that added them." = "Safari の機能拡張はアプリに含まれ、macOS が管理しています。Safari › 設定 › 機能拡張でオフにするか、追加したアプリをアンインストールしてください。";
-"MacFresh couldn't confirm this extension's folder is safe to remove, so nothing was deleted." = "MacFresh はこの機能拡張のフォルダを安全に削除できるか確認できなかったため、何も削除していません。";
+"MacDash couldn't confirm this extension's folder is safe to remove, so nothing was deleted." = "MacDash はこの機能拡張のフォルダを安全に削除できるか確認できなかったため、何も削除していません。";
 "Couldn't move it to the Trash: %@" = "ゴミ箱に入れられませんでした：%@";
 "Browser Extensions" = "ブラウザの機能拡張";
 "Extensions in Safari, Chrome, Brave, Edge, Arc and Firefox. Names that match known adware are marked Suspicious." = "Safari、Chrome、Brave、Edge、Arc、Firefox の機能拡張。既知のアドウェアに一致する名前は「疑わしい」と表示します。";
@@ -794,7 +794,7 @@
 "Archives & Disk Images" = "アーカイブとディスクイメージ";
 "Code & Data" = "コードとデータ";
 "Other" = "その他";
-"MacFresh can't read this folder." = "MacFresh はこのフォルダを読み取れません。";
+"MacDash can't read this folder." = "MacDash はこのフォルダを読み取れません。";
 "This folder is empty." = "このフォルダは空です。";
 "Open the folder in Finder to review these files one by one." = "Finder でフォルダを開いて、これらのファイルを1つずつ確認してください。";
 "Protected: Space Lens only removes items in your own folders or on external disks." = "保護されています：Space Lens はあなたのフォルダまたは外部ディスク上の項目のみ削除します。";
@@ -827,7 +827,7 @@
 "Find visually similar photos" = "見た目が似ている写真を見つける";
 
 "Open-source licenses" = "オープンソースライセンス";
-"MacFresh is built on the open-source projects below. Their copyright notices and licenses are kept here as those licenses require." = "MacFresh は以下のオープンソースプロジェクトをもとに作られています。各ライセンスが求める著作権表示とライセンスをここに掲載しています。";
+"MacDash is built on the open-source projects below. Their copyright notices and licenses are kept here as those licenses require." = "MacDash は以下のオープンソースプロジェクトをもとに作られています。各ライセンスが求める著作権表示とライセンスをここに掲載しています。";
 
 "See which apps are using your Mac right now" = "いま Mac を使っているアプリを確認";
 
@@ -838,13 +838,13 @@
 "Force Quit" = "強制終了";
 "The app closes right away. Anything you haven't saved in it is lost." = "アプリはすぐに終了します。保存していない内容は失われます。";
 "Couldn't quit the app" = "アプリを終了できませんでした";
-"macOS didn't let MacFresh close %@." = "macOS が MacFresh による %@ の終了を許可しませんでした。";
+"macOS didn't let MacDash close %@." = "macOS が MacDash による %@ の終了を許可しませんでした。";
 "Force quit this app" = "このアプリを強制終了";
 "This app can't be force quit from here" = "このアプリはここから強制終了できません";
 "Force quit" = "強制終了";
 
 "A Mac cleaning app." = "Mac のクリーンアップアプリ。";
-"MacFresh cleans your Mac: junk and caches, large files, app leftovers, unused apps, duplicate files and similar photos. It also uninstalls apps completely and checks protection settings and permissions. Nothing is removed without your approval." = "MacFresh は Mac をクリーンアップします。不要ファイルとキャッシュ、大きなファイル、アプリの残り、使っていないアプリ、重複ファイル、似た写真。アプリの完全なアンインストールや、保護設定とアクセス権の確認もできます。承認なしに削除されることはありません。";
+"MacDash cleans your Mac: junk and caches, large files, app leftovers, unused apps, duplicate files and similar photos. It also uninstalls apps completely and checks protection settings and permissions. Nothing is removed without your approval." = "MacDash は Mac をクリーンアップします。不要ファイルとキャッシュ、大きなファイル、アプリの残り、使っていないアプリ、重複ファイル、似た写真。アプリの完全なアンインストールや、保護設定とアクセス権の確認もできます。承認なしに削除されることはありません。";
 "It is built on the code of two open-source projects: PureMac (MIT License) and Mac Sai (BSD 3-Clause License)." = "2つのオープンソースプロジェクトのコードを土台にしています：PureMac（MIT ライセンス）と Mac Sai（BSD 3-Clause ライセンス）。";
 
 "Minimum size" = "最小サイズ";
@@ -910,9 +910,9 @@
 "The app couldn't be replaced: %@" = "アプリを置き換えられませんでした：%@";
 
 "Assistant" = "アシスタント";
-"Your MacFresh activity at a glance" = "MacFresh でのアクティビティをひと目で";
-"1 day with MacFresh" = "MacFresh と 1 日";
-"%lld days with MacFresh" = "MacFresh と %lld 日";
+"Your MacDash activity at a glance" = "MacDash でのアクティビティをひと目で";
+"1 day with MacDash" = "MacDash と 1 日";
+"%lld days with MacDash" = "MacDash と %lld 日";
 "Since %@" = "%@ から";
 "Files checked last time" = "前回チェックしたファイル";
 "Last activity" = "最後のアクティビティ";
@@ -943,7 +943,7 @@
 "Automation of System Events" = "System Eventsのオートメーション";
 "Notifications" = "通知";
 "Lets scans reach Mail, Safari, app containers and the Trash, and lets Protection read app permissions." = "メール、Safari、Appコンテナ、ゴミ箱をスキャンし、保護でAppのアクセス権を読み取れるようにします。";
-"Lets MacFresh remove apps and install app updates." = "MacFreshがAppを削除したりAppのアップデートをインストールしたりできるようにします。";
+"Lets MacDash remove apps and install app updates." = "MacDashがAppを削除したりAppのアップデートをインストールしたりできるようにします。";
 "Lets Startup Items turn login items on and off." = "ログイン項目のオン／オフを切り替えられるようにします。";
 "Tells you when a scheduled scan finishes." = "予定したスキャンが終わったら知らせます。";
 "Opens the matching page of System Settings" = "システム設定の該当ページを開きます";
@@ -958,13 +958,13 @@
 "Clean up junk, remove apps completely, keep an eye on privacy and see what's using your disk. Nothing is removed without your approval." = "不要なファイルを片付け、Appを完全に削除し、プライバシーを確認し、ディスクを使っているものを確かめましょう。承認なしに削除されるものはありません。";
 "Everything in one place" = "すべてをひとつの場所に";
 "Each area has its own color, so you always know where you are." = "エリアごとに色が決まっているので、いまどこにいるかがすぐわかります。";
-"Start using MacFresh" = "MacFreshを使い始める";
+"Start using MacDash" = "MacDashを使い始める";
 "Later" = "あとで";
-"What MacFresh needs" = "MacFreshに必要なもの";
+"What MacDash needs" = "MacDashに必要なもの";
 "Each status is read from macOS right now and updates as soon as you change it in System Settings." = "各状態はmacOSからその場で読み取られ、システム設定で変更するとすぐに更新されます。";
 "%lld of %lld allowed" = "%lld／%lld 許可済み";
 "You're all set" = "準備完了";
-"Allow what MacFresh needs" = "MacFreshに必要な許可を与えましょう";
+"Allow what MacDash needs" = "MacDashに必要な許可を与えましょう";
 "Ready to go" = "準備ができました";
 "Start with Smart Care: one scan, and you choose what goes." = "Smart Careから始めましょう。1回のスキャンで、削除するものはあなたが選べます。";
 "Each line is checked with macOS as you go. You can change any of this later in Settings › Permissions." = "各項目はその場でmacOSに確認されます。あとで設定 › アクセス権で変更できます。";
@@ -1065,7 +1065,7 @@
 
 /* Settings reorganization */
 "Menu Bar" = "メニューバー";
-"Everything MacFresh needs is allowed." = "MacFresh に必要なものはすべて許可されています。";
+"Everything MacDash needs is allowed." = "MacDash に必要なものはすべて許可されています。";
 "Full Disk Access is off: scans will skip protected folders." = "フルディスクアクセスがオフです：スキャンは保護されたフォルダをスキップします。";
 "Bigger than" = "次より大きい";
 "Or not changed for" = "または次の期間変更なし";
@@ -1177,7 +1177,7 @@
 "Learn More" = "詳しく見る";
 "Load: %d%%" = "負荷: %d%%";
 "Mac Health:" = "Mac の状態:";
-"MacFresh runs macOS's own network quality test, which downloads and uploads test data for about 15 seconds." = "MacFresh は macOS 標準のネットワーク品質テストを使い、約 15 秒間テストデータを送受信します。";
+"MacDash runs macOS's own network quality test, which downloads and uploads test data for about 15 seconds." = "MacDash は macOS 標準のネットワーク品質テストを使い、約 15 秒間テストデータを送受信します。";
 "Measuring folders…" = "フォルダを計測中…";
 "Memory is getting tight. Quitting a heavy app helps." = "メモリが不足しかけています。重いアプリを終了すると改善します。";
 "No battery data" = "バッテリー情報なし";
@@ -1203,16 +1203,16 @@
 "Top Consumers" = "使用量の多いアプリ";
 "Upload" = "アップロード";
 "Usage" = "使用量";
-"Your Mac's health, storage, memory, battery, CPU, network and connected devices, one click away. MacFresh keeps running in the background while this is on." = "Mac の状態、ストレージ、メモリ、バッテリー、CPU、ネットワーク、接続中のデバイスをワンクリックで確認できます。オンの間、MacFresh はバックグラウンドで動作し続けます。";
+"Your Mac's health, storage, memory, battery, CPU, network and connected devices, one click away. MacDash keeps running in the background while this is on." = "Mac の状態、ストレージ、メモリ、バッテリー、CPU、ネットワーク、接続中のデバイスをワンクリックで確認できます。オンの間、MacDash はバックグラウンドで動作し続けます。";
 "Your battery holds much less than when new. Consider a service." = "バッテリーの容量が新品時よりかなり減っています。修理を検討してください。";
 "Your battery is in good condition, but already lost some capacity." = "バッテリーは良好ですが、すでに容量が少し減っています。";
 "Your battery is in great condition." = "バッテリーは非常に良好な状態です。";
 "charge cycles" = "充電回数";
-"Show MacFresh in the menu bar" = "MacFresh をメニューバーに表示";
+"Show MacDash in the menu bar" = "MacDash をメニューバーに表示";
 "To see a password, enter your Mac login password and choose “Always Allow”." = "パスワードを表示するには、Mac のログインパスワードを入力して「常に許可」を選びます。";
 "Forgetting a network asks for your administrator password. You can join it again anytime." = "ネットワークを削除するには管理者パスワードが必要です。いつでも再接続できます。";
 "How to see a password" = "パスワードの表示方法";
-"Wi-Fi passwords are protected by macOS. Every time you show one, macOS asks for your Mac account. This is required by Apple, and MacFresh can't skip it." = "Wi-Fi パスワードは macOS によって保護されています。表示するたびに macOS が Mac のアカウントを求めます。これは Apple の仕様で、MacFresh では省略できません。";
+"Wi-Fi passwords are protected by macOS. Every time you show one, macOS asks for your Mac account. This is required by Apple, and MacDash can't skip it." = "Wi-Fi パスワードは macOS によって保護されています。表示するたびに macOS が Mac のアカウントを求めます。これは Apple の仕様で、MacDash では省略できません。";
 "User name" = "ユーザ名";
 "The one you use to log in to this Mac" = "この Mac へのログインに使うパスワード";
 "Click “Always Allow” and that network won't ask again. macOS asks once per network, so passwords can't all be shown at once." = "「常に許可」をクリックすると、そのネットワークでは再度求められません。確認はネットワークごとに 1 回のため、すべてを一度に表示することはできません。";
@@ -1236,7 +1236,7 @@
 "Details" = "詳細";
 "Close the details" = "詳細を閉じる";
 "Open the details" = "詳細を開く";
-"MacFresh in the menu bar" = "メニューバーの MacFresh";
+"MacDash in the menu bar" = "メニューバーの MacDash";
 "In the menu bar" = "メニューバー";
 "Only the metrics turned on here are read, on the interval you choose. With none on, the icon alone shows and nothing is measured in the background." = "ここでオンにした項目だけを、選んだ間隔で読み取ります。すべてオフにするとアイコンだけが表示され、バックグラウンドでは何も計測しません。";
 "Style" = "スタイル";
@@ -1247,7 +1247,7 @@
 "2 seconds" = "2 秒";
 "3 seconds" = "3 秒";
 "5 seconds" = "5 秒";
-"Show the MacFresh icon" = "MacFresh のアイコンを表示";
+"Show the MacDash icon" = "MacDash のアイコンを表示";
 "Alert colors" = "警告色";
 "Orange or red when a value runs high." = "値が高いときにオレンジまたは赤で表示します。";
 "In the panel" = "パネル";
@@ -1260,7 +1260,7 @@
 "Paused" = "一時停止中";
 "Taking the first readings. Rates need two of them." = "最初の計測中です。速度の計算には 2 回の計測が必要です。";
 "Updating while this screen is open." = "この画面を開いている間は更新されます。";
-"Updates pause while MacFresh is in the background, so it uses nothing." = "MacFresh がバックグラウンドにある間は更新を停止し、何も消費しません。";
+"Updates pause while MacDash is in the background, so it uses nothing." = "MacDash がバックグラウンドにある間は更新を停止し、何も消費しません。";
 "The apps using the most memory and CPU" = "メモリと CPU を最も使っているアプリ";
 "Headphones" = "ヘッドフォン";
 "Keyboard" = "キーボード";
@@ -1317,9 +1317,9 @@
 "%lld of %lld areas selected" = "%lld / %lld 項目を選択中";
 "Cards you turn off aren't measured. Apps and Battery show more when you click them." = "オフにしたカードは計測されません。アプリとバッテリーはクリックすると詳細を表示します。";
 "Shows the battery of your keyboards, mice and headphones in the menu bar panel." = "キーボード、マウス、ヘッドフォンのバッテリー残量をメニューバーのパネルに表示します。";
-"Only to show the name of your Wi-Fi network. macOS files network names under location; MacFresh never reads where you are." = "Wi-Fiネットワーク名を表示するためだけに使います。macOSはネットワーク名を位置情報として扱いますが、MacFreshが現在地を読み取ることはありません。";
+"Only to show the name of your Wi-Fi network. macOS files network names under location; MacDash never reads where you are." = "Wi-Fiネットワーク名を表示するためだけに使います。macOSはネットワーク名を位置情報として扱いますが、MacDashが現在地を読み取ることはありません。";
 "Optional" = "オプション";
 "Each one turns on one more feature. Skip any of them." = "それぞれ機能がひとつ使えるようになります。不要なものは飛ばして構いません。";
 "Open System Settings" = "システム設定を開く";
-"Turn on MacFresh in the list" = "リストでMacFreshをオンにする";
+"Turn on MacDash in the list" = "リストでMacDashをオンにする";
 "After Full Disk Access" = "フルディスクアクセスの後";

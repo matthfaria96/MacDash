@@ -8,18 +8,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     override init() {
         super.init()
+        Self.migrateFromMacFresh()
         Self.migrateFromMacTidy()
         MenuBarPreferences.registerDefaults()
         // The menu bar panel is on unless the user turns it off in Settings.
         UserDefaults.standard.register(defaults: ["settings.general.menuBarMonitor": true])
     }
 
-    /// MacFresh was called Mac Tidy (`com.mactidy.app`). On the first launch
-    /// under the new name, its settings come along: onboarding, language,
-    /// menu bar, schedules, exclusions and the rest.
+    /// MacDash was called MacFresh (`com.macfresh.app`). On the first launch
+    /// under the new name, its settings come along; `MacFresh.`-prefixed keys
+    /// are carried over under the `MacDash.` prefix.
+    private static func migrateFromMacFresh() {
+        let defaults = UserDefaults.standard
+        let marker = "MacDash.migratedFromMacFresh"
+        guard !defaults.bool(forKey: marker) else { return }
+        defaults.set(true, forKey: marker)
+        guard let old = UserDefaults(suiteName: "com.macfresh.app")?.persistentDomain(forName: "com.macfresh.app") else { return }
+        for (oldKey, value) in old {
+            let key = oldKey.hasPrefix("MacFresh.") ? "MacDash." + oldKey.dropFirst("MacFresh.".count) : oldKey
+            if defaults.object(forKey: key) == nil {
+                defaults.set(value, forKey: key)
+            }
+        }
+    }
+
+    /// Before MacFresh it was Mac Tidy (`com.mactidy.app`). Runs after the
+    /// MacFresh migration, which carries its marker over, so settings that
+    /// were already migrated once are not imported again.
     private static func migrateFromMacTidy() {
         let defaults = UserDefaults.standard
-        let marker = "MacFresh.migratedFromMacTidy"
+        let marker = "MacDash.migratedFromMacTidy"
         guard !defaults.bool(forKey: marker) else { return }
         defaults.set(true, forKey: marker)
         guard let old = UserDefaults(suiteName: "com.mactidy.app")?.persistentDomain(forName: "com.mactidy.app") else { return }
@@ -51,10 +69,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 name: .pureMacMenuBarMonitorChanged, object: nil
             )
         }
-        // Touch TCC-protected paths so macOS registers MacFresh in the
+        // Touch TCC-protected paths so macOS registers MacDash in the
         // Full Disk Access pane on first launch (fixes issue #75).
         FullDiskAccessManager.shared.triggerRegistration()
-        // Register the Finder Services provider so "Uninstall with MacFresh"
+        // Register the Finder Services provider so "Uninstall with MacDash"
         // appears when an .app bundle is right-clicked (issue #109).
         NSApp.servicesProvider = self
         NSUpdateDynamicServices()
@@ -81,7 +99,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Finder Services entry point. Declared in Info.plist as NSMessage
     /// `uninstallApp`; receives the right-clicked .app via the pasteboard and
-    /// hands it to AppState through a notification. Brings MacFresh forward so
+    /// hands it to AppState through a notification. Brings MacDash forward so
     /// the user lands on the uninstall scan.
     @objc func uninstallApp(_ pboard: NSPasteboard,
                             userData: String?,
@@ -107,7 +125,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 extension Notification.Name {
     /// Posted when the "Show system monitor in menu bar" Settings toggle flips,
     /// so AppDelegate can add/remove the status item live.
-    static let pureMacMenuBarMonitorChanged = Notification.Name("MacFresh.MenuBarMonitorChanged")
+    static let pureMacMenuBarMonitorChanged = Notification.Name("MacDash.MenuBarMonitorChanged")
 }
 
 @main

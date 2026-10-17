@@ -71,7 +71,7 @@ final class ProtectionAuditTests: XCTestCase {
         )
 
         XCTAssertEqual(finding.status, .unknown)
-        XCTAssertEqual(finding.detail, String(localized: "MacFresh could not read this setting."))
+        XCTAssertEqual(finding.detail, String(localized: "MacDash could not read this setting."))
     }
 
     func testTimeoutIsUnknown() {

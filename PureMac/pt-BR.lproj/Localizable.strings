@@ -2,7 +2,7 @@
 "Applications" = "Aplicativos";
 "Cleanup" = "Limpeza";
 "Orphaned Files" = "Arquivos órfãos";
-"MacFresh" = "MacFresh";
+"MacDash" = "MacDash";
 "Limited access" = "Acesso limitado";
 
 /* FDA toast + clean error alert (MainWindow) */
@@ -69,7 +69,7 @@
 
 /* Onboarding */
 "Back" = "Voltar";
-"Welcome to MacFresh" = "Boas-vindas ao MacFresh";
+"Welcome to MacDash" = "Boas-vindas ao MacDash";
 "Orphan Finder" = "Localizador de órfãos";
 "Full Disk Access" = "Acesso total ao disco";
 "Trash" = "Lixo";
@@ -82,7 +82,7 @@
 "General" = "Geral";
 "Cleaning" = "Limpeza";
 "About" = "Sobre";
-"Launch MacFresh at login" = "Abrir o MacFresh ao iniciar sessão";
+"Launch MacDash at login" = "Abrir o MacDash ao iniciar sessão";
 "App Scanning" = "Verificação de apps";
 "Search sensitivity" = "Sensibilidade da busca";
 "Strict" = "Restrita";
@@ -92,7 +92,7 @@
 "Includes partial name matching and bundle ID components." = "Inclui correspondências parciais de nome e componentes do ID do pacote.";
 "Includes company name, entitlements, and team identifier matching." = "Inclui correspondências com o nome da empresa, entitlements e identificador da equipe.";
 "Language" = "Idioma";
-"Restart MacFresh to apply the selected language." = "Reinicie o MacFresh para aplicar o idioma selecionado.";
+"Restart MacDash to apply the selected language." = "Reinicie o MacDash para aplicar o idioma selecionado.";
 "Relaunch Now" = "Reiniciar agora";
 "System Default" = "Padrão do sistema";
 "English" = "Inglês";
@@ -198,16 +198,16 @@
 " and %lld more" = " e mais %lld";
 "Access granted. Retrying…" = "Acesso concedido. Tentando novamente…";
 "1-tap setup. We'll detect the change automatically." = "Configure com um clique. Detectaremos a alteração automaticamente.";
-"Open Settings & reveal MacFresh" = "Abrir Ajustes e mostrar MacFresh";
-"Turn on MacFresh" = "Ativar MacFresh";
+"Open Settings & reveal MacDash" = "Abrir Ajustes e mostrar MacDash";
+"Turn on MacDash" = "Ativar MacDash";
 "Toggle the row that appears." = "Ative a linha que aparecer.";
 "Authenticate" = "Autenticar";
 "Touch ID or password." = "Touch ID ou senha.";
 "We auto-retry — no need to come back." = "Tentamos de novo automaticamente - você não precisa voltar.";
 "Watching for permission change…" = "Aguardando alteração de permissão…";
-"MacFresh not in the list?" = "MacFresh não aparece na lista?";
+"MacDash not in the list?" = "MacDash não aparece na lista?";
 "Hide help" = "Ocultar ajuda";
-"Try this if MacFresh doesn't appear:" = "Tente isto se o MacFresh não aparecer:";
+"Try this if MacDash doesn't appear:" = "Tente isto se o MacDash não aparecer:";
 "Reveal app" = "Mostrar app";
 "Reset + reprompt" = "Redefinir e pedir de novo";
 "Clear stale TCC entry" = "Limpar entrada TCC desatualizada";
@@ -265,8 +265,8 @@
 "CPU" = "CPU";
 "Memory" = "Memória";
 "Disk" = "Disco";
-"Open MacFresh" = "Abrir o MacFresh";
-"Quit MacFresh" = "Encerrar o MacFresh";
+"Open MacDash" = "Abrir o MacDash";
+"Quit MacDash" = "Encerrar o MacDash";
 
 /* Finder Service */
 "Select an application (.app) to uninstall." = "Selecione um aplicativo (.app) para desinstalar.";
@@ -288,7 +288,7 @@
 
 /* Current dashboard, tools, and cleanup review — English fallback until translated */
 "%@ %@ to %@" = "%@ %@ até %@";
-"%@ could not be removed because MacFresh does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "Não foi possível remover %@ porque o MacFresh não tem Acesso Total ao Disco. Conceda essa permissão nos Ajustes do Sistema e tente novamente.";
+"%@ could not be removed because MacDash does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "Não foi possível remover %@ porque o MacDash não tem Acesso Total ao Disco. Conceda essa permissão nos Ajustes do Sistema e tente novamente.";
 "%@ did not finish within the allowed time." = "%@ não terminou dentro do tempo permitido.";
 "%@ exited with status %d%@" = "%@ foi encerrado com o status %d%@";
 "%@ files inspected" = "%@ arquivos analisados";
@@ -385,9 +385,9 @@
 "Homebrew finished, but %lld selected apps still report updates." = "O Homebrew terminou, mas %lld apps selecionados ainda indicam atualizações.";
 "Homebrew finished, but 1 selected app still reports an update." = "O Homebrew terminou, mas 1 app selecionado ainda indica uma atualização.";
 "Homebrew finished. Check again to verify installed versions." = "O Homebrew terminou. Verifique novamente para confirmar as versões instaladas.";
-"Homebrew produced more output than MacFresh could safely retain." = "O Homebrew gerou mais saída do que o MacFresh pode armazenar com segurança.";
+"Homebrew produced more output than MacDash could safely retain." = "O Homebrew gerou mais saída do que o MacDash pode armazenar com segurança.";
 "Homebrew returned an invalid cask identifier: %@" = "O Homebrew retornou um identificador de cask inválido: %@";
-"Homebrew returned update information MacFresh could not read." = "O Homebrew retornou informações de atualização que o MacFresh não conseguiu ler.";
+"Homebrew returned update information MacDash could not read." = "O Homebrew retornou informações de atualização que o MacDash não conseguiu ler.";
 "Homebrew updated the %lld selected apps." = "O Homebrew atualizou os %lld apps selecionados.";
 "Homebrew updated the selected app." = "O Homebrew atualizou o app selecionado.";
 "Homebrew was not found in a standard installation location." = "O Homebrew não foi encontrado em um local de instalação padrão.";
@@ -399,7 +399,7 @@
 "Installed" = "Instalado";
 "Installed %@" = "%@ instalado(s)";
 "Keep" = "Manter";
-"Keep MacFresh open until this pass finishes." = "Mantenha o MacFresh aberto até esta etapa terminar.";
+"Keep MacDash open until this pass finishes." = "Mantenha o MacDash aberto até esta etapa terminar.";
 "Keep alive" = "Manter em execução";
 "Largest first" = "Maiores primeiro";
 "Last activity: %@" = "Última atividade: %@";
@@ -448,11 +448,11 @@
 "Protected copy" = "Cópia protegida";
 "Protected system locations and processes are restricted." = "Locais e processos protegidos do sistema são restritos.";
 "Protection" = "Proteção";
-"MacFresh builds small local thumbnails, compares their visual structure and color, then groups likely matches for review." = "O MacFresh cria miniaturas locais, compara a estrutura visual e as cores e agrupa imagens possivelmente semelhantes para revisão.";
-"MacFresh could not confirm the local XProtect installation." = "O MacFresh não conseguiu confirmar a instalação local do XProtect.";
-"MacFresh could not read this setting." = "O MacFresh não conseguiu ler este ajuste.";
-"MacFresh did not find removable items in the selected scan areas." = "O MacFresh não encontrou itens removíveis nas áreas verificadas.";
-"MacFresh will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing." = "O MacFresh moverá o app selecionado e os arquivos relacionados para o Lixo. Itens que exigem autorização de administrador podem ser apagados permanentemente. Revise a seleção antes de continuar.";
+"MacDash builds small local thumbnails, compares their visual structure and color, then groups likely matches for review." = "O MacDash cria miniaturas locais, compara a estrutura visual e as cores e agrupa imagens possivelmente semelhantes para revisão.";
+"MacDash could not confirm the local XProtect installation." = "O MacDash não conseguiu confirmar a instalação local do XProtect.";
+"MacDash could not read this setting." = "O MacDash não conseguiu ler este ajuste.";
+"MacDash did not find removable items in the selected scan areas." = "O MacDash não encontrou itens removíveis nas áreas verificadas.";
+"MacDash will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing." = "O MacDash moverá o app selecionado e os arquivos relacionados para o Lixo. Itens que exigem autorização de administrador podem ser apagados permanentemente. Revise a seleção antes de continuar.";
 "MacTidy.app" = "MacTidy.app";
 "Refresh disk information" = "Atualizar informações do disco";
 "Refused to delete %lld protected item(s) (home credential directory or similar)." = "A exclusão de %lld itens protegidos foi recusada (como a pasta de credenciais do usuário).";
@@ -502,7 +502,7 @@
 "System daemon" = "Daemon do sistema";
 "System update" = "Atualização do sistema";
 "System-wide agent" = "Agente de todo o sistema";
-"The analyzed photos did not meet MacFresh's visual similarity threshold." = "As fotos analisadas não atingiram o limite de semelhança visual do MacFresh.";
+"The analyzed photos did not meet MacDash's visual similarity threshold." = "As fotos analisadas não atingiram o limite de semelhança visual do MacDash.";
 "The check timed out." = "A verificação excedeu o tempo limite.";
 "The copy marked Keep is missing or changed: %@" = "A cópia marcada como “Manter” não existe mais ou foi alterada: %@";
 "The inspected user and third-party launch folders are empty." = "As pastas de inicialização do usuário e de terceiros analisadas estão vazias.";
@@ -546,7 +546,7 @@
 "Build %@" = "Compilação %@";
 "Homebrew" = "Homebrew";
 
-"Make MacFresh work your way." = "Personalize o MacFresh.";
+"Make MacDash work your way." = "Personalize o MacDash.";
 "Measuring apps and processes…" = "Medindo apps e processos…";
 "Process information is unavailable. Try Activity Monitor for more detail." = "As informações dos processos estão indisponíveis. Consulte o Monitor de Atividade para ver mais detalhes.";
 "Settings" = "Ajustes";
@@ -627,8 +627,8 @@
 
 "Next run" = "Próxima execução";
 "How automatic scanning works" = "Como funciona a verificação automática";
-"While MacFresh is open, it checks the clock once a minute and runs a scan when the chosen interval has passed since the last run." = "Enquanto o MacFresh estiver aberto, ele confere o relógio a cada minuto e faz uma verificação quando o intervalo escolhido passou desde a última execução.";
-"It only runs while the app is open. It does not start the app by itself, so nothing happens while MacFresh is quit." = "Só funciona com o app aberto. Ele não abre o app sozinho, então nada acontece enquanto o MacFresh estiver fechado.";
+"While MacDash is open, it checks the clock once a minute and runs a scan when the chosen interval has passed since the last run." = "Enquanto o MacDash estiver aberto, ele confere o relógio a cada minuto e faz uma verificação quando o intervalo escolhido passou desde a última execução.";
+"It only runs while the app is open. It does not start the app by itself, so nothing happens while MacDash is quit." = "Só funciona com o app aberto. Ele não abre o app sozinho, então nada acontece enquanto o MacDash estiver fechado.";
 "It scans the same areas as Smart Care. Orphaned files, duplicates and similar photos are never included." = "Verifica as mesmas áreas do Cuidado inteligente. Arquivos órfãos, duplicados e fotos semelhantes nunca entram.";
 "It waits if another scan, a cleanup or a confirmation is in progress, and skips a run while scan results are open on screen." = "Ele espera se houver outra verificação, uma limpeza ou uma confirmação em andamento, e pula a execução enquanto houver resultados abertos na tela.";
 "With Auto-clean on, items selected by default are permanently deleted once at least 100 MB are selected. Large files and personal data are unselected by default, so they are never removed automatically. Excluded paths are always kept." = "Com a limpeza automática ligada, os itens marcados por padrão são apagados em definitivo quando há pelo menos 100 MB selecionados. Arquivos grandes e dados pessoais vêm desmarcados, então nunca são removidos sozinhos. Caminhos excluídos são sempre preservados.";
@@ -647,7 +647,7 @@
 "Choose" = "Escolher";
 "%@ free of %@" = "%@ livres de %@";
 "Change Location" = "Mudar local";
-"Choose where to look. MacFresh compares file sizes first, then verifies matching files byte for byte. Nothing is selected or removed automatically." = "Escolha onde procurar. O MacFresh compara primeiro os tamanhos e depois verifica byte a byte os arquivos correspondentes. Nada é selecionado ou removido automaticamente.";
+"Choose where to look. MacDash compares file sizes first, then verifies matching files byte for byte. Nothing is selected or removed automatically." = "Escolha onde procurar. O MacDash compara primeiro os tamanhos e depois verifica byte a byte os arquivos correspondentes. Nada é selecionado ou removido automaticamente.";
 "Find photos that look alike" = "Encontre fotos parecidas";
 
 "Groups" = "Grupos";
@@ -658,7 +658,7 @@
 
 "Checking for updates" = "Procurando atualizações";
 "Check your apps for updates" = "Procure atualizações para seus apps";
-"MacFresh reads the update feed of every app that has its own updater, and asks Homebrew about the apps it manages." = "O MacFresh lê o feed de atualização de cada app que tem atualizador próprio e consulta o Homebrew sobre os apps que ele gerencia.";
+"MacDash reads the update feed of every app that has its own updater, and asks Homebrew about the apps it manages." = "O MacDash lê o feed de atualização de cada app que tem atualizador próprio e consulta o Homebrew sobre os apps que ele gerencia.";
 "Apps with their own updater are up to date (%lld checked)." = "Os apps com atualizador próprio estão atualizados (%lld verificados).";
 "Apps with their own updater" = "Apps com atualizador próprio";
 "Open App Store" = "Abrir App Store";
@@ -666,7 +666,7 @@
 "Homebrew is not installed, so cask apps were not checked." = "O Homebrew não está instalado, então os apps cask não foram verificados.";
 "Couldn't check Homebrew" = "Não foi possível consultar o Homebrew";
 "Homebrew apps are up to date." = "Os apps do Homebrew estão atualizados.";
-"MacFresh isn't allowed to control System Events. Allow it in System Settings › Privacy & Security › Automation." = "O MacFresh não tem permissão para controlar o System Events. Permita em Ajustes do Sistema › Privacidade e Segurança › Automação.";
+"MacDash isn't allowed to control System Events. Allow it in System Settings › Privacy & Security › Automation." = "O MacDash não tem permissão para controlar o System Events. Permita em Ajustes do Sistema › Privacidade e Segurança › Automação.";
 "The change could not be made." = "Não foi possível fazer a alteração.";
 "The change could not be made" = "Não foi possível fazer a alteração";
 "System Settings" = "Ajustes do Sistema";
@@ -675,7 +675,7 @@
 "Open when you log in" = "Abrem quando você faz login";
 "Reading login items…" = "Lendo itens de início…";
 "Allow access to System Events" = "Permita o acesso ao System Events";
-"Login items are read through System Events. Allow MacFresh under Automation, then try again." = "Os itens de início são lidos pelo System Events. Permita o MacFresh em Automação e tente de novo.";
+"Login items are read through System Events. Allow MacDash under Automation, then try again." = "Os itens de início são lidos pelo System Events. Permita o MacDash em Automação e tente de novo.";
 "Open Settings" = "Abrir Ajustes";
 "No login items." = "Nenhum item de início.";
 "Switch off so it no longer starts" = "Desligue para que não inicie mais";
@@ -714,7 +714,7 @@
 "Reading permissions" = "Lendo permissões";
 "Looking at what macOS has allowed each app to do." = "Vendo o que o macOS permitiu a cada app.";
 "Full Disk Access needed" = "Acesso Total ao Disco necessário";
-"macOS keeps its permission list in a protected database. Give MacFresh Full Disk Access, then check again." = "O macOS guarda a lista de permissões num banco de dados protegido. Dê Acesso Total ao Disco ao MacFresh e verifique de novo.";
+"macOS keeps its permission list in a protected database. Give MacDash Full Disk Access, then check again." = "O macOS guarda a lista de permissões num banco de dados protegido. Dê Acesso Total ao Disco ao MacDash e verifique de novo.";
 "Open Full Disk Access" = "Abrir Acesso Total ao Disco";
 "macOS doesn't let other apps change these permissions. Turn one off in System Settings › Privacy & Security; the app asks again the next time it needs it." = "O macOS não deixa outros apps mudarem essas permissões. Desligue em Ajustes do Sistema › Privacidade e Segurança; o app pede de novo quando precisar.";
 "Can control: %@" = "Pode controlar: %@";
@@ -726,7 +726,7 @@
 "This extension was installed by a management policy, so %@ would reinstall it. If you don't recognize it, look for unknown profiles in System Settings › General › Device Management." = "Esta extensão foi instalada por uma política de gerenciamento, então o %@ a reinstalaria. Se você não a reconhece, procure perfis desconhecidos em Ajustes do Sistema › Geral › Gerenciamento de Dispositivos.";
 "This extension is built into %@ and can't be removed." = "Esta extensão faz parte do %@ e não pode ser removida.";
 "Safari extensions come with apps and are managed by macOS. Turn them off in Safari › Settings › Extensions, or uninstall the app that added them." = "As extensões do Safari vêm com apps e são gerenciadas pelo macOS. Desligue em Safari › Ajustes › Extensões ou desinstale o app que as adicionou.";
-"MacFresh couldn't confirm this extension's folder is safe to remove, so nothing was deleted." = "O MacFresh não conseguiu confirmar que a pasta desta extensão pode ser removida com segurança, então nada foi apagado.";
+"MacDash couldn't confirm this extension's folder is safe to remove, so nothing was deleted." = "O MacDash não conseguiu confirmar que a pasta desta extensão pode ser removida com segurança, então nada foi apagado.";
 "Couldn't move it to the Trash: %@" = "Não foi possível mover para o Lixo: %@";
 "Browser Extensions" = "Extensões de navegador";
 "Extensions in Safari, Chrome, Brave, Edge, Arc and Firefox. Names that match known adware are marked Suspicious." = "Extensões do Safari, Chrome, Brave, Edge, Arc e Firefox. Nomes que lembram adwares conhecidos são marcados como Suspeitos.";
@@ -795,7 +795,7 @@
 "Archives & Disk Images" = "Arquivos compactados e imagens de disco";
 "Code & Data" = "Código e dados";
 "Other" = "Outros";
-"MacFresh can't read this folder." = "O MacFresh não consegue ler esta pasta.";
+"MacDash can't read this folder." = "O MacDash não consegue ler esta pasta.";
 "This folder is empty." = "Esta pasta está vazia.";
 "Open the folder in Finder to review these files one by one." = "Abra a pasta no Finder para revisar esses arquivos um a um.";
 "Protected: Space Lens only removes items in your own folders or on external disks." = "Protegido: a Lente de Espaço só remove itens das suas pastas ou de discos externos.";
@@ -828,7 +828,7 @@
 "Find visually similar photos" = "Encontre fotos visualmente semelhantes";
 
 "Open-source licenses" = "Licenças de código aberto";
-"MacFresh is built on the open-source projects below. Their copyright notices and licenses are kept here as those licenses require." = "O MacFresh é construído sobre os projetos de código aberto abaixo. Os avisos de direitos autorais e as licenças deles ficam aqui, como essas licenças exigem.";
+"MacDash is built on the open-source projects below. Their copyright notices and licenses are kept here as those licenses require." = "O MacDash é construído sobre os projetos de código aberto abaixo. Os avisos de direitos autorais e as licenças deles ficam aqui, como essas licenças exigem.";
 
 "See which apps are using your Mac right now" = "Veja quais apps estão usando seu Mac agora";
 
@@ -839,13 +839,13 @@
 "Force Quit" = "Forçar encerramento";
 "The app closes right away. Anything you haven't saved in it is lost." = "O app fecha na hora. Tudo que você não salvou nele será perdido.";
 "Couldn't quit the app" = "Não foi possível encerrar o app";
-"macOS didn't let MacFresh close %@." = "O macOS não deixou o MacFresh fechar %@.";
+"macOS didn't let MacDash close %@." = "O macOS não deixou o MacDash fechar %@.";
 "Force quit this app" = "Forçar o encerramento deste app";
 "This app can't be force quit from here" = "Este app não pode ser encerrado à força por aqui";
 "Force quit" = "Forçar saída";
 
 "A Mac cleaning app." = "Um app de limpeza para Mac.";
-"MacFresh cleans your Mac: junk and caches, large files, app leftovers, unused apps, duplicate files and similar photos. It also uninstalls apps completely and checks protection settings and permissions. Nothing is removed without your approval." = "O MacFresh limpa seu Mac: lixo e caches, arquivos grandes, restos de apps, apps sem uso, arquivos duplicados e fotos semelhantes. Também desinstala apps por completo e verifica proteções e permissões. Nada é removido sem a sua aprovação.";
+"MacDash cleans your Mac: junk and caches, large files, app leftovers, unused apps, duplicate files and similar photos. It also uninstalls apps completely and checks protection settings and permissions. Nothing is removed without your approval." = "O MacDash limpa seu Mac: lixo e caches, arquivos grandes, restos de apps, apps sem uso, arquivos duplicados e fotos semelhantes. Também desinstala apps por completo e verifica proteções e permissões. Nada é removido sem a sua aprovação.";
 "It is built on the code of two open-source projects: PureMac (MIT License) and Mac Sai (BSD 3-Clause License)." = "Usa como base o código de dois projetos de código aberto: PureMac (licença MIT) e Mac Sai (licença BSD de 3 cláusulas).";
 
 "Minimum size" = "Tamanho mínimo";
@@ -911,9 +911,9 @@
 "The app couldn't be replaced: %@" = "Não foi possível substituir o app: %@";
 
 "Assistant" = "Assistente";
-"Your MacFresh activity at a glance" = "Sua atividade no MacFresh num relance";
-"1 day with MacFresh" = "1 dia com o MacFresh";
-"%lld days with MacFresh" = "%lld dias com o MacFresh";
+"Your MacDash activity at a glance" = "Sua atividade no MacDash num relance";
+"1 day with MacDash" = "1 dia com o MacDash";
+"%lld days with MacDash" = "%lld dias com o MacDash";
 "Since %@" = "Desde %@";
 "Files checked last time" = "Arquivos verificados na última vez";
 "Last activity" = "Última atividade";
@@ -944,7 +944,7 @@
 "Automation of System Events" = "Automação do System Events";
 "Notifications" = "Notificações";
 "Lets scans reach Mail, Safari, app containers and the Trash, and lets Protection read app permissions." = "Permite verificar Mail, Safari, contêineres de apps e a Lixeira, e deixa a Proteção ler as permissões dos apps.";
-"Lets MacFresh remove apps and install app updates." = "Permite que o MacFresh remova apps e instale atualizações.";
+"Lets MacDash remove apps and install app updates." = "Permite que o MacDash remova apps e instale atualizações.";
 "Lets Startup Items turn login items on and off." = "Permite que Itens de início liguem e desliguem itens de login.";
 "Tells you when a scheduled scan finishes." = "Avisa quando uma verificação agendada termina.";
 "Opens the matching page of System Settings" = "Abre a página correspondente nos Ajustes do Sistema";
@@ -959,13 +959,13 @@
 "Clean up junk, remove apps completely, keep an eye on privacy and see what's using your disk. Nothing is removed without your approval." = "Limpe arquivos inúteis, remova apps por completo, cuide da privacidade e veja o que ocupa seu disco. Nada é removido sem a sua aprovação.";
 "Everything in one place" = "Tudo em um só lugar";
 "Each area has its own color, so you always know where you are." = "Cada área tem sua própria cor, para você sempre saber onde está.";
-"Start using MacFresh" = "Começar a usar o MacFresh";
+"Start using MacDash" = "Começar a usar o MacDash";
 "Later" = "Depois";
-"What MacFresh needs" = "O que o MacFresh precisa";
+"What MacDash needs" = "O que o MacDash precisa";
 "Each status is read from macOS right now and updates as soon as you change it in System Settings." = "Cada status é lido do macOS agora e se atualiza assim que você muda algo nos Ajustes do Sistema.";
 "%lld of %lld allowed" = "%lld de %lld permitidos";
 "You're all set" = "Tudo pronto";
-"Allow what MacFresh needs" = "Permita o que o MacFresh precisa";
+"Allow what MacDash needs" = "Permita o que o MacDash precisa";
 "Ready to go" = "Pronto para começar";
 "Start with Smart Care: one scan, and you choose what goes." = "Comece pelo Cuidado inteligente: uma verificação, e você escolhe o que sai.";
 "Each line is checked with macOS as you go. You can change any of this later in Settings › Permissions." = "Cada item é verificado com o macOS na hora. Você pode mudar tudo isso depois em Ajustes › Permissões.";
@@ -1066,7 +1066,7 @@
 
 /* Settings reorganization */
 "Menu Bar" = "Barra de menus";
-"Everything MacFresh needs is allowed." = "Tudo o que o MacFresh precisa está liberado.";
+"Everything MacDash needs is allowed." = "Tudo o que o MacDash precisa está liberado.";
 "Full Disk Access is off: scans will skip protected folders." = "Acesso Total ao Disco desligado: as verificações vão pular pastas protegidas.";
 "Bigger than" = "Maiores que";
 "Or not changed for" = "Ou sem alteração há";
@@ -1178,7 +1178,7 @@
 "Learn More" = "Saiba mais";
 "Load: %d%%" = "Carga: %d%%";
 "Mac Health:" = "Saúde do Mac:";
-"MacFresh runs macOS's own network quality test, which downloads and uploads test data for about 15 seconds." = "O MacFresh usa o teste de qualidade de rede do próprio macOS, que baixa e envia dados de teste por cerca de 15 segundos.";
+"MacDash runs macOS's own network quality test, which downloads and uploads test data for about 15 seconds." = "O MacDash usa o teste de qualidade de rede do próprio macOS, que baixa e envia dados de teste por cerca de 15 segundos.";
 "Measuring folders…" = "Medindo pastas…";
 "Memory is getting tight. Quitting a heavy app helps." = "A memória está ficando apertada. Encerrar um app pesado ajuda.";
 "No battery data" = "Sem dados de bateria";
@@ -1204,16 +1204,16 @@
 "Top Consumers" = "Maiores consumidores";
 "Upload" = "Upload";
 "Usage" = "Uso";
-"Your Mac's health, storage, memory, battery, CPU, network and connected devices, one click away. MacFresh keeps running in the background while this is on." = "Saúde, armazenamento, memória, bateria, CPU, rede e dispositivos conectados do seu Mac a um clique. O MacFresh continua rodando em segundo plano enquanto isso estiver ativado.";
+"Your Mac's health, storage, memory, battery, CPU, network and connected devices, one click away. MacDash keeps running in the background while this is on." = "Saúde, armazenamento, memória, bateria, CPU, rede e dispositivos conectados do seu Mac a um clique. O MacDash continua rodando em segundo plano enquanto isso estiver ativado.";
 "Your battery holds much less than when new. Consider a service." = "Sua bateria guarda bem menos do que quando nova. Considere uma manutenção.";
 "Your battery is in good condition, but already lost some capacity." = "Sua bateria está em boas condições, mas já perdeu um pouco da capacidade.";
 "Your battery is in great condition." = "Sua bateria está em ótimas condições.";
 "charge cycles" = "ciclos de carga";
-"Show MacFresh in the menu bar" = "Mostrar o MacFresh na barra de menus";
+"Show MacDash in the menu bar" = "Mostrar o MacDash na barra de menus";
 "To see a password, enter your Mac login password and choose “Always Allow”." = "Para ver uma senha, digite a senha de login do Mac e escolha “Sempre Permitir”.";
 "Forgetting a network asks for your administrator password. You can join it again anytime." = "Esquecer uma rede pede sua senha de administrador. Você pode entrar nela de novo quando quiser.";
 "How to see a password" = "Como ver uma senha";
-"Wi-Fi passwords are protected by macOS. Every time you show one, macOS asks for your Mac account. This is required by Apple, and MacFresh can't skip it." = "As senhas de Wi-Fi são protegidas pelo macOS. Sempre que você mostra uma, o macOS pede sua conta do Mac. É uma exigência da Apple, e o MacFresh não consegue pular essa etapa.";
+"Wi-Fi passwords are protected by macOS. Every time you show one, macOS asks for your Mac account. This is required by Apple, and MacDash can't skip it." = "As senhas de Wi-Fi são protegidas pelo macOS. Sempre que você mostra uma, o macOS pede sua conta do Mac. É uma exigência da Apple, e o MacDash não consegue pular essa etapa.";
 "User name" = "Nome de usuário";
 "The one you use to log in to this Mac" = "A que você usa para entrar neste Mac";
 "Click “Always Allow” and that network won't ask again. macOS asks once per network, so passwords can't all be shown at once." = "Clique em “Sempre Permitir” e essa rede não pede de novo. O macOS pede uma vez por rede, então não dá para mostrar todas as senhas de uma vez.";
@@ -1237,7 +1237,7 @@
 "Details" = "Detalhes";
 "Close the details" = "Fechar os detalhes";
 "Open the details" = "Abrir os detalhes";
-"MacFresh in the menu bar" = "MacFresh na barra de menus";
+"MacDash in the menu bar" = "MacDash na barra de menus";
 "In the menu bar" = "Na barra de menus";
 "Only the metrics turned on here are read, on the interval you choose. With none on, the icon alone shows and nothing is measured in the background." = "Só as métricas ligadas aqui são lidas, no intervalo que você escolher. Com nenhuma ligada, aparece só o ícone e nada é medido em segundo plano.";
 "Style" = "Estilo";
@@ -1248,7 +1248,7 @@
 "2 seconds" = "2 segundos";
 "3 seconds" = "3 segundos";
 "5 seconds" = "5 segundos";
-"Show the MacFresh icon" = "Mostrar o ícone do MacFresh";
+"Show the MacDash icon" = "Mostrar o ícone do MacDash";
 "Alert colors" = "Cores de alerta";
 "Orange or red when a value runs high." = "Laranja ou vermelho quando um valor fica alto.";
 "In the panel" = "No painel";
@@ -1261,7 +1261,7 @@
 "Paused" = "Pausado";
 "Taking the first readings. Rates need two of them." = "Fazendo as primeiras leituras. Taxas precisam de duas.";
 "Updating while this screen is open." = "Atualizando enquanto esta tela estiver aberta.";
-"Updates pause while MacFresh is in the background, so it uses nothing." = "As atualizações pausam quando o MacFresh está em segundo plano, para não gastar nada.";
+"Updates pause while MacDash is in the background, so it uses nothing." = "As atualizações pausam quando o MacDash está em segundo plano, para não gastar nada.";
 "The apps using the most memory and CPU" = "Os apps que mais usam memória e CPU";
 "Headphones" = "Fone de ouvido";
 "Keyboard" = "Teclado";
@@ -1318,9 +1318,9 @@
 "%lld of %lld areas selected" = "%lld de %lld áreas selecionadas";
 "Cards you turn off aren't measured. Apps and Battery show more when you click them." = "Cards desligados não são medidos. Apps e Bateria mostram mais quando você clica neles.";
 "Shows the battery of your keyboards, mice and headphones in the menu bar panel." = "Mostra a bateria dos seus teclados, mouses e fones no painel da barra de menus.";
-"Only to show the name of your Wi-Fi network. macOS files network names under location; MacFresh never reads where you are." = "Só para mostrar o nome da sua rede Wi-Fi. O macOS trata nomes de rede como localização; o MacFresh nunca lê onde você está.";
+"Only to show the name of your Wi-Fi network. macOS files network names under location; MacDash never reads where you are." = "Só para mostrar o nome da sua rede Wi-Fi. O macOS trata nomes de rede como localização; o MacDash nunca lê onde você está.";
 "Optional" = "Opcionais";
 "Each one turns on one more feature. Skip any of them." = "Cada um liga mais um recurso. Pule os que quiser.";
 "Open System Settings" = "Abra os Ajustes do Sistema";
-"Turn on MacFresh in the list" = "Ative o MacFresh na lista";
+"Turn on MacDash in the list" = "Ative o MacDash na lista";
 "After Full Disk Access" = "Após o acesso total ao disco";

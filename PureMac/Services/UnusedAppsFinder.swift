@@ -32,7 +32,7 @@ enum UnusedAppsFinder {
 
     /// Non-Apple apps whose Spotlight "last used" date is older than the
     /// cutoff, largest first. Apps running now, apps with no recorded last-used
-    /// date (macOS can't prove they're idle) and MacFresh itself are
+    /// date (macOS can't prove they're idle) and MacDash itself are
     /// never listed.
     static func find(olderThanMonths months: Int, runningPaths: Set<String>, now: Date = Date()) -> [UnusedAppRecord] {
         guard let cutoff = Calendar.current.date(byAdding: .month, value: -months, to: now) else { return [] }

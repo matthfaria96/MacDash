@@ -22,14 +22,14 @@ struct AssistantToolbarButton: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 8)
         }
-        .help("Your MacFresh activity at a glance")
+        .help("Your MacDash activity at a glance")
         .accessibilityLabel("Assistant")
         .accessibilityAddTraits(isOpen ? .isSelected : [])
     }
 }
 
 /// A small glass card that grows out of the toolbar's top-right corner with
-/// how long MacFresh has been around and what it has done. Plain type and
+/// how long MacDash has been around and what it has done. Plain type and
 /// thin rules, no decoration.
 struct AssistantPanel: View {
     @ObservedObject private var stats = UsageStats.shared
@@ -45,8 +45,8 @@ struct AssistantPanel: View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(stats.daysWithMacTidy == 1
-                     ? String(localized: "1 day with MacFresh")
-                     : String(format: String(localized: "%lld days with MacFresh"), Int64(stats.daysWithMacTidy)))
+                     ? String(localized: "1 day with MacDash")
+                     : String(format: String(localized: "%lld days with MacDash"), Int64(stats.daysWithMacTidy)))
                     .font(.system(size: 19, weight: .semibold))
                     .foregroundStyle(.white)
                 Text(String(format: String(localized: "Since %@"), stats.firstUse.formatted(date: .long, time: .omitted)))

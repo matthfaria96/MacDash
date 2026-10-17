@@ -3,7 +3,7 @@ import SwiftUI
 
 /// The apps the user has open, heaviest first, each folded to one line that
 /// unfolds into its details and actions. The numbers come from the page's
-/// own reading, which pauses when MacFresh is in the background.
+/// own reading, which pauses when MacDash is in the background.
 struct ProcessResourcesView: View {
     @ObservedObject var model: PerformanceModel
     let isActive: Bool
@@ -233,7 +233,7 @@ struct ProcessResourcesView: View {
 }
 
 extension ProcessResourcesView {
-    /// The running app behind a row, unless it is MacFresh itself or Finder,
+    /// The running app behind a row, unless it is MacDash itself or Finder,
     /// which are never offered for quitting.
     fileprivate static func runningApp(for consumer: ProcessResourceConsumer) -> NSRunningApplication? {
         guard let path = consumer.applicationPath else { return nil }
@@ -260,7 +260,7 @@ extension ProcessResourcesView {
     fileprivate func forceQuit(_ consumer: ProcessResourceConsumer) {
         guard let app = Self.runningApp(for: consumer) else { return }
         if !app.forceTerminate() {
-            quitFailed = String(format: String(localized: "macOS didn't let MacFresh close %@."), consumer.name)
+            quitFailed = String(format: String(localized: "macOS didn't let MacDash close %@."), consumer.name)
         }
     }
 }

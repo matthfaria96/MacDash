@@ -66,7 +66,7 @@ struct MainWindow: View {
                 }
             }
         }
-        .navigationTitle("MacFresh")
+        .navigationTitle("MacDash")
         .modifier(HiddenWindowTitle())
         .toolbarBackground(.hidden, for: .windowToolbar)
         .frame(minWidth: 1040, minHeight: 680)
@@ -167,7 +167,7 @@ struct MainWindow: View {
     }
 
     private var sectionTitle: some View {
-        Text(selectedSection.map { SidebarItem($0).title } ?? "MacFresh")
+        Text(selectedSection.map { SidebarItem($0).title } ?? "MacDash")
             .font(.system(size: 13, weight: .semibold))
             .foregroundStyle(.white.opacity(0.85))
             .lineLimit(1)
@@ -412,7 +412,7 @@ struct MainWindow: View {
                 .environment(\.premiumIconsEnabled, false)
         case nil:
             EmptyStateView(
-                "MacFresh",
+                "MacDash",
                 systemImage: "sparkles",
                 description: "Select a tool from the sidebar."
             )

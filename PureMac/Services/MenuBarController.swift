@@ -54,7 +54,7 @@ final class MenuBarPanel: NSPanel {
 
 }
 
-/// The MacFresh menu bar item: its icon and, if chosen in Settings, a light
+/// The MacDash menu bar item: its icon and, if chosen in Settings, a light
 /// live readout. Clicking it opens a panel with the Mac's health, storage,
 /// memory, battery, CPU, network and connected devices; a card's "Details"
 /// link unfolds the detail under that card, and the panel grows downward
@@ -91,7 +91,7 @@ final class MenuBarController: NSObject {
             button.target = self
             button.action = #selector(statusItemClicked)
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-            button.setAccessibilityLabel("MacFresh")
+            button.setAccessibilityLabel("MacDash")
         }
 
         let close: () -> Void = { [weak self] in self?.closePanels() }
@@ -176,7 +176,7 @@ final class MenuBarController: NSObject {
             return true
         }
         image.isTemplate = true
-        image.accessibilityDescription = "MacFresh"
+        image.accessibilityDescription = "MacDash"
         return image
     }
 
@@ -193,10 +193,10 @@ final class MenuBarController: NSObject {
     private func showMenu() {
         closePanels()
         let menu = NSMenu()
-        menu.addItem(withTitle: String(localized: "Open MacFresh"), action: #selector(openApp), keyEquivalent: "").target = self
+        menu.addItem(withTitle: String(localized: "Open MacDash"), action: #selector(openApp), keyEquivalent: "").target = self
         menu.addItem(withTitle: String(localized: "Settings…"), action: #selector(openSettings), keyEquivalent: ",").target = self
         menu.addItem(.separator())
-        menu.addItem(withTitle: String(localized: "Quit MacFresh"), action: #selector(quit), keyEquivalent: "q").target = self
+        menu.addItem(withTitle: String(localized: "Quit MacDash"), action: #selector(quit), keyEquivalent: "q").target = self
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil

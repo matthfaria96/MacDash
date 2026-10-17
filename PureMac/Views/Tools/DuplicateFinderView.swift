@@ -123,7 +123,7 @@ struct DuplicateFinderView: View {
                 GlassOrbIcon(systemImage: "doc.text.magnifyingglass", tint: SectionPalette.duplicates.accent, size: 150)
                 Text("Find copies that are exactly the same")
                     .font(.system(size: 18, weight: .semibold))
-                Text("Choose where to look. MacFresh compares file sizes first, then verifies matching files byte for byte. Nothing is selected or removed automatically.")
+                Text("Choose where to look. MacDash compares file sizes first, then verifies matching files byte for byte. Nothing is selected or removed automatically.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

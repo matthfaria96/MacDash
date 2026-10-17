@@ -110,7 +110,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     // reserved and reclaimed by macOS itself — no third-party app can reliably
     // enumerate or free it, and the Finder's own purgeable figure is known to
     // be inaccurate. We still SHOW it in the storage breakdown for
-    // transparency, but we never present it as junk MacFresh can delete.
+    // transparency, but we never present it as junk MacDash can delete.
     // Honest > impressive.
     // `appModifying` is excluded too — see the note on that property. Both of
     // those categories are withdrawn as of 2.9.5 and must not be scanned,

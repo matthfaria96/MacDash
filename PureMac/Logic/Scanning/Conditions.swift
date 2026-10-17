@@ -1,6 +1,6 @@
 //
 //  Conditions.swift
-//  MacFresh
+//  MacDash
 //
 //  Per-app matching rules and system-level skip conditions for the heuristic scan engine.
 //  These define edge cases where bundle ID and app name matching alone is insufficient.
@@ -484,8 +484,8 @@ let skipReverse: [String] = [
     // Generic Infrastructure
     "ds_store", "caches", "crashreporter", "trash",
 
-    // MacFresh itself, and its former name (never flag our own files)
-    "macfresh", "mactidy",
+    // MacDash itself, and its former name (never flag our own files)
+    "macdash", "mactidy",
 
     // Common SDKs and Shared Components
     "amsdatamigratortool", "arfilecache", "assistant", "chromium",

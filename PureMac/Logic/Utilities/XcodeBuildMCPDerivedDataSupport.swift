@@ -64,7 +64,7 @@ enum XcodeBuildMCPDerivedDataSupport {
     }
 
     /// Returns whether a managed DerivedData item may participate in scheduled
-    /// cleanup. Ordinary MacFresh items remain governed by their selection flag;
+    /// cleanup. Ordinary MacDash items remain governed by their selection flag;
     /// XcodeBuildMCP items additionally need to be old and unlocked.
     static func isEligibleForScheduledAutoClean(
         _ item: CleanableItem,
@@ -155,7 +155,7 @@ enum XcodeBuildMCPDerivedDataSupport {
     /// Atomically claims a workspace lifecycle lock for a short, local
     /// filesystem operation. `mkdir` is used instead of FileManager's
     /// createDirectory because POSIX mkdir gives us an exclusive EEXIST result
-    /// when XcodeBuildMCP (or another MacFresh process) wins the race.
+    /// when XcodeBuildMCP (or another MacDash process) wins the race.
     ///
     /// A legacy shared DerivedData path has no workspace lock, so it returns
     /// nil; callers move that root to the Trash without coordination.

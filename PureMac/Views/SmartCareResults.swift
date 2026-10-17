@@ -690,7 +690,7 @@ struct SmartCareResultsView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text("Nothing to clean")
                     .font(.system(size: 18, weight: .semibold))
-                Text("MacFresh did not find removable items in the selected scan areas.")
+                Text("MacDash did not find removable items in the selected scan areas.")
                     .font(.system(size: 12.5))
                     .foregroundStyle(.secondary)
             }

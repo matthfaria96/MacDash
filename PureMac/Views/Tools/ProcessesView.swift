@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Processes: the Mac's vitals as four tiles that unfold into details,
 /// anything heavy in the background, then the user's own apps. Sampling only runs while this screen
-/// is open and MacFresh is the frontmost app.
+/// is open and MacDash is the frontmost app.
 struct ProcessesView: View {
     @StateObject private var performance = PerformanceModel()
     @State private var appIsActive = NSApplication.shared.isActive
@@ -47,7 +47,7 @@ struct ProcessesView: View {
             .frame(maxWidth: 1180, alignment: .leading)
             .frame(maxWidth: .infinity)
         }
-        // Sampling restarts whenever MacFresh comes back to the front, and
+        // Sampling restarts whenever MacDash comes back to the front, and
         // stops while it is in the background or this page is closed.
         .task(id: appIsActive) {
             if appIsActive {

@@ -6,7 +6,7 @@ import Foundation
 import SQLite3
 import UserNotifications
 
-/// Everything MacFresh needs macOS to allow, checked for real: each status
+/// Everything MacDash needs macOS to allow, checked for real: each status
 /// comes from macOS itself, never from a remembered answer.
 @MainActor
 final class MacTidyPermissions: ObservableObject {
@@ -39,7 +39,7 @@ final class MacTidyPermissions: ObservableObject {
             case .fullDiskAccess:
                 return String(localized: "Lets scans reach Mail, Safari, app containers and the Trash, and lets Protection read app permissions.")
             case .appManagement:
-                return String(localized: "Lets MacFresh remove apps and install app updates.")
+                return String(localized: "Lets MacDash remove apps and install app updates.")
             case .automation:
                 return String(localized: "Lets Startup Items turn login items on and off.")
             case .notifications:
@@ -47,7 +47,7 @@ final class MacTidyPermissions: ObservableObject {
             case .bluetooth:
                 return String(localized: "Shows the battery of your keyboards, mice and headphones in the menu bar panel.")
             case .location:
-                return String(localized: "Only to show the name of your Wi-Fi network. macOS files network names under location; MacFresh never reads where you are.")
+                return String(localized: "Only to show the name of your Wi-Fi network. macOS files network names under location; MacDash never reads where you are.")
             }
         }
 
@@ -71,7 +71,7 @@ final class MacTidyPermissions: ObservableObject {
             case .appManagement: anchor = "com.apple.preference.security?Privacy_AppBundles"
             case .automation: anchor = "com.apple.preference.security?Privacy_Automation"
             case .notifications:
-                anchor = "com.apple.Notifications-Settings.extension?id=\(Bundle.main.bundleIdentifier ?? "com.macfresh.app")"
+                anchor = "com.apple.Notifications-Settings.extension?id=\(Bundle.main.bundleIdentifier ?? "com.macdash.app")"
             case .bluetooth: anchor = "com.apple.preference.security?Privacy_Bluetooth"
             case .location: anchor = "com.apple.preference.security?Privacy_LocationServices"
             }
@@ -82,7 +82,7 @@ final class MacTidyPermissions: ObservableObject {
     enum Status: Equatable {
         case checking
         case granted
-        /// Never asked yet: MacFresh can show the macOS prompt.
+        /// Never asked yet: MacDash can show the macOS prompt.
         case notAsked
         case denied
         /// App Management can only be read once Full Disk Access is on.
@@ -107,12 +107,12 @@ final class MacTidyPermissions: ObservableObject {
     var allRequiredGranted: Bool { Item.allCases.filter(\.isRequired).allSatisfy { status($0) == .granted } }
     var grantedCount: Int { Item.allCases.filter { status($0) == .granted }.count }
 
-    /// Reads every status again. Cheap enough to run whenever MacFresh
+    /// Reads every status again. Cheap enough to run whenever MacDash
     /// comes to the front.
     func refresh() {
         refreshTask?.cancel()
         refreshTask = Task {
-            let bundleID = Bundle.main.bundleIdentifier ?? "com.macfresh.app"
+            let bundleID = Bundle.main.bundleIdentifier ?? "com.macdash.app"
             async let fda = Task.detached(priority: .userInitiated) { FullDiskAccessManager.shared.hasFullDiskAccess }.value
             async let automation = Task.detached(priority: .userInitiated) { Self.automationStatus(ask: false) }.value
             async let notifications = Self.notificationStatus()
@@ -155,7 +155,7 @@ final class MacTidyPermissions: ObservableObject {
     }
 
     /// Asks macOS directly when it can (Automation, Notifications), and
-    /// otherwise opens the right pane of System Settings with MacFresh shown
+    /// otherwise opens the right pane of System Settings with MacDash shown
     /// in Finder, ready to drag into the list.
     func request(_ item: Item) {
         switch (item, status(item)) {
@@ -236,7 +236,7 @@ final class MacTidyPermissions: ObservableObject {
         }
     }
 
-    /// Whether MacFresh may send Apple Events to System Events. With `ask`,
+    /// Whether MacDash may send Apple Events to System Events. With `ask`,
     /// macOS shows its prompt when the user hasn't decided yet.
     nonisolated private static func automationStatus(ask: Bool) -> Status {
         let systemEvents = "com.apple.systemevents"
@@ -273,9 +273,9 @@ final class MacTidyPermissions: ObservableObject {
         _ = done.wait(timeout: .now() + 5)
     }
 
-    /// The user's own TCC record for MacFresh → System Events, when readable.
+    /// The user's own TCC record for MacDash → System Events, when readable.
     nonisolated private static func automationRecord() -> Status? {
-        let bundleID = Bundle.main.bundleIdentifier ?? "com.macfresh.app"
+        let bundleID = Bundle.main.bundleIdentifier ?? "com.macdash.app"
         let path = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Application Support/com.apple.TCC/TCC.db").path
         guard let value = authValue(
@@ -352,7 +352,7 @@ private final class BluetoothPermissionRequest: NSObject, CBCentralManagerDelega
     }
 }
 
-/// Shows macOS's Location prompt. MacFresh only needs the answer, never a
+/// Shows macOS's Location prompt. MacDash only needs the answer, never a
 /// location: with it, macOS hands over the Wi-Fi network's name.
 private final class LocationPermissionRequest: NSObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()

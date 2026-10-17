@@ -1,6 +1,6 @@
 //
 //  Locations.swift
-//  MacFresh
+//  MacDash
 //
 //  Defines all macOS filesystem locations where applications leave files.
 //  Used by the heuristic scan engine to discover app-related artifacts.

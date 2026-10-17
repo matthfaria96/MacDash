@@ -37,7 +37,7 @@ final class Logger: ObservableObject {
     private let osLogger: os.Logger
 
     private init() {
-        let subsystem = Bundle.main.bundleIdentifier ?? "com.macfresh.app"
+        let subsystem = Bundle.main.bundleIdentifier ?? "com.macdash.app"
         self.osLogger = os.Logger(subsystem: subsystem, category: "general")
     }
 

@@ -28,7 +28,7 @@ struct SettingsView: View {
                     title: Text("Settings"),
                     systemImage: "gearshape.fill",
                     tint: SectionPalette.settings.accent,
-                    detail: { Text("Make MacFresh work your way.") },
+                    detail: { Text("Make MacDash work your way.") },
                     accessory: { EmptyView() }
                 )
             }
@@ -287,7 +287,7 @@ struct GeneralSettingsView: View {
                 }
                 if languageNeedsRelaunch {
                     SettingsSeparator()
-                    SettingsRow("Restart MacFresh to apply the selected language.") {
+                    SettingsRow("Restart MacDash to apply the selected language.") {
                         Button("Relaunch Now") { relaunchApp() }
                             .buttonStyle(.borderedProminent)
                     }
@@ -296,8 +296,8 @@ struct GeneralSettingsView: View {
             }
 
             SettingsSection("Behavior") {
-                SettingsRow("Launch MacFresh at login") {
-                    Toggle("Launch MacFresh at login", isOn: launchAtLoginBinding).settingsSwitch()
+                SettingsRow("Launch MacDash at login") {
+                    Toggle("Launch MacDash at login", isOn: launchAtLoginBinding).settingsSwitch()
                 }
                 SettingsSeparator()
                 SettingsRow("Play sound effects") {
@@ -369,7 +369,7 @@ struct GeneralSettingsView: View {
             try task.run()
             NSApp.terminate(nil)
         } catch {
-            Logger.shared.log("Failed to relaunch MacFresh: \(error.localizedDescription)", level: .error)
+            Logger.shared.log("Failed to relaunch MacDash: \(error.localizedDescription)", level: .error)
         }
     }
 }
@@ -713,8 +713,8 @@ private struct AutomaticScanSection: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("How automatic scanning works")
                 .font(.system(size: 14, weight: .semibold))
-            infoLine("clock", "While MacFresh is open, it checks the clock once a minute and runs a scan when the chosen interval has passed since the last run.")
-            infoLine("power", "It only runs while the app is open. It does not start the app by itself, so nothing happens while MacFresh is quit.")
+            infoLine("clock", "While MacDash is open, it checks the clock once a minute and runs a scan when the chosen interval has passed since the last run.")
+            infoLine("power", "It only runs while the app is open. It does not start the app by itself, so nothing happens while MacDash is quit.")
             infoLine("magnifyingglass", "It scans the same areas as Smart Care. Orphaned files, duplicates and similar photos are never included.")
             infoLine("hourglass", "It waits if another scan, a cleanup or a confirmation is in progress, and skips a run while scan results are open on screen.")
             infoLine("trash", "With Auto-clean on, items selected by default are permanently deleted once at least 100 MB are selected. Large files and personal data are unselected by default, so they are never removed automatically. Excluded paths are always kept.")
@@ -740,7 +740,7 @@ private struct AutomaticScanSection: View {
 
 // MARK: - Menu Bar
 
-/// What MacFresh shows in the menu bar and in its panel. The readout reads
+/// What MacDash shows in the menu bar and in its panel. The readout reads
 /// only the metrics turned on here; with none, nothing runs in the background.
 struct MenuBarSettingsView: View {
     @AppStorage("settings.general.menuBarMonitor") private var showInMenuBar = true
@@ -753,11 +753,11 @@ struct MenuBarSettingsView: View {
     var body: some View {
         SettingsPage {
             SettingsSection(
-                "MacFresh in the menu bar",
-                footer: Text("Your Mac's health, storage, memory, battery, CPU, network and connected devices, one click away. MacFresh keeps running in the background while this is on.")
+                "MacDash in the menu bar",
+                footer: Text("Your Mac's health, storage, memory, battery, CPU, network and connected devices, one click away. MacDash keeps running in the background while this is on.")
             ) {
-                SettingsRow("Show MacFresh in the menu bar") {
-                    Toggle("Show MacFresh in the menu bar", isOn: showBinding).settingsSwitch()
+                SettingsRow("Show MacDash in the menu bar") {
+                    Toggle("Show MacDash in the menu bar", isOn: showBinding).settingsSwitch()
                 }
             }
 
@@ -794,8 +794,8 @@ struct MenuBarSettingsView: View {
                         .settingsMenu()
                     }
                     SettingsSeparator()
-                    SettingsRow("Show the MacFresh icon") {
-                        Toggle("Show the MacFresh icon", isOn: $showIcon).settingsSwitch()
+                    SettingsRow("Show the MacDash icon") {
+                        Toggle("Show the MacDash icon", isOn: $showIcon).settingsSwitch()
                     }
                     SettingsSeparator()
                     SettingsRow("Alert colors", detail: "Orange or red when a value runs high.") {
@@ -892,7 +892,7 @@ struct AboutSettingsView: View {
                         .shadow(color: .black.opacity(0.35), radius: 14, y: 6)
                         .padding(.bottom, 18)
                 }
-                Text("MacFresh")
+                Text("MacDash")
                     .font(.system(size: 24, weight: .semibold))
                     .foregroundStyle(SettingsStyle.primary)
                 Text(String(format: String(localized: "Version %@"), AppVersion.marketing)
@@ -903,7 +903,7 @@ struct AboutSettingsView: View {
                     .textSelection(.enabled)
                     .padding(.top, 4)
 
-                Text("MacFresh cleans your Mac: junk and caches, large files, app leftovers, unused apps, duplicate files and similar photos. It also uninstalls apps completely and checks protection settings and permissions. Nothing is removed without your approval.")
+                Text("MacDash cleans your Mac: junk and caches, large files, app leftovers, unused apps, duplicate files and similar photos. It also uninstalls apps completely and checks protection settings and permissions. Nothing is removed without your approval.")
                     .font(.system(size: 13))
                     .foregroundStyle(Color.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -919,7 +919,7 @@ struct AboutSettingsView: View {
                     .padding(.top, 14)
 
                 HStack(spacing: 18) {
-                    Link("macfresh.app", destination: URL(string: "https://macfresh.app")!)
+                    Link("macdash.app", destination: URL(string: "https://macdash.app")!)
                         .font(.system(size: 12))
                     Button("Open-source licenses") { showLicenses = true }
                         .buttonStyle(.link)

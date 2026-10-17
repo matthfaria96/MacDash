@@ -49,7 +49,7 @@ struct LanguageFilesScanner: Sendable {
     /// Scans the given application directories (top level plus one nested
     /// level, e.g. /Applications/Utilities) and returns one finding per app
     /// bundle that has removable localizations. Apps under /System and the
-    /// MacFresh bundle itself are never reported.
+    /// MacDash bundle itself are never reported.
     func scan(applicationDirs: [String]) -> [LanguageFileFinding] {
         let fileManager = FileManager.default
         let keep = keepLanguages
@@ -123,11 +123,11 @@ struct LanguageFilesScanner: Sendable {
     /// has nothing removable.
     private func inspect(appPath: String, keep: Set<String>, ownPath: String, fileManager: FileManager) -> LanguageFileFinding? {
         let standardized = (appPath as NSString).standardizingPath
-        // System apps live on the sealed volume and MacFresh must never offer
+        // System apps live on the sealed volume and MacDash must never offer
         // to strip itself.
         if standardized.hasPrefix("/System/") { return nil }
         if standardized == ownPath { return nil }
-        if (standardized as NSString).lastPathComponent == "MacFresh.app" { return nil }
+        if (standardized as NSString).lastPathComponent == "MacDash.app" { return nil }
 
         let resourcesPath = appPath + "/Contents/Resources"
         guard isDirectory(resourcesPath, fileManager: fileManager) else { return nil }

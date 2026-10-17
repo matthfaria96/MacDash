@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-MacFresh includes code adapted from the projects listed below. Each
+MacDash includes code adapted from the projects listed below. Each
 project's license applies to the portions taken from it.
 
 ## Mac Sai

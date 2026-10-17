@@ -2,7 +2,7 @@
 "Applications" = "應用程式";
 "Cleanup" = "清理";
 "Orphaned Files" = "孤立檔案";
-"MacFresh" = "MacFresh";
+"MacDash" = "MacDash";
 "Limited access" = "存取受限";
 
 /* FDA toast + clean error alert (MainWindow) */
@@ -69,7 +69,7 @@
 
 /* Onboarding */
 "Back" = "返回";
-"Welcome to MacFresh" = "歡迎使用 MacFresh";
+"Welcome to MacDash" = "歡迎使用 MacDash";
 "Orphan Finder" = "孤立檔案搜尋";
 "Full Disk Access" = "完整磁碟取用權";
 "Trash" = "垃圾桶";
@@ -82,7 +82,7 @@
 "General" = "一般";
 "Cleaning" = "清理";
 "About" = "關於";
-"Launch MacFresh at login" = "登入時啟動 MacFresh";
+"Launch MacDash at login" = "登入時啟動 MacDash";
 "App Scanning" = "應用程式掃描";
 "Search sensitivity" = "搜尋敏感度";
 "Strict" = "嚴格";
@@ -92,7 +92,7 @@
 "Includes partial name matching and bundle ID components." = "包含部分名稱比對與套件 ID 組件。";
 "Includes company name, entitlements, and team identifier matching." = "包含公司名稱、授權與團隊識別碼的比對。";
 "Language" = "語言";
-"Restart MacFresh to apply the selected language." = "請重新啟動 MacFresh 以套用所選語言。";
+"Restart MacDash to apply the selected language." = "請重新啟動 MacDash 以套用所選語言。";
 "Relaunch Now" = "立即重新啟動";
 "System Default" = "系統預設";
 "English" = "英文";
@@ -198,16 +198,16 @@
 " and %lld more" = " 還有 %lld 個";
 "Access granted. Retrying…" = "已授予存取權限。正在重試…";
 "1-tap setup. We'll detect the change automatically." = "一鍵設定。我們會自動偵測變更。";
-"Open Settings & reveal MacFresh" = "開啟「系統設定」並顯示 MacFresh";
-"Turn on MacFresh" = "開啟 MacFresh";
+"Open Settings & reveal MacDash" = "開啟「系統設定」並顯示 MacDash";
+"Turn on MacDash" = "開啟 MacDash";
 "Toggle the row that appears." = "打開出現的那一列。";
 "Authenticate" = "驗證身分";
 "Touch ID or password." = "Touch ID 或密碼。";
 "We auto-retry — no need to come back." = "我們會自動重試 - 不需返回。";
 "Watching for permission change…" = "正在等待權限變更…";
-"MacFresh not in the list?" = "MacFresh 不在清單裡？";
+"MacDash not in the list?" = "MacDash 不在清單裡？";
 "Hide help" = "隱藏說明";
-"Try this if MacFresh doesn't appear:" = "如果 MacFresh 沒有出現，請嘗試：";
+"Try this if MacDash doesn't appear:" = "如果 MacDash 沒有出現，請嘗試：";
 "Reveal app" = "顯示 App";
 "Reset + reprompt" = "重設並重新提示";
 "Clear stale TCC entry" = "清除過時的 TCC 條目";
@@ -265,8 +265,8 @@
 "CPU" = "CPU";
 "Memory" = "記憶體";
 "Disk" = "磁碟";
-"Open MacFresh" = "開啟 MacFresh";
-"Quit MacFresh" = "結束 MacFresh";
+"Open MacDash" = "開啟 MacDash";
+"Quit MacDash" = "結束 MacDash";
 
 /* Finder Service */
 "Select an application (.app) to uninstall." = "請選取要解除安裝的應用程式（.app）。";
@@ -288,7 +288,7 @@
 
 /* Current dashboard, tools, and cleanup review — English fallback until translated */
 "%@ %@ to %@" = "%@ %@ to %@";
-"%@ could not be removed because MacFresh does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "%@ could not be removed because MacFresh does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again.";
+"%@ could not be removed because MacDash does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "%@ could not be removed because MacDash does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again.";
 "%@ did not finish within the allowed time." = "%@ did not finish within the allowed time.";
 "%@ exited with status %d%@" = "%@ exited with status %d%@";
 "%@ files inspected" = "%@ files inspected";
@@ -383,9 +383,9 @@
 "Homebrew finished, but %lld selected apps still report updates." = "Homebrew finished, but %lld selected apps still report updates.";
 "Homebrew finished, but 1 selected app still reports an update." = "Homebrew finished, but 1 selected app still reports an update.";
 "Homebrew finished. Check again to verify installed versions." = "Homebrew finished. Check again to verify installed versions.";
-"Homebrew produced more output than MacFresh could safely retain." = "Homebrew produced more output than MacFresh could safely retain.";
+"Homebrew produced more output than MacDash could safely retain." = "Homebrew produced more output than MacDash could safely retain.";
 "Homebrew returned an invalid cask identifier: %@" = "Homebrew returned an invalid cask identifier: %@";
-"Homebrew returned update information MacFresh could not read." = "Homebrew returned update information MacFresh could not read.";
+"Homebrew returned update information MacDash could not read." = "Homebrew returned update information MacDash could not read.";
 "Homebrew updated the %lld selected apps." = "Homebrew updated the %lld selected apps.";
 "Homebrew updated the selected app." = "Homebrew updated the selected app.";
 "Homebrew was not found in a standard installation location." = "Homebrew was not found in a standard installation location.";
@@ -397,7 +397,7 @@
 "Installed" = "Installed";
 "Installed %@" = "Installed %@";
 "Keep" = "Keep";
-"Keep MacFresh open until this pass finishes." = "Keep MacFresh open until this pass finishes.";
+"Keep MacDash open until this pass finishes." = "Keep MacDash open until this pass finishes.";
 "Keep alive" = "Keep alive";
 "Largest first" = "Largest first";
 "Last activity: %@" = "Last activity: %@";
@@ -446,11 +446,11 @@
 "Protected copy" = "Protected copy";
 "Protected system locations and processes are restricted." = "Protected system locations and processes are restricted.";
 "Protection" = "Protection";
-"MacFresh builds small local thumbnails, compares their visual structure and color, then groups likely matches for review." = "MacFresh builds small local thumbnails, compares their visual structure and color, then groups likely matches for review.";
-"MacFresh could not confirm the local XProtect installation." = "MacFresh could not confirm the local XProtect installation.";
-"MacFresh could not read this setting." = "MacFresh could not read this setting.";
-"MacFresh did not find removable items in the selected scan areas." = "MacFresh did not find removable items in the selected scan areas.";
-"MacFresh will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing." = "MacFresh will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing.";
+"MacDash builds small local thumbnails, compares their visual structure and color, then groups likely matches for review." = "MacDash builds small local thumbnails, compares their visual structure and color, then groups likely matches for review.";
+"MacDash could not confirm the local XProtect installation." = "MacDash could not confirm the local XProtect installation.";
+"MacDash could not read this setting." = "MacDash could not read this setting.";
+"MacDash did not find removable items in the selected scan areas." = "MacDash did not find removable items in the selected scan areas.";
+"MacDash will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing." = "MacDash will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing.";
 "MacTidy.app" = "MacTidy.app";
 "Refresh disk information" = "Refresh disk information";
 "Refused to delete %lld protected item(s) (home credential directory or similar)." = "Refused to delete %lld protected item(s) (home credential directory or similar).";
@@ -500,7 +500,7 @@
 "System daemon" = "System daemon";
 "System update" = "System update";
 "System-wide agent" = "System-wide agent";
-"The analyzed photos did not meet MacFresh's visual similarity threshold." = "The analyzed photos did not meet MacFresh's visual similarity threshold.";
+"The analyzed photos did not meet MacDash's visual similarity threshold." = "The analyzed photos did not meet MacDash's visual similarity threshold.";
 "The check timed out." = "The check timed out.";
 "The copy marked Keep is missing or changed: %@" = "The copy marked Keep is missing or changed: %@";
 "The inspected user and third-party launch folders are empty." = "The inspected user and third-party launch folders are empty.";
@@ -544,7 +544,7 @@
 "Build %@" = "版本號 %@";
 "Homebrew" = "Homebrew";
 
-"Make MacFresh work your way." = "Make MacFresh work your way.";
+"Make MacDash work your way." = "Make MacDash work your way.";
 "Measuring apps and processes…" = "Measuring apps and processes…";
 "Process information is unavailable. Try Activity Monitor for more detail." = "Process information is unavailable. Try Activity Monitor for more detail.";
 "Settings" = "設定";
@@ -626,8 +626,8 @@
 
 "Next run" = "下次執行";
 "How automatic scanning works" = "自動掃描的運作方式";
-"While MacFresh is open, it checks the clock once a minute and runs a scan when the chosen interval has passed since the last run." = "MacFresh 開啟期間，它每分鐘檢查一次時間，距上次執行超過所選間隔時就會執行掃描。";
-"It only runs while the app is open. It does not start the app by itself, so nothing happens while MacFresh is quit." = "僅在 App 開啟時執行。它不會自行啟動 App，因此 MacFresh 結束期間不會發生任何事。";
+"While MacDash is open, it checks the clock once a minute and runs a scan when the chosen interval has passed since the last run." = "MacDash 開啟期間，它每分鐘檢查一次時間，距上次執行超過所選間隔時就會執行掃描。";
+"It only runs while the app is open. It does not start the app by itself, so nothing happens while MacDash is quit." = "僅在 App 開啟時執行。它不會自行啟動 App，因此 MacDash 結束期間不會發生任何事。";
 "It scans the same areas as Smart Care. Orphaned files, duplicates and similar photos are never included." = "掃描範圍與智慧照護相同，從不包含孤立檔案、重複檔案和相似照片。";
 "It waits if another scan, a cleanup or a confirmation is in progress, and skips a run while scan results are open on screen." = "如果有其他掃描、清理或確認正在進行，它會等待；螢幕上開啟著掃描結果時會略過本次執行。";
 "With Auto-clean on, items selected by default are permanently deleted once at least 100 MB are selected. Large files and personal data are unselected by default, so they are never removed automatically. Excluded paths are always kept." = "開啟自動清理後，預設選取的項目在選取量達到至少 100 MB 時會被永久刪除。大型檔案和個人資料預設不選取，因此絕不會被自動刪除。已排除的路徑一律保留。";
@@ -646,7 +646,7 @@
 "Choose" = "選擇";
 "%@ free of %@" = "可用 %@ / 共 %@";
 "Change Location" = "更改位置";
-"Choose where to look. MacFresh compares file sizes first, then verifies matching files byte for byte. Nothing is selected or removed automatically." = "選擇搜尋位置。MacFresh 先比較檔案大小，再逐位元組驗證相符的檔案。不會自動選取或刪除任何內容。";
+"Choose where to look. MacDash compares file sizes first, then verifies matching files byte for byte. Nothing is selected or removed automatically." = "選擇搜尋位置。MacDash 先比較檔案大小，再逐位元組驗證相符的檔案。不會自動選取或刪除任何內容。";
 "Find photos that look alike" = "尋找相似的照片";
 
 "Groups" = "群組";
@@ -657,7 +657,7 @@
 
 "Checking for updates" = "正在檢查更新";
 "Check your apps for updates" = "檢查 App 更新";
-"MacFresh reads the update feed of every app that has its own updater, and asks Homebrew about the apps it manages." = "MacFresh 會讀取每個自帶更新程式的 App 的更新來源，並向 Homebrew 查詢其管理的 App。";
+"MacDash reads the update feed of every app that has its own updater, and asks Homebrew about the apps it manages." = "MacDash 會讀取每個自帶更新程式的 App 的更新來源，並向 Homebrew 查詢其管理的 App。";
 "Apps with their own updater are up to date (%lld checked)." = "自帶更新程式的 App 均為最新（已檢查 %lld 個）。";
 "Apps with their own updater" = "自帶更新程式的 App";
 "Open App Store" = "打開 App Store";
@@ -665,7 +665,7 @@
 "Homebrew is not installed, so cask apps were not checked." = "未安裝 Homebrew，因此未檢查 Cask App。";
 "Couldn't check Homebrew" = "無法檢查 Homebrew";
 "Homebrew apps are up to date." = "Homebrew App 均為最新。";
-"MacFresh isn't allowed to control System Events. Allow it in System Settings › Privacy & Security › Automation." = "MacFresh 無權控制 System Events。請在「系統設定 › 隱私權與安全性 › 自動化」中允許。";
+"MacDash isn't allowed to control System Events. Allow it in System Settings › Privacy & Security › Automation." = "MacDash 無權控制 System Events。請在「系統設定 › 隱私權與安全性 › 自動化」中允許。";
 "The change could not be made." = "無法進行變更。";
 "The change could not be made" = "無法進行變更";
 "System Settings" = "系統設定";
@@ -674,7 +674,7 @@
 "Open when you log in" = "登入時打開";
 "Reading login items…" = "正在讀取登入項目…";
 "Allow access to System Events" = "允許取用 System Events";
-"Login items are read through System Events. Allow MacFresh under Automation, then try again." = "登入項目透過 System Events 讀取。請在「自動化」中允許 MacFresh，然後再試一次。";
+"Login items are read through System Events. Allow MacDash under Automation, then try again." = "登入項目透過 System Events 讀取。請在「自動化」中允許 MacDash，然後再試一次。";
 "Open Settings" = "打開設定";
 "No login items." = "沒有登入項目。";
 "Switch off so it no longer starts" = "關閉後將不再啟動";
@@ -713,7 +713,7 @@
 "Reading permissions" = "正在讀取權限";
 "Looking at what macOS has allowed each app to do." = "正在查看 macOS 允許每個 App 做什麼。";
 "Full Disk Access needed" = "需要完整磁碟取用權限";
-"macOS keeps its permission list in a protected database. Give MacFresh Full Disk Access, then check again." = "macOS 將權限列表保存在受保護的資料庫中。請給予 MacFresh 完整磁碟取用權限，然後重新檢查。";
+"macOS keeps its permission list in a protected database. Give MacDash Full Disk Access, then check again." = "macOS 將權限列表保存在受保護的資料庫中。請給予 MacDash 完整磁碟取用權限，然後重新檢查。";
 "Open Full Disk Access" = "打開完整磁碟取用權限";
 "macOS doesn't let other apps change these permissions. Turn one off in System Settings › Privacy & Security; the app asks again the next time it needs it." = "macOS 不允許其他 App 變更這些權限。請在「系統設定 › 隱私權與安全性」中關閉；App 下次需要時會再次請求。";
 "Can control: %@" = "可以控制：%@";
@@ -725,7 +725,7 @@
 "This extension was installed by a management policy, so %@ would reinstall it. If you don't recognize it, look for unknown profiles in System Settings › General › Device Management." = "此延伸功能由管理原則安裝，因此 %@ 會重新安裝它。如果你不認得它，請在「系統設定 › 一般 › 裝置管理」中尋找不明的描述檔。";
 "This extension is built into %@ and can't be removed." = "此延伸功能內建於 %@，無法移除。";
 "Safari extensions come with apps and are managed by macOS. Turn them off in Safari › Settings › Extensions, or uninstall the app that added them." = "Safari 延伸功能隨 App 一起安裝，由 macOS 管理。請在「Safari › 設定 › 延伸功能」中關閉，或解除安裝加入它們的 App。";
-"MacFresh couldn't confirm this extension's folder is safe to remove, so nothing was deleted." = "MacFresh 無法確認此延伸功能的檔案夾可以安全移除，因此未刪除任何內容。";
+"MacDash couldn't confirm this extension's folder is safe to remove, so nothing was deleted." = "MacDash 無法確認此延伸功能的檔案夾可以安全移除，因此未刪除任何內容。";
 "Couldn't move it to the Trash: %@" = "無法移到垃圾桶：%@";
 "Browser Extensions" = "瀏覽器延伸功能";
 "Extensions in Safari, Chrome, Brave, Edge, Arc and Firefox. Names that match known adware are marked Suspicious." = "Safari、Chrome、Brave、Edge、Arc 和 Firefox 中的延伸功能。名稱與已知廣告軟體相符的會標為「可疑」。";
@@ -794,7 +794,7 @@
 "Archives & Disk Images" = "壓縮檔和磁碟映像檔";
 "Code & Data" = "程式碼和資料";
 "Other" = "其他";
-"MacFresh can't read this folder." = "MacFresh 無法讀取此檔案夾。";
+"MacDash can't read this folder." = "MacDash 無法讀取此檔案夾。";
 "This folder is empty." = "此檔案夾為空。";
 "Open the folder in Finder to review these files one by one." = "在 Finder 中打開檔案夾，逐一查看這些檔案。";
 "Protected: Space Lens only removes items in your own folders or on external disks." = "受保護：空間透鏡只會移除你自己檔案夾或外接磁碟中的項目。";
@@ -827,7 +827,7 @@
 "Find visually similar photos" = "尋找視覺上相似的照片";
 
 "Open-source licenses" = "開放原始碼授權";
-"MacFresh is built on the open-source projects below. Their copyright notices and licenses are kept here as those licenses require." = "MacFresh 基於下列開放原始碼專案建構。依這些授權的要求，其版權聲明和授權保留在此處。";
+"MacDash is built on the open-source projects below. Their copyright notices and licenses are kept here as those licenses require." = "MacDash 基於下列開放原始碼專案建構。依這些授權的要求，其版權聲明和授權保留在此處。";
 
 "See which apps are using your Mac right now" = "查看哪些 App 正在使用你的 Mac";
 
@@ -838,13 +838,13 @@
 "Force Quit" = "強制結束";
 "The app closes right away. Anything you haven't saved in it is lost." = "App 會立即關閉。其中未儲存的內容將會遺失。";
 "Couldn't quit the app" = "無法結束該 App";
-"macOS didn't let MacFresh close %@." = "macOS 不允許 MacFresh 關閉「%@」。";
+"macOS didn't let MacDash close %@." = "macOS 不允許 MacDash 關閉「%@」。";
 "Force quit this app" = "強制結束此 App";
 "This app can't be force quit from here" = "無法從此處強制結束該 App";
 "Force quit" = "強制結束";
 
 "A Mac cleaning app." = "一款 Mac 清理 App。";
-"MacFresh cleans your Mac: junk and caches, large files, app leftovers, unused apps, duplicate files and similar photos. It also uninstalls apps completely and checks protection settings and permissions. Nothing is removed without your approval." = "MacFresh 清理你的 Mac：垃圾和快取、大型檔案、App 殘留檔案、未使用的 App、重複檔案和相似照片。它也能徹底解除安裝 App，並檢查防護設定和權限。未經你批准不會移除任何內容。";
+"MacDash cleans your Mac: junk and caches, large files, app leftovers, unused apps, duplicate files and similar photos. It also uninstalls apps completely and checks protection settings and permissions. Nothing is removed without your approval." = "MacDash 清理你的 Mac：垃圾和快取、大型檔案、App 殘留檔案、未使用的 App、重複檔案和相似照片。它也能徹底解除安裝 App，並檢查防護設定和權限。未經你批准不會移除任何內容。";
 "It is built on the code of two open-source projects: PureMac (MIT License) and Mac Sai (BSD 3-Clause License)." = "基於兩個開放原始碼專案的程式碼建構：PureMac（MIT 授權）和 Mac Sai（BSD 3-Clause 授權）。";
 
 "Minimum size" = "最小大小";
@@ -910,9 +910,9 @@
 "The app couldn't be replaced: %@" = "無法取代該 App：%@";
 
 "Assistant" = "助理";
-"Your MacFresh activity at a glance" = "一覽你在 MacFresh 中的活動";
-"1 day with MacFresh" = "與 MacFresh 相伴 1 天";
-"%lld days with MacFresh" = "與 MacFresh 相伴 %lld 天";
+"Your MacDash activity at a glance" = "一覽你在 MacDash 中的活動";
+"1 day with MacDash" = "與 MacDash 相伴 1 天";
+"%lld days with MacDash" = "與 MacDash 相伴 %lld 天";
 "Since %@" = "自 %@ 起";
 "Files checked last time" = "上次檢查的檔案";
 "Last activity" = "上次活動";
@@ -943,7 +943,7 @@
 "Automation of System Events" = "System Events 自動化";
 "Notifications" = "通知";
 "Lets scans reach Mail, Safari, app containers and the Trash, and lets Protection read app permissions." = "讓掃描能取用郵件、Safari、App 容器和垃圾桶，並讓「保護」讀取 App 權限。";
-"Lets MacFresh remove apps and install app updates." = "讓 MacFresh 能移除 App 並安裝 App 更新。";
+"Lets MacDash remove apps and install app updates." = "讓 MacDash 能移除 App 並安裝 App 更新。";
 "Lets Startup Items turn login items on and off." = "讓「啟動項目」能開啟或關閉登入項目。";
 "Tells you when a scheduled scan finishes." = "排程掃描完成時通知你。";
 "Opens the matching page of System Settings" = "打開「系統設定」中對應的頁面";
@@ -958,13 +958,13 @@
 "Clean up junk, remove apps completely, keep an eye on privacy and see what's using your disk. Nothing is removed without your approval." = "清理垃圾、徹底移除 App、留意隱私，並查看是什麼佔用了磁碟。未經你同意，不會移除任何內容。";
 "Everything in one place" = "一切盡在一處";
 "Each area has its own color, so you always know where you are." = "每個區域都有自己的顏色，讓你隨時知道身在何處。";
-"Start using MacFresh" = "開始使用 MacFresh";
+"Start using MacDash" = "開始使用 MacDash";
 "Later" = "稍後";
-"What MacFresh needs" = "MacFresh 需要的權限";
+"What MacDash needs" = "MacDash 需要的權限";
 "Each status is read from macOS right now and updates as soon as you change it in System Settings." = "每項狀態都即時讀取自 macOS，在「系統設定」中更改後會立即更新。";
 "%lld of %lld allowed" = "已允許 %lld/%lld";
 "You're all set" = "一切就緒";
-"Allow what MacFresh needs" = "允許 MacFresh 需要的權限";
+"Allow what MacDash needs" = "允許 MacDash 需要的權限";
 "Ready to go" = "準備就緒";
 "Start with Smart Care: one scan, and you choose what goes." = "從 Smart Care 開始：掃描一次，由你決定移除什麼。";
 "Each line is checked with macOS as you go. You can change any of this later in Settings › Permissions." = "每一項都會即時向 macOS 核對。你可以稍後在「設定 › 權限」中更改。";
@@ -1065,7 +1065,7 @@
 
 /* Settings reorganization */
 "Menu Bar" = "選單列";
-"Everything MacFresh needs is allowed." = "MacFresh 需要的權限都已允許。";
+"Everything MacDash needs is allowed." = "MacDash 需要的權限都已允許。";
 "Full Disk Access is off: scans will skip protected folders." = "完整磁碟取用權限已關閉：掃描將略過受保護的檔案夾。";
 "Bigger than" = "大於";
 "Or not changed for" = "或未變更超過";
@@ -1177,7 +1177,7 @@
 "Learn More" = "瞭解更多";
 "Load: %d%%" = "負載：%d%%";
 "Mac Health:" = "Mac 健康狀況：";
-"MacFresh runs macOS's own network quality test, which downloads and uploads test data for about 15 seconds." = "MacFresh 使用 macOS 內建的網路品質測試，約 15 秒內下載並上傳測試資料。";
+"MacDash runs macOS's own network quality test, which downloads and uploads test data for about 15 seconds." = "MacDash 使用 macOS 內建的網路品質測試，約 15 秒內下載並上傳測試資料。";
 "Measuring folders…" = "正在測量檔案夾…";
 "Memory is getting tight. Quitting a heavy app helps." = "記憶體越來越吃緊。結束一個佔用大的 App 會有幫助。";
 "No battery data" = "無電池資料";
@@ -1203,16 +1203,16 @@
 "Top Consumers" = "佔用最多";
 "Upload" = "上傳";
 "Usage" = "用量";
-"Your Mac's health, storage, memory, battery, CPU, network and connected devices, one click away. MacFresh keeps running in the background while this is on." = "一鍵查看 Mac 的健康狀況、儲存空間、記憶體、電池、CPU、網路和已連接裝置。開啟時，MacFresh 會在背景持續執行。";
+"Your Mac's health, storage, memory, battery, CPU, network and connected devices, one click away. MacDash keeps running in the background while this is on." = "一鍵查看 Mac 的健康狀況、儲存空間、記憶體、電池、CPU、網路和已連接裝置。開啟時，MacDash 會在背景持續執行。";
 "Your battery holds much less than when new. Consider a service." = "電池容量比全新時少了很多。建議送修。";
 "Your battery is in good condition, but already lost some capacity." = "電池狀況良好，但已損失部分容量。";
 "Your battery is in great condition." = "電池狀況極佳。";
 "charge cycles" = "充電次數";
-"Show MacFresh in the menu bar" = "在選單列中顯示 MacFresh";
+"Show MacDash in the menu bar" = "在選單列中顯示 MacDash";
 "To see a password, enter your Mac login password and choose “Always Allow”." = "要查看密碼，請輸入 Mac 登入密碼並選擇「永遠允許」。";
 "Forgetting a network asks for your administrator password. You can join it again anytime." = "忘記網路需要管理者密碼。你可以隨時重新加入。";
 "How to see a password" = "如何查看密碼";
-"Wi-Fi passwords are protected by macOS. Every time you show one, macOS asks for your Mac account. This is required by Apple, and MacFresh can't skip it." = "Wi-Fi 密碼受 macOS 保護。每次顯示密碼時，macOS 都會要求輸入你的 Mac 帳號。這是 Apple 的要求，MacFresh 無法略過。";
+"Wi-Fi passwords are protected by macOS. Every time you show one, macOS asks for your Mac account. This is required by Apple, and MacDash can't skip it." = "Wi-Fi 密碼受 macOS 保護。每次顯示密碼時，macOS 都會要求輸入你的 Mac 帳號。這是 Apple 的要求，MacDash 無法略過。";
 "User name" = "使用者名稱";
 "The one you use to log in to this Mac" = "你登入這台 Mac 時使用的密碼";
 "Click “Always Allow” and that network won't ask again. macOS asks once per network, so passwords can't all be shown at once." = "按一下「永遠允許」後，該網路不會再詢問。macOS 會逐一網路詢問，因此無法一次顯示所有密碼。";
@@ -1236,7 +1236,7 @@
 "Details" = "詳細資訊";
 "Close the details" = "關閉詳細資訊";
 "Open the details" = "打開詳細資訊";
-"MacFresh in the menu bar" = "選單列中的 MacFresh";
+"MacDash in the menu bar" = "選單列中的 MacDash";
 "In the menu bar" = "選單列";
 "Only the metrics turned on here are read, on the interval you choose. With none on, the icon alone shows and nothing is measured in the background." = "只讀取此處開啟的指標，依你選擇的間隔更新。全部關閉時只顯示圖示，背景不會進行任何測量。";
 "Style" = "樣式";
@@ -1247,7 +1247,7 @@
 "2 seconds" = "2 秒";
 "3 seconds" = "3 秒";
 "5 seconds" = "5 秒";
-"Show the MacFresh icon" = "顯示 MacFresh 圖示";
+"Show the MacDash icon" = "顯示 MacDash 圖示";
 "Alert colors" = "警示顏色";
 "Orange or red when a value runs high." = "數值偏高時顯示為橙色或紅色。";
 "In the panel" = "面板";
@@ -1260,7 +1260,7 @@
 "Paused" = "已暫停";
 "Taking the first readings. Rates need two of them." = "正在進行首次讀取。速率需要兩次讀取。";
 "Updating while this screen is open." = "此頁面開啟時持續更新。";
-"Updates pause while MacFresh is in the background, so it uses nothing." = "MacFresh 在背景時會暫停更新，不佔用任何資源。";
+"Updates pause while MacDash is in the background, so it uses nothing." = "MacDash 在背景時會暫停更新，不佔用任何資源。";
 "The apps using the most memory and CPU" = "佔用記憶體和 CPU 最多的 App";
 "Headphones" = "耳機";
 "Keyboard" = "鍵盤";
@@ -1317,9 +1317,9 @@
 "%lld of %lld areas selected" = "已選擇 %lld / %lld 個區域";
 "Cards you turn off aren't measured. Apps and Battery show more when you click them." = "關閉的卡片不會被測量。按一下「App」與「電池」可查看更多。";
 "Shows the battery of your keyboards, mice and headphones in the menu bar panel." = "在選單列面板中顯示鍵盤、滑鼠和耳機的電量。";
-"Only to show the name of your Wi-Fi network. macOS files network names under location; MacFresh never reads where you are." = "僅用於顯示你的 Wi-Fi 網路名稱。macOS 將網路名稱視為位置資訊；MacFresh 從不讀取你的位置。";
+"Only to show the name of your Wi-Fi network. macOS files network names under location; MacDash never reads where you are." = "僅用於顯示你的 Wi-Fi 網路名稱。macOS 將網路名稱視為位置資訊；MacDash 從不讀取你的位置。";
 "Optional" = "選用";
 "Each one turns on one more feature. Skip any of them." = "每項開啟一個功能，可隨意略過。";
 "Open System Settings" = "打開系統設定";
-"Turn on MacFresh in the list" = "在列表中開啟 MacFresh";
+"Turn on MacDash in the list" = "在列表中開啟 MacDash";
 "After Full Disk Access" = "完整磁碟取用權之後";

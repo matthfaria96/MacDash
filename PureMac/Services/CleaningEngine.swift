@@ -212,7 +212,7 @@ actor CleaningEngine {
                             )
                         }
                     }
-                    // MacFresh's safety contract is Trash-only for recoverable
+                    // MacDash's safety contract is Trash-only for recoverable
                     // cleanup. XcodeBuildMCP DerivedData must not be unlinked.
                     var resulting: NSURL?
                     try fileManager.trashItem(at: resolvedURL, resultingItemURL: &resulting)

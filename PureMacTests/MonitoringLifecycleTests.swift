@@ -53,11 +53,11 @@ final class MonitoringLifecycleTests: XCTestCase {
 /// user's own drives.
 final class ExternalDriveEjectTests: XCTestCase {
     func testMountedDiskImageIsListedAndEjects() async throws {
-        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("MacFreshEject-\(UUID().uuidString)")
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("MacDashEject-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: folder) }
         let image = folder.appendingPathComponent("eject.dmg")
-        let volumeName = "MacFreshEjectTest\(Int.random(in: 1000...9999))"
+        let volumeName = "MacDashEjectTest\(Int.random(in: 1000...9999))"
         try run("/usr/bin/hdiutil", ["create", "-quiet", "-size", "4m", "-fs", "APFS", "-volname", volumeName, image.path])
         try run("/usr/bin/hdiutil", ["attach", "-quiet", image.path])
 

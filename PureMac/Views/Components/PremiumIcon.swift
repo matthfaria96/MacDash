@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-// MacFresh's own icon set: every glyph sits on a sculpted body with its own
+// MacDash's own icon set: every glyph sits on a sculpted body with its own
 // silhouette (squircle, hexagon, octagon, circle, soft blob, banner), lit from
 // above, with an embossed glyph and, for some, a companion badge. Colors come
 // from the screen's theme, so icons always match where they appear.
@@ -124,7 +124,7 @@ struct PremiumIconSpec {
     /// A companion glyph on its own small body, at the bottom right.
     var badge: (glyph: String, shape: PremiumIconShape, tint: Color?)? = nil
 
-    /// Shapes and companions for the symbols MacFresh uses. The color always
+    /// Shapes and companions for the symbols MacDash uses. The color always
     /// comes from where the icon is shown.
     static func make(for symbol: String) -> PremiumIconSpec {
         let base = symbol
@@ -195,7 +195,7 @@ struct PremiumIconSpec {
 
 // MARK: - Icon
 
-/// Settings keeps plain system symbols; everywhere else uses MacFresh's icons.
+/// Settings keeps plain system symbols; everywhere else uses MacDash's icons.
 private struct PremiumIconsEnabledKey: EnvironmentKey {
     static let defaultValue = true
 }
@@ -224,7 +224,7 @@ enum PremiumIconStyle {
     case color, glass
 }
 
-/// MacFresh's own icon: the symbol itself, with thickness, a light face that
+/// MacDash's own icon: the symbol itself, with thickness, a light face that
 /// blends white with the screen's color, and a soft glow. No plate or border
 /// around it. Status colors (green, orange, red, yellow) keep their meaning
 /// and are used as given; any other color follows the screen.

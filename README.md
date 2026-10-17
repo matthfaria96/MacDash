@@ -1,4 +1,4 @@
-# MacFresh
+# MacDash
 
 App nativo para macOS (SwiftUI) de limpeza e manutenção: Cuidado inteligente, Limpeza avançada, Aplicativos (desinstalar, itens de início e atualizações), Proteção (permissões de apps, verificações de segurança, Wi‑Fi e extensões de navegador), Processos, Lente de espaço, Arquivos duplicados e Fotos semelhantes.
 

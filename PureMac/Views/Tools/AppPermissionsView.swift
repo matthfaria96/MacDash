@@ -74,7 +74,7 @@ struct AppPermissionsView: View {
                 icon: "lock.shield",
                 tint: Tint.orange,
                 title: "Full Disk Access needed",
-                message: "macOS keeps its permission list in a protected database. Give MacFresh Full Disk Access, then check again."
+                message: "macOS keeps its permission list in a protected database. Give MacDash Full Disk Access, then check again."
             ) {
                 HStack(spacing: 10) {
                     Button("Open Full Disk Access") {

@@ -18,12 +18,12 @@ enum AppSection: Hashable {
 }
 
 extension Notification.Name {
-    /// Posted by the Finder Services handler ("Uninstall with MacFresh") with a
+    /// Posted by the Finder Services handler ("Uninstall with MacDash") with a
     /// `["path": String]` userInfo pointing at the right-clicked .app bundle.
-    static let pureMacExternalUninstall = Notification.Name("MacFresh.ExternalUninstall")
+    static let pureMacExternalUninstall = Notification.Name("MacDash.ExternalUninstall")
 }
 
-/// Cold-launch buffer for Finder Services. A "Uninstall with MacFresh" request
+/// Cold-launch buffer for Finder Services. A "Uninstall with MacDash" request
 /// can arrive before the SwiftUI scene (and thus AppState) exists; the posted
 /// notification then has no subscriber and is lost (NotificationCenter has no
 /// replay). AppDelegate stashes the path here and AppState drains it in init.
@@ -221,7 +221,7 @@ final class AppState: ObservableObject {
         self.appFileScanner = appFileScanner
         self.appFileTrasher = appFileTrasher
 
-        // Listen for right-click "Uninstall with MacFresh" hand-offs from the
+        // Listen for right-click "Uninstall with MacDash" hand-offs from the
         // Finder Services handler in AppDelegate.
         externalUninstallObserver = NotificationCenter.default
             .publisher(for: .pureMacExternalUninstall)
@@ -250,7 +250,7 @@ final class AppState: ObservableObject {
             // the first launch the defaults plist may have been
             // attacker-planted with autoClean=true; wait for human consent
             // via onboarding.
-            if UserDefaults.standard.bool(forKey: "MacFresh.OnboardingComplete") {
+            if UserDefaults.standard.bool(forKey: "MacDash.OnboardingComplete") {
                 scheduler.start()
             }
         }
@@ -415,10 +415,10 @@ final class AppState: ObservableObject {
     }
 
     /// Move files to the Trash via FileManager.trashItem so the syscall
-    /// originates from MacFresh itself - TCC then registers MacFresh in the
+    /// originates from MacDash itself - TCC then registers MacDash in the
     /// Full Disk Access list. The previous AppleScript-via-Finder bridge
     /// caused the syscall to originate from Finder, which is why granting
-    /// FDA to MacFresh made no difference (issue #75).
+    /// FDA to MacDash made no difference (issue #75).
     private static func defaultAppFileTrasher(urls: [URL], completion: @escaping ([URL], Bool, [URL], [URL]) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
             let hasFullDiskAccess = FullDiskAccessManager.shared.hasFullDiskAccess
@@ -528,7 +528,7 @@ final class AppState: ObservableObject {
     ) -> String? {
         if needsFullDiskAccess {
             let prefix = failed.isEmpty ? String(localized: "Some selected files") : Self.fileCountLabel(failed.count)
-            return String(localized: "\(prefix) could not be removed because MacFresh does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again.")
+            return String(localized: "\(prefix) could not be removed because MacDash does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again.")
         }
 
         if !failed.isEmpty {
@@ -1565,7 +1565,7 @@ final class AppState: ObservableObject {
 
     private func sendNotification(freed: Int64) {
         let content = UNMutableNotificationContent()
-        content.title = "MacFresh"
+        content.title = "MacDash"
         let sizeStr = ByteCountFormatter.string(fromByteCount: freed, countStyle: .file)
         content.body = String(format: NSLocalizedString("Found %@ of junk files.", comment: ""), sizeStr)
         content.sound = .default

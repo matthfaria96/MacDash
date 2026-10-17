@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-// The live readout next to MacFresh's menu bar icon, and the preferences that
+// The live readout next to MacDash's menu bar icon, and the preferences that
 // shape it and the panel. The drawing follows Performance Monitor (MIT): a
 // template image, so macOS tints it for light and dark menu bars, with fixed
 // slot widths so numbers never make the menu bar jump. The stacked style

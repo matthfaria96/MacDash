@@ -77,7 +77,7 @@ final class BrowserExtensionsModel: ObservableObject {
         case .openedSafariSettings:
             return Notice(text: String(localized: "Safari extensions come with apps and are managed by macOS. Turn them off in Safari › Settings › Extensions, or uninstall the app that added them."), isError: false)
         case .refused:
-            return Notice(text: String(localized: "MacFresh couldn't confirm this extension's folder is safe to remove, so nothing was deleted."), isError: true)
+            return Notice(text: String(localized: "MacDash couldn't confirm this extension's folder is safe to remove, so nothing was deleted."), isError: true)
         case .failed(let message):
             return Notice(text: String(format: String(localized: "Couldn't move it to the Trash: %@"), message), isError: true)
         }

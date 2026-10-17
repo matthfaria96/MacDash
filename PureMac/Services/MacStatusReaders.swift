@@ -303,7 +303,7 @@ final class LowEnergyBatteryReader: NSObject, CBCentralManagerDelegate, CBPeriph
     private static let service = CBUUID(string: "180F")
     private static let level = CBUUID(string: "2A19")
 
-    private let queue = DispatchQueue(label: "MacFresh.LowEnergyBattery")
+    private let queue = DispatchQueue(label: "MacDash.LowEnergyBattery")
     private let done = DispatchSemaphore(value: 0)
     private var central: CBCentralManager?
     private var peripherals: [CBPeripheral] = []

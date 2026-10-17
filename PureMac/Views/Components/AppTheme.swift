@@ -1111,7 +1111,7 @@ enum IconCache {
     }
 }
 
-/// Whether MacFresh is the frontmost app. Endless ambient animations pause
+/// Whether MacDash is the frontmost app. Endless ambient animations pause
 /// while it isn't, so they cost nothing while you work in other apps.
 @MainActor
 final class AppActivity: ObservableObject {
@@ -1386,7 +1386,7 @@ extension View {
 
 /// Tells at a glance whether the numbers are live: a green dot sending out
 /// a soft ripple while live, a spinner while the first readings come in, or
-/// a quiet pause sign while MacFresh is in the background.
+/// a quiet pause sign while MacDash is in the background.
 struct LiveStatusBadge: View {
     let isCollecting: Bool
     let isActive: Bool
@@ -1446,7 +1446,7 @@ struct LiveStatusBadge: View {
             Capsule().fill((isLive ? Tint.green : Color.white).opacity(isLive ? 0.09 : 0.06))
         }
         .overlay(Capsule().strokeBorder(isLive ? AnyShapeStyle(Tint.green.opacity(0.32)) : AnyShapeStyle(GlassEdge.gradient), lineWidth: 0.7))
-        .help(isActive ? (isCollecting ? "Taking the first readings. Rates need two of them." : "Updating while this screen is open.") : "Updates pause while MacFresh is in the background, so it uses nothing.")
+        .help(isActive ? (isCollecting ? "Taking the first readings. Rates need two of them." : "Updating while this screen is open.") : "Updates pause while MacDash is in the background, so it uses nothing.")
         .animation(.easeInOut(duration: 0.25), value: isCollecting)
         .animation(.easeInOut(duration: 0.25), value: isActive)
         .onAppear {

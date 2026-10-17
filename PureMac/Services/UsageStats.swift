@@ -1,6 +1,6 @@
 import Foundation
 
-/// A small, local record of what MacFresh has done on this Mac, shown by the
+/// A small, local record of what MacDash has done on this Mac, shown by the
 /// Assistant: days since first use, space cleaned, tasks run, how many files
 /// the last run checked and when that was. Nothing leaves the Mac.
 @MainActor

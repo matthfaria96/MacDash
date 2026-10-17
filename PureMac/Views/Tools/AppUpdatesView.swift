@@ -135,7 +135,7 @@ struct AppUpdatesView: View {
                     GlassOrbIcon(systemImage: "arrow.triangle.2.circlepath", tint: SectionPalette.apps.accent, size: 69)
                     Text("Check your apps for updates")
                         .font(.title3.weight(.semibold))
-                    Text("MacFresh reads the update feed of every app that has its own updater, and asks Homebrew about the apps it manages.")
+                    Text("MacDash reads the update feed of every app that has its own updater, and asks Homebrew about the apps it manages.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
