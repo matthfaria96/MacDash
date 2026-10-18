@@ -983,7 +983,6 @@
 /* Assistant suggestions, Threat Check, app sorting */
 "Threat Check" = "Проверка угроз";
 "Known adware and suspicious launch items" = "Известное рекламное ПО и подозрительные объекты автозапуска";
-"Checks where junk builds up and looks for known threats, then lets you choose what goes." = "Проверяет места, где копится мусор, и ищет известные угрозы, а затем вы решаете, что удалить.";
 "Last used" = "Последнее использование";
 "Ascending" = "По возрастанию";
 "Descending" = "По убыванию";
@@ -996,7 +995,6 @@
 "Clean %@ of junk" = "Очистить %@ мусора";
 "Smart Care results are ready to review." = "Результаты Smart Care готовы к просмотру.";
 "Run Smart Care" = "Запустить Smart Care";
-"Junk and known threats in one quick pass." = "Мусор и известные угрозы за один быстрый проход.";
 "Find what fills your disk" = "Узнать, что занимает диск";
 "Only %@ free. Space Lens maps the biggest folders." = "Свободно всего %@. Space Lens покажет самые большие папки.";
 "Check for app updates" = "Проверить обновления приложений";
@@ -1323,6 +1321,17 @@
 "After Full Disk Access" = "После полного доступа к диску";
 
 /* Antivirus */
+"%@ changed since the scan. Scan again before moving it." = "%@ изменился после проверки. Проверьте снова, прежде чем перемещать.";
+"Some items couldn't be moved: %@" = "Не удалось переместить некоторые объекты: %@";
+"Some items couldn't be restored: %@" = "Не удалось восстановить некоторые объекты: %@";
+"Couldn't read the saved antivirus data. A copy was kept at %@." = "Не удалось прочитать сохранённые данные антивируса. Копия сохранена в %@.";
+"The command run as administrator failed: %@" = "Команда от имени администратора завершилась ошибкой: %@";
+"Checks where junk builds up, then lets you choose what goes." = "Проверяет, где копится мусор, а затем вы выбираете, что удалить.";
+"Junk, caches and mail files in one quick pass." = "Мусор, кэши и файлы Почты за один быстрый проход.";
+"Run an Antivirus scan" = "Запустить антивирусную проверку";
+"Clear scan history?" = "Очистить историю проверок?";
+"Clear history" = "Очистить историю";
+"The list of past scans is erased. Quarantine, trusted items and items to review stay as they are." = "Список прошлых проверок будет удалён. Карантин, доверенные объекты и объекты на проверку останутся как есть.";
 "Scan type" = "Тип проверки";
 "EICAR test file" = "Тестовый файл EICAR";
 "A harmless standard file used to check that antivirus software works." = "Безвредный стандартный файл, которым проверяют, работает ли антивирус.";

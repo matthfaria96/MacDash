@@ -29,7 +29,9 @@ struct AntivirusScanner: Sendable {
     let quarantineFolder: String
 
     init(home: String = NSHomeDirectory(), quarantineFolder: String) {
-        self.home = home
+        // Resolved, like the paths the directory walk reports, so a launch
+        // item's program and the same file found by the walk compare equal.
+        self.home = Self.physicalPath(home)
         self.quarantineFolder = quarantineFolder
     }
 
@@ -151,10 +153,14 @@ struct AntivirusScanner: Sendable {
             self.report = progress
         }
 
+        /// Parts already reported (or already judged with their launch item)
+        /// are dropped; the rest is still reported, so a second launch item
+        /// starting the same program isn't silently lost.
         mutating func add(_ detection: Detection) {
-            guard detection.components.allSatisfy({ !claimed.contains($0.path) }) else { return }
-            claimed.formUnion(detection.components.map(\.path))
-            detections.append(detection)
+            let fresh = detection.components.filter { !claimed.contains($0.path) }
+            guard !fresh.isEmpty else { return }
+            claimed.formUnion(fresh.map(\.path))
+            detections.append(fresh.count == detection.components.count ? detection : detection.with(components: fresh))
             progress.detections = detections.count
             flush(force: true)
         }
@@ -201,7 +207,9 @@ struct AntivirusScanner: Sendable {
             // An app bundle named after an adware family is reported as a
             // whole; its insides don't need a second look.
             if url.pathExtension == "app", let family = AntivirusRules.adwareFamily(in: url.deletingPathExtension().lastPathComponent) {
-                state.add(adwareDetection(family: family, bundle: url, archive: archive, mode: state.mode))
+                let detection = adwareDetection(family: family, bundle: url, archive: archive, mode: state.mode)
+                if let team = detection.signing?.teamID, state.trust.teamIDs.contains(team) { return }
+                state.add(detection)
                 enumerator.skipDescendants()
             }
             return
@@ -226,7 +234,7 @@ struct AntivirusScanner: Sendable {
         let size = Int64(info.st_size)
         guard size > 0 else { return }
         let fileID = AntivirusCleanCache.FileID(device: info.st_dev, inode: UInt64(info.st_ino))
-        let stamp = AntivirusCleanCache.Stamp(modified: info.st_mtimespec.tv_sec, size: size)
+        let stamp = AntivirusCleanCache.Stamp(changed: info.st_ctimespec.tv_sec * 1_000_000_000 + info.st_ctimespec.tv_nsec, size: size)
         if archive == nil, state.cache.isClean(fileID, stamp) { return }
 
         guard let head = readHead(url, count: 4096) else { return }
@@ -255,8 +263,12 @@ struct AntivirusScanner: Sendable {
         }
 
         let kind = AntivirusRules.kind(of: head)
-        if kind == .zip, state.mode.scansArchives, archiveDepth < 2, size < 100 * 1_048_576 {
-            scanArchive(url, depth: archiveDepth, outer: archive ?? path, state: &state)
+        // A ZIP is never cached as clean: a Quick scan doesn't open it, and
+        // a later Deep scan must still look inside.
+        if kind == .zip {
+            if state.mode.scansArchives, archiveDepth < 2, size < 100 * 1_048_576 {
+                scanArchive(url, depth: archiveDepth, outer: archive ?? path, state: &state)
+            }
             return
         }
 
@@ -291,10 +303,32 @@ struct AntivirusScanner: Sendable {
     /// Unpacks a ZIP into a temporary folder with `ditto` and scans that.
     /// A match is reported on the archive, with the entry that matched.
     private func scanArchive(_ url: URL, depth: Int, outer: String, state: inout ScanState) {
+        guard Self.isSafeToExtract(url) else { return }
         let temp = FileManager.default.temporaryDirectory.appendingPathComponent("MacDashAV-\(UUID().uuidString)")
-        defer { try? FileManager.default.removeItem(at: temp) }
+        defer {
+            // Archives can hold read-only folders; open them so cleanup works.
+            _ = Shell.run("/bin/chmod", ["-R", "u+rwx", temp.path])
+            try? FileManager.default.removeItem(at: temp)
+        }
         guard Shell.run("/usr/bin/ditto", ["-x", "-k", url.path, temp.path]).status == 0 else { return }
         walk(temp.path, archiveDepth: depth + 1, archive: outer, state: &state)
+    }
+
+    /// Uncompressed size and entry names, read from the ZIP's directory
+    /// before anything is written: refuses archives over 500 MB unpacked
+    /// (zip bombs) and entries that would land outside the folder.
+    static func isSafeToExtract(_ url: URL) -> Bool {
+        let listing = Shell.run("/usr/bin/zipinfo", ["-1", url.path])
+        guard listing.status == 0, let names = String(data: listing.output, encoding: .utf8) else { return false }
+        for name in names.split(separator: "\n") {
+            if name.hasPrefix("/") || name.split(separator: "/").contains("..") { return false }
+        }
+        let totals = Shell.run("/usr/bin/zipinfo", ["-t", url.path])
+        guard totals.status == 0, let line = String(data: totals.output, encoding: .utf8),
+              let match = line.range(of: #"([0-9]+) bytes uncompressed"#, options: .regularExpression),
+              let bytes = Int64(line[match].split(separator: " ")[0])
+        else { return false }
+        return bytes <= 500 * 1_048_576
     }
 
     private func adwareDetection(family: String, bundle: URL, archive: String?, mode: AntivirusScanMode) -> Detection {
@@ -354,7 +388,9 @@ struct AntivirusScanner: Sendable {
         if let program = plist["Program"] as? String { arguments.insert(program, at: 0) }
         let program = arguments.first
         // For `sh script.sh` the script is the real payload.
-        let payload = program.flatMap { Self.interpreters.contains($0) ? arguments.dropFirst().first { $0.hasPrefix("/") } : $0 }
+        let payload = program
+            .flatMap { Self.interpreters.contains($0) ? arguments.dropFirst().first { $0.hasPrefix("/") } : $0 }
+            .map(Self.physicalPath)
 
         let plistSize = (try? FileManager.default.attributesOfItem(atPath: plistPath)[.size] as? Int64) ?? 0
         var components = [ThreatComponent(path: plistPath, role: .launchItem, sha256: AntivirusRules.sha256(of: URL(fileURLWithPath: plistPath)), size: plistSize)]
@@ -379,13 +415,13 @@ struct AntivirusScanner: Sendable {
                              String(format: String(localized: "A %@ that starts a known adware family every time you log in."), kindName))
         }
         if let payload, let sha = components.last?.sha256, components.count > 1 {
-            if let known = AntivirusRules.knownHashes[sha] {
-                return detection(known, .knownMalware, .high, .fileHash, "hash.sha256",
-                                 String(format: String(localized: "A %@ starts a file that matches known malware."), kindName))
-            }
             if let head = readHead(URL(fileURLWithPath: payload), count: 4096), AntivirusRules.isEICAR(head, fileSize: components.last?.size ?? 0) {
                 return detection(String(localized: "EICAR test file"), .testFile, .high, .testSignature, "test.eicar",
                                  String(format: String(localized: "A %@ starts the harmless antivirus test file."), kindName))
+            }
+            if let known = AntivirusRules.knownHashes[sha] {
+                return detection(known, .knownMalware, .high, .fileHash, "hash.sha256",
+                                 String(format: String(localized: "A %@ starts a file that matches known malware."), kindName))
             }
             if AntivirusRules.kind(of: readHead(URL(fileURLWithPath: payload), count: 4) ?? Data()) == .script,
                let text = try? String(contentsOfFile: payload, encoding: .utf8), let rule = AntivirusRules.suspiciousScriptRule(text) {
@@ -442,6 +478,16 @@ struct AntivirusScanner: Sendable {
                             source: .codeSignature, rule: "process.unsigned-unusual-location",
                             reason: String(localized: "An unsigned program is running from a folder where apps aren't normally installed."),
                             components: [component], signing: signing, detectedAt: Date(), mode: state.mode))
+    }
+
+    /// The path with every link resolved, as the directory walk reports it
+    /// (/var → /private/var). Foundation's resolvingSymlinksInPath does the
+    /// opposite for /private, so this uses realpath(3). Unchanged if the
+    /// path doesn't exist.
+    static func physicalPath(_ path: String) -> String {
+        guard let resolved = realpath(path, nil) else { return path }
+        defer { free(resolved) }
+        return String(cString: resolved)
     }
 
     static func runningExecutablePaths() -> [String] {

@@ -983,7 +983,6 @@
 /* Assistant suggestions, Threat Check, app sorting */
 "Threat Check" = "威脅檢查";
 "Known adware and suspicious launch items" = "已知廣告軟體和可疑的啟動項目";
-"Checks where junk builds up and looks for known threats, then lets you choose what goes." = "檢查垃圾堆積的位置並尋找已知威脅，然後由你決定刪除什麼。";
 "Last used" = "上次使用";
 "Ascending" = "遞增";
 "Descending" = "遞減";
@@ -996,7 +995,6 @@
 "Clean %@ of junk" = "清理 %@ 垃圾";
 "Smart Care results are ready to review." = "智慧照護結果已可檢視。";
 "Run Smart Care" = "執行智慧照護";
-"Junk and known threats in one quick pass." = "一次快速檢查垃圾和已知威脅。";
 "Find what fills your disk" = "查看是什麼佔滿了磁碟";
 "Only %@ free. Space Lens maps the biggest folders." = "僅剩 %@ 可用。Space Lens 可顯示最大的檔案夾。";
 "Check for app updates" = "檢查 App 更新";
@@ -1323,6 +1321,17 @@
 "After Full Disk Access" = "完整磁碟取用權之後";
 
 /* Antivirus */
+"%@ changed since the scan. Scan again before moving it." = "%@ 在掃描後已變更。請重新掃描後再移動。";
+"Some items couldn't be moved: %@" = "部分項目無法移動：%@";
+"Some items couldn't be restored: %@" = "部分項目無法回復：%@";
+"Couldn't read the saved antivirus data. A copy was kept at %@." = "無法讀取已儲存的防毒資料。已在 %@ 保留一份副本。";
+"The command run as administrator failed: %@" = "以管理者身分執行的指令失敗：%@";
+"Checks where junk builds up, then lets you choose what goes." = "檢查垃圾堆積的位置，再由你選擇要清除哪些。";
+"Junk, caches and mail files in one quick pass." = "一次快速檢查垃圾、快取和「郵件」檔案。";
+"Run an Antivirus scan" = "執行病毒掃描";
+"Clear scan history?" = "要清除掃描記錄嗎？";
+"Clear history" = "清除記錄";
+"The list of past scans is erased. Quarantine, trusted items and items to review stay as they are." = "過去的掃描列表將被清除。隔離區、受信任項目和待審核項目維持不變。";
 "Scan type" = "掃描類型";
 "EICAR test file" = "EICAR 測試檔案";
 "A harmless standard file used to check that antivirus software works." = "一個無害的標準檔案，用來檢查防毒軟體是否正常運作。";

@@ -982,7 +982,6 @@
 /* Assistant suggestions, Threat Check, app sorting */
 "Threat Check" = "威胁检查";
 "Known adware and suspicious launch items" = "已知广告软件和可疑的启动项";
-"Checks where junk builds up and looks for known threats, then lets you choose what goes." = "检查垃圾堆积的位置并查找已知威胁，然后由你决定删除什么。";
 "Last used" = "上次使用";
 "Ascending" = "升序";
 "Descending" = "降序";
@@ -995,7 +994,6 @@
 "Clean %@ of junk" = "清理 %@ 垃圾";
 "Smart Care results are ready to review." = "智能护理结果已可查看。";
 "Run Smart Care" = "运行智能护理";
-"Junk and known threats in one quick pass." = "一次快速检查垃圾和已知威胁。";
 "Find what fills your disk" = "查看是什么占满了磁盘";
 "Only %@ free. Space Lens maps the biggest folders." = "仅剩 %@ 可用。Space Lens 可显示最大的文件夹。";
 "Check for app updates" = "检查 App 更新";
@@ -1322,6 +1320,17 @@
 "After Full Disk Access" = "完全磁盘访问权限之后";
 
 /* Antivirus */
+"%@ changed since the scan. Scan again before moving it." = "%@ 在扫描后已更改。请重新扫描后再移动。";
+"Some items couldn't be moved: %@" = "部分项目无法移动：%@";
+"Some items couldn't be restored: %@" = "部分项目无法恢复：%@";
+"Couldn't read the saved antivirus data. A copy was kept at %@." = "无法读取已保存的杀毒数据。已在 %@ 保留一份副本。";
+"The command run as administrator failed: %@" = "以管理员身份运行的命令失败：%@";
+"Checks where junk builds up, then lets you choose what goes." = "检查垃圾堆积的位置，然后由你选择清除哪些。";
+"Junk, caches and mail files in one quick pass." = "一次快速检查垃圾、缓存和“邮件”文件。";
+"Run an Antivirus scan" = "运行病毒扫描";
+"Clear scan history?" = "清除扫描历史？";
+"Clear history" = "清除历史";
+"The list of past scans is erased. Quarantine, trusted items and items to review stay as they are." = "过去的扫描列表将被清除。隔离区、受信任项目和待审核项目保持不变。";
 "Scan type" = "扫描类型";
 "EICAR test file" = "EICAR 测试文件";
 "A harmless standard file used to check that antivirus software works." = "一个无害的标准文件，用于检查杀毒软件是否正常工作。";

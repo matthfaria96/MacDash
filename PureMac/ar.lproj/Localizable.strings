@@ -983,7 +983,6 @@
 /* Assistant suggestions, Threat Check, app sorting */
 "Threat Check" = "فحص التهديدات";
 "Known adware and suspicious launch items" = "برامج إعلانية معروفة وعناصر بدء تشغيل مشبوهة";
-"Checks where junk builds up and looks for known threats, then lets you choose what goes." = "يفحص أماكن تراكم الملفات غير المفيدة ويبحث عن التهديدات المعروفة، ثم تختار ما يُحذف.";
 "Last used" = "آخر استخدام";
 "Ascending" = "تصاعدي";
 "Descending" = "تنازلي";
@@ -996,7 +995,6 @@
 "Clean %@ of junk" = "تنظيف %@ من الملفات غير المفيدة";
 "Smart Care results are ready to review." = "نتائج العناية الذكية جاهزة للمراجعة.";
 "Run Smart Care" = "تشغيل العناية الذكية";
-"Junk and known threats in one quick pass." = "الملفات غير المفيدة والتهديدات المعروفة في فحص سريع واحد.";
 "Find what fills your disk" = "اكتشف ما يملأ القرص";
 "Only %@ free. Space Lens maps the biggest folders." = "المساحة الحرة %@ فقط. يعرض Space Lens أكبر المجلدات.";
 "Check for app updates" = "البحث عن تحديثات التطبيقات";
@@ -1323,6 +1321,17 @@
 "After Full Disk Access" = "بعد الوصول الكامل إلى القرص";
 
 /* Antivirus */
+"%@ changed since the scan. Scan again before moving it." = "تغيّر %@ منذ الفحص. أعد الفحص قبل نقله.";
+"Some items couldn't be moved: %@" = "تعذّر نقل بعض العناصر: %@";
+"Some items couldn't be restored: %@" = "تعذّرت استعادة بعض العناصر: %@";
+"Couldn't read the saved antivirus data. A copy was kept at %@." = "تعذّرت قراءة بيانات مكافحة الفيروسات المحفوظة. تم الاحتفاظ بنسخة في %@.";
+"The command run as administrator failed: %@" = "فشل الأمر الذي تم تشغيله كمسؤول: %@";
+"Checks where junk builds up, then lets you choose what goes." = "يفحص الأماكن التي تتراكم فيها الملفات غير الضرورية، ثم تختار ما تريد حذفه.";
+"Junk, caches and mail files in one quick pass." = "الملفات غير الضرورية وذاكرات التخزين المؤقت وملفات البريد في فحص سريع واحد.";
+"Run an Antivirus scan" = "إجراء فحص مكافحة الفيروسات";
+"Clear scan history?" = "هل تريد مسح سجل الفحوصات؟";
+"Clear history" = "مسح السجل";
+"The list of past scans is erased. Quarantine, trusted items and items to review stay as they are." = "سيتم مسح قائمة الفحوصات السابقة. يبقى الحجر الصحي والعناصر الموثوقة والعناصر التي تنتظر المراجعة كما هي.";
 "Scan type" = "نوع الفحص";
 "EICAR test file" = "ملف اختبار EICAR";
 "A harmless standard file used to check that antivirus software works." = "ملف قياسي غير ضار يُستخدم للتحقق من أن برنامج مكافحة الفيروسات يعمل.";

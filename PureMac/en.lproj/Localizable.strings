@@ -985,7 +985,6 @@
 /* Assistant suggestions, Threat Check, app sorting */
 "Threat Check" = "Threat Check";
 "Known adware and suspicious launch items" = "Known adware and suspicious launch items";
-"Checks where junk builds up and looks for known threats, then lets you choose what goes." = "Checks where junk builds up and looks for known threats, then lets you choose what goes.";
 "Last used" = "Last used";
 "Ascending" = "Ascending";
 "Descending" = "Descending";
@@ -998,7 +997,6 @@
 "Clean %@ of junk" = "Clean %@ of junk";
 "Smart Care results are ready to review." = "Smart Care results are ready to review.";
 "Run Smart Care" = "Run Smart Care";
-"Junk and known threats in one quick pass." = "Junk and known threats in one quick pass.";
 "Find what fills your disk" = "Find what fills your disk";
 "Only %@ free. Space Lens maps the biggest folders." = "Only %@ free. Space Lens maps the biggest folders.";
 "Check for app updates" = "Check for app updates";
@@ -1325,6 +1323,17 @@
 "After Full Disk Access" = "After Full Disk Access";
 
 /* Antivirus */
+"%@ changed since the scan. Scan again before moving it." = "%@ changed since the scan. Scan again before moving it.";
+"Some items couldn't be moved: %@" = "Some items couldn't be moved: %@";
+"Some items couldn't be restored: %@" = "Some items couldn't be restored: %@";
+"Couldn't read the saved antivirus data. A copy was kept at %@." = "Couldn't read the saved antivirus data. A copy was kept at %@.";
+"The command run as administrator failed: %@" = "The command run as administrator failed: %@";
+"Checks where junk builds up, then lets you choose what goes." = "Checks where junk builds up, then lets you choose what goes.";
+"Junk, caches and mail files in one quick pass." = "Junk, caches and mail files in one quick pass.";
+"Run an Antivirus scan" = "Run an Antivirus scan";
+"Clear scan history?" = "Clear scan history?";
+"Clear history" = "Clear history";
+"The list of past scans is erased. Quarantine, trusted items and items to review stay as they are." = "The list of past scans is erased. Quarantine, trusted items and items to review stay as they are.";
 "Scan type" = "Scan type";
 "EICAR test file" = "EICAR test file";
 "A harmless standard file used to check that antivirus software works." = "A harmless standard file used to check that antivirus software works.";

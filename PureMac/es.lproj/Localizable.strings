@@ -983,7 +983,6 @@
 /* Assistant suggestions, Threat Check, app sorting */
 "Threat Check" = "Revisión de amenazas";
 "Known adware and suspicious launch items" = "Adware conocido y elementos de arranque sospechosos";
-"Checks where junk builds up and looks for known threats, then lets you choose what goes." = "Revisa dónde se acumula la basura y busca amenazas conocidas; luego eliges qué se va.";
 "Last used" = "Último uso";
 "Ascending" = "Ascendente";
 "Descending" = "Descendente";
@@ -996,7 +995,6 @@
 "Clean %@ of junk" = "Limpiar %@ de basura";
 "Smart Care results are ready to review." = "Los resultados de Cuidado inteligente están listos para revisar.";
 "Run Smart Care" = "Ejecutar Cuidado inteligente";
-"Junk and known threats in one quick pass." = "Basura y amenazas conocidas en una pasada rápida.";
 "Find what fills your disk" = "Descubre qué llena tu disco";
 "Only %@ free. Space Lens maps the biggest folders." = "Solo quedan %@ libres. Space Lens muestra las carpetas más grandes.";
 "Check for app updates" = "Buscar actualizaciones de apps";
@@ -1323,6 +1321,17 @@
 "After Full Disk Access" = "Tras el acceso total al disco";
 
 /* Antivirus */
+"%@ changed since the scan. Scan again before moving it." = "%@ cambió desde el análisis. Vuelve a analizar antes de moverlo.";
+"Some items couldn't be moved: %@" = "Algunos elementos no se pudieron mover: %@";
+"Some items couldn't be restored: %@" = "Algunos elementos no se pudieron restaurar: %@";
+"Couldn't read the saved antivirus data. A copy was kept at %@." = "No se pudieron leer los datos guardados del antivirus. Se guardó una copia en %@.";
+"The command run as administrator failed: %@" = "El comando ejecutado como administrador falló: %@";
+"Checks where junk builds up, then lets you choose what goes." = "Revisa dónde se acumula la basura y luego eliges qué se elimina.";
+"Junk, caches and mail files in one quick pass." = "Basura, cachés y archivos de Mail en una pasada rápida.";
+"Run an Antivirus scan" = "Hacer un análisis antivirus";
+"Clear scan history?" = "¿Borrar el historial de análisis?";
+"Clear history" = "Borrar historial";
+"The list of past scans is erased. Quarantine, trusted items and items to review stay as they are." = "Se borrará la lista de análisis anteriores. La cuarentena, los elementos de confianza y los pendientes de revisión no cambian.";
 "Scan type" = "Tipo de análisis";
 "EICAR test file" = "Archivo de prueba EICAR";
 "A harmless standard file used to check that antivirus software works." = "Un archivo estándar e inofensivo que se usa para comprobar que el antivirus funciona.";

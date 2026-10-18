@@ -319,7 +319,7 @@ struct DashboardView: View {
                     .foregroundStyle(colorScheme == .dark ? Color.white : Color.primary)
                     .accessibilityAddTraits(.isHeader)
 
-                Text("Checks where junk builds up and looks for known threats, then lets you choose what goes.")
+                Text("Checks where junk builds up, then lets you choose what goes.")
                     .font(.system(size: 14))
                     .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.7) : Color.secondary)
                     .lineSpacing(2)
@@ -387,8 +387,6 @@ struct DashboardView: View {
                     Rectangle().fill(Color.white.opacity(0.1)).frame(height: 0.5).padding(.leading, 34)
                 }
             }
-            Rectangle().fill(Color.white.opacity(0.1)).frame(height: 0.5).padding(.leading, 34)
-            AntivirusStatusRow(compact: true) { onNavigate(.antivirus) }
             if let date = appState.lastScanDate {
                 HStack(spacing: 4) {
                     Text("Last scan")
@@ -425,8 +423,7 @@ struct DashboardView: View {
                     appState.resetSmartCareToStart()
                 }
             },
-            onScanAgain: { appState.startSmartScan() },
-            onOpenAntivirus: { onNavigate(.antivirus) }
+            onScanAgain: { appState.startSmartScan() }
         )
     }
 

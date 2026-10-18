@@ -94,8 +94,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
 
     /// The essential, low-risk areas Smart Care scans. Everything else lives in
     /// Advanced Cleanup, so the two screens never share an area. Threats are
-    /// not a cleanup area: Smart Care runs the Antivirus Quick scan instead,
-    /// and its findings wait for review there.
+    /// not a cleanup area: they belong to the Antivirus section.
     static var smartCare: [CleaningCategory] {
         [.systemJunk, .userCache, .trashBins, .mailAttachments].filter(scannable.contains)
     }

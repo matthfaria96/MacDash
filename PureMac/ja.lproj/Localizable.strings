@@ -983,7 +983,6 @@
 /* Assistant suggestions, Threat Check, app sorting */
 "Threat Check" = "脅威チェック";
 "Known adware and suspicious launch items" = "既知のアドウェアと不審な起動項目";
-"Checks where junk builds up and looks for known threats, then lets you choose what goes." = "不要ファイルがたまる場所と既知の脅威を確認し、削除するものを選べます。";
 "Last used" = "最終使用日";
 "Ascending" = "昇順";
 "Descending" = "降順";
@@ -996,7 +995,6 @@
 "Clean %@ of junk" = "%@ の不要ファイルを削除";
 "Smart Care results are ready to review." = "スマートケアの結果を確認できます。";
 "Run Smart Care" = "スマートケアを実行";
-"Junk and known threats in one quick pass." = "不要ファイルと既知の脅威を一度にチェック。";
 "Find what fills your disk" = "ディスクを占めているものを確認";
 "Only %@ free. Space Lens maps the biggest folders." = "空きは %@ だけです。Space Lens で大きなフォルダを確認できます。";
 "Check for app updates" = "App のアップデートを確認";
@@ -1323,6 +1321,17 @@
 "After Full Disk Access" = "フルディスクアクセスの後";
 
 /* Antivirus */
+"%@ changed since the scan. Scan again before moving it." = "%@ はスキャン後に変更されました。移動する前にもう一度スキャンしてください。";
+"Some items couldn't be moved: %@" = "一部の項目を移動できませんでした: %@";
+"Some items couldn't be restored: %@" = "一部の項目を復元できませんでした: %@";
+"Couldn't read the saved antivirus data. A copy was kept at %@." = "保存されたウイルス対策データを読み込めませんでした。コピーを %@ に保存しました。";
+"The command run as administrator failed: %@" = "管理者として実行したコマンドが失敗しました: %@";
+"Checks where junk builds up, then lets you choose what goes." = "不要ファイルがたまる場所を確認し、削除するものを選べます。";
+"Junk, caches and mail files in one quick pass." = "不要ファイル、キャッシュ、メールのファイルを1回ですばやく確認します。";
+"Run an Antivirus scan" = "ウイルス対策スキャンを実行";
+"Clear scan history?" = "スキャン履歴を消去しますか？";
+"Clear history" = "履歴を消去";
+"The list of past scans is erased. Quarantine, trusted items and items to review stay as they are." = "過去のスキャンの一覧が消去されます。隔離、信頼済み項目、確認待ちの項目はそのままです。";
 "Scan type" = "スキャンの種類";
 "EICAR test file" = "EICARテストファイル";
 "A harmless standard file used to check that antivirus software works." = "ウイルス対策ソフトウェアが動作しているか確認するための、無害な標準ファイルです。";

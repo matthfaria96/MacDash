@@ -39,6 +39,9 @@ final class AntivirusStore: ObservableObject {
     @Published private(set) var trusted: [TrustRule] = []
     @Published private(set) var history: [AntivirusScanRecord] = []
     @Published var schedule: Schedule = .off { didSet { save() } }
+    /// When the last complete scan started. Kept apart from `history` so
+    /// clearing the history doesn't make a scheduled scan run at once.
+    @Published private(set) var lastCompletedScan: Date?
     @Published var lastError: String?
     /// Detections being quarantined or removed right now.
     @Published private(set) var busy: Set<UUID> = []
@@ -65,11 +68,9 @@ final class AntivirusStore: ObservableObject {
         return false
     }
 
-    var lastScan: AntivirusScanRecord? { history.first }
-
     var nextScheduledScan: Date? {
         guard let interval = schedule.interval else { return nil }
-        guard let last = history.first(where: { !$0.wasCancelled })?.startedAt else { return Date() }
+        guard let last = lastCompletedScan else { return Date() }
         return last.addingTimeInterval(interval)
     }
 
@@ -139,9 +140,19 @@ final class AntivirusStore: ObservableObject {
         )
         history.insert(record, at: 0)
         history = Array(history.prefix(50))
+        // A Custom scan (and the protection test) covers a few files; only
+        // full scans count for the schedule and the Assistant.
+        if !record.wasCancelled, mode != .custom { lastCompletedScan = started }
         phase = .finished(record)
         save()
         if scheduled, !fresh.isEmpty { notify(count: fresh.count) }
+    }
+
+    /// Erases the list of past scans. Quarantine, trusted items and what is
+    /// waiting for review are not touched.
+    func clearHistory() {
+        history.removeAll()
+        save()
     }
 
     func reset() {
@@ -192,9 +203,17 @@ final class AntivirusStore: ObservableObject {
             let result = await Task.detached { AntivirusVault.quarantine(detection, into: vault) }.value
             busy.remove(detection.id)
             switch result {
-            case .success(let items):
+            case .success(let outcome):
                 pending.removeAll { $0.id == detection.id }
-                quarantine.insert(QuarantineRecord(id: detection.id, detection: detection, items: items, quarantinedAt: Date()), at: 0)
+                if !outcome.items.isEmpty {
+                    quarantine.insert(QuarantineRecord(id: detection.id, detection: detection, items: outcome.items, quarantinedAt: Date()), at: 0)
+                }
+                if !outcome.notMoved.isEmpty {
+                    // What stayed behind waits for review again.
+                    let left = detection.components.filter { outcome.notMoved.contains($0.path) }
+                    pending.insert(detection.with(components: left), at: 0)
+                    lastError = String(format: String(localized: "Some items couldn't be moved: %@"), outcome.notMoved.joined(separator: ", "))
+                }
                 cache.removeAll()
                 save()
             case .failure(let error):
@@ -210,12 +229,20 @@ final class AntivirusStore: ObservableObject {
             let result = await Task.detached { AntivirusVault.restore(record.items) }.value
             busy.remove(record.id)
             switch result {
-            case .success:
-                quarantine.removeAll { $0.id == record.id }
-                try? FileManager.default.removeItem(at: quarantineFolder.appendingPathComponent(record.id.uuidString))
+            case .success(let remaining):
+                if remaining.isEmpty {
+                    quarantine.removeAll { $0.id == record.id }
+                    AntivirusVault.removeEmptyVault(quarantineFolder.appendingPathComponent(record.id.uuidString))
+                } else if let index = quarantine.firstIndex(where: { $0.id == record.id }) {
+                    quarantine[index] = QuarantineRecord(id: record.id, detection: record.detection, items: remaining, quarantinedAt: record.quarantinedAt)
+                    lastError = String(format: String(localized: "Some items couldn't be restored: %@"), remaining.map(\.originalPath).joined(separator: ", "))
+                }
                 if andTrust {
-                    let rules = record.detection.components.compactMap { component in
+                    // By fingerprint when there is one; app bundles have none,
+                    // so they're trusted by location.
+                    let rules = record.detection.components.map { component in
                         component.sha256.map { TrustRule(kind: .hash, value: $0, label: component.path, addedAt: Date()) }
+                            ?? TrustRule(kind: .path, value: component.path, label: component.path, addedAt: Date())
                     }
                     let existing = Set(trusted.map(\.id))
                     trusted.append(contentsOf: rules.filter { !existing.contains($0.id) })
@@ -276,26 +303,35 @@ final class AntivirusStore: ObservableObject {
         var trusted: [TrustRule]
         var history: [AntivirusScanRecord]
         var schedule: Schedule
+        /// Optional so state saved before it existed still loads.
+        var lastCompletedScan: Date?
     }
 
     private var loading = false
 
     private func load() {
-        guard let data = try? Data(contentsOf: stateURL),
-              let saved = try? JSONDecoder().decode(Saved.self, from: data)
-        else { return }
+        guard let data = try? Data(contentsOf: stateURL) else { return }
+        guard let saved = try? JSONDecoder().decode(Saved.self, from: data) else {
+            // Never overwrite what can't be read: the quarantine records in it
+            // are the only way to restore those files. Keep a copy aside.
+            let backup = folder.appendingPathComponent("state-\(Int(Date().timeIntervalSince1970)).json.bak")
+            try? FileManager.default.moveItem(at: stateURL, to: backup)
+            lastError = String(format: String(localized: "Couldn't read the saved antivirus data. A copy was kept at %@."), backup.path)
+            return
+        }
         loading = true
         pending = saved.pending
         quarantine = saved.quarantine
         trusted = saved.trusted
         history = saved.history
         schedule = saved.schedule
+        lastCompletedScan = saved.lastCompletedScan ?? saved.history.first { !$0.wasCancelled }?.startedAt
         loading = false
     }
 
     private func save() {
         guard !loading else { return }
-        let saved = Saved(pending: pending, quarantine: quarantine, trusted: trusted, history: history, schedule: schedule)
+        let saved = Saved(pending: pending, quarantine: quarantine, trusted: trusted, history: history, schedule: schedule, lastCompletedScan: lastCompletedScan)
         do {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             try JSONEncoder().encode(saved).write(to: stateURL, options: .atomic)
@@ -310,100 +346,138 @@ final class AntivirusProgressTicker: ObservableObject {
     @Published var progress = AntivirusProgress()
 }
 
-/// File operations for quarantine. Items the user can't move (root-owned
-/// launch daemons, apps installed by another account) go through one
-/// administrator prompt.
+/// File operations for quarantine. Each operation is planned first, then
+/// done either entirely as the user or, when anything needs it, entirely in
+/// one administrator command chained with `&&`. Cancelling the password
+/// prompt therefore changes nothing. Afterwards the disk is checked, so the
+/// result reports what really moved, not what a command claimed.
 enum AntivirusVault {
     struct VaultError: LocalizedError {
         let message: String
         var errorDescription: String? { message }
     }
 
-    static func quarantine(_ detection: Detection, into vault: URL) -> Result<[QuarantinedItem], Error> {
+    /// What moved into the vault, and what could not be moved.
+    struct QuarantineOutcome {
+        let items: [QuarantinedItem]
+        let notMoved: [String]
+    }
+
+    static func quarantine(_ detection: Detection, into vault: URL) -> Result<QuarantineOutcome, Error> {
         let fm = FileManager.default
+        let components = detection.components.filter { exists($0.path) }
+        guard !components.isEmpty else { return .success(QuarantineOutcome(items: [], notMoved: [])) }
+
+        // The files must still be the ones the scan judged.
+        for component in components where component.role != .archive || component.archiveEntry == nil {
+            guard let expected = component.sha256, !isSymlink(component.path) else { continue }
+            if AntivirusRules.sha256(of: URL(fileURLWithPath: component.path)) != expected {
+                return .failure(VaultError(message: String(format: String(localized: "%@ changed since the scan. Scan again before moving it."), component.path)))
+            }
+        }
         do {
             try fm.createDirectory(at: vault, withIntermediateDirectories: true)
         } catch {
             return .failure(error)
         }
-        // 1. Unload launch items so they can't start the program again.
-        let uid = getuid()
-        for item in detection.launchItems {
-            if item.path.hasPrefix(NSHomeDirectory()) {
-                _ = Shell.run("/bin/launchctl", ["bootout", "gui/\(uid)", item.path])
-            }
-        }
-        var adminCommands: [String] = detection.launchItems
-            .filter { !$0.path.hasPrefix(NSHomeDirectory()) }
-            .map { "/bin/launchctl bootout system \(quoted($0.path)) || true" }
 
-        // 2. Stop processes running the threat's programs.
-        for component in detection.components where component.role == .program || component.role == .file {
-            for pid in AntivirusScanner.processIDs(runningAt: component.path) where kill(pid, SIGTERM) != 0 {
-                adminCommands.append("/bin/kill -TERM \(pid) || true")
-            }
-        }
-
-        // 3. Move each component into the vault, keeping its permissions.
-        var items: [QuarantinedItem] = []
-        var adminMoves: [(String, String)] = []
-        for (index, component) in detection.components.enumerated() {
-            guard fm.fileExists(atPath: component.path) else { continue }
+        let planned: [QuarantinedItem] = components.enumerated().map { index, component in
             let stored = vault.appendingPathComponent("\(index)-\(URL(fileURLWithPath: component.path).lastPathComponent)").path
-            let permissions = (try? fm.attributesOfItem(atPath: component.path)[.posixPermissions] as? NSNumber)?.int16Value ?? 0o644
-            do {
-                try fm.moveItem(atPath: component.path, toPath: stored)
-                // Not executable or readable while it waits.
-                _ = chmod(stored, 0)
-                items.append(QuarantinedItem(originalPath: component.path, storedPath: stored, permissions: permissions, needsAdministrator: false))
-            } catch {
-                adminMoves.append((component.path, stored))
-                items.append(QuarantinedItem(originalPath: component.path, storedPath: stored, permissions: permissions, needsAdministrator: true))
+            var info = stat()
+            lstat(component.path, &info)
+            return QuarantinedItem(
+                originalPath: component.path,
+                storedPath: stored,
+                permissions: Int16(info.st_mode & 0o7777),
+                needsAdministrator: !canMove(component.path) || component.path.contains("/LaunchDaemons/"),
+                isSymlink: (info.st_mode & S_IFMT) == S_IFLNK
+            )
+        }
+        let launchItems = detection.launchItems.map(\.path).filter(exists)
+        let pids = detection.components
+            .filter { $0.role == .program || $0.role == .file }
+            .flatMap { AntivirusScanner.processIDs(runningAt: $0.path) }
+
+        if planned.contains(where: \.needsAdministrator) {
+            var commands = launchItems.map { "/bin/launchctl bootout \(domain(for: $0)) \(quoted($0)) 2>/dev/null || true" }
+            commands += pids.map { "/bin/kill -TERM \($0) 2>/dev/null || true" }
+            commands += planned.map { item in
+                "/bin/mv -n \(quoted(item.originalPath)) \(quoted(item.storedPath)) && /bin/chmod -h 0 \(quoted(item.storedPath))"
+            }
+            if let failure = runAsAdministrator(commands) {
+                // Nothing moved unless the chain got that far; keep what did.
+                let moved = planned.filter { exists($0.storedPath) && !exists($0.originalPath) }
+                if moved.isEmpty { return .failure(failure) }
+                return .success(QuarantineOutcome(items: moved, notMoved: planned.filter { !moved.contains($0) }.map(\.originalPath)))
+            }
+        } else {
+            for path in launchItems { _ = Shell.run("/bin/launchctl", ["bootout", domain(for: path), path]) }
+            for pid in pids { kill(pid, SIGTERM) }
+            for item in planned {
+                guard (try? fm.moveItem(atPath: item.originalPath, toPath: item.storedPath)) != nil else { continue }
+                // Not readable or runnable while it waits. A link keeps its
+                // target untouched.
+                _ = item.isSymlink == true ? lchmod(item.storedPath, 0) : chmod(item.storedPath, 0)
             }
         }
-        for (from, to) in adminMoves {
-            adminCommands.append("/bin/mv \(quoted(from)) \(quoted(to)) && /bin/chmod 0 \(quoted(to))")
+        let moved = planned.filter { exists($0.storedPath) && !exists($0.originalPath) }
+        let notMoved = planned.filter { !moved.contains($0) }.map(\.originalPath)
+        if moved.isEmpty {
+            return .failure(VaultError(message: String(format: String(localized: "Some items couldn't be moved: %@"), notMoved.joined(separator: ", "))))
         }
-        if !adminCommands.isEmpty, let failure = runAsAdministrator(adminCommands) {
-            // Roll back what moved without a password, so nothing is half done.
-            for item in items where !item.needsAdministrator {
-                _ = chmod(item.storedPath, mode_t(item.permissions))
-                try? fm.moveItem(atPath: item.storedPath, toPath: item.originalPath)
-            }
-            return .failure(failure)
-        }
-        return .success(items)
+        return .success(QuarantineOutcome(items: moved, notMoved: notMoved))
     }
 
-    static func restore(_ items: [QuarantinedItem]) -> Result<Void, Error> {
+    /// Puts items back exactly where they were. Never overwrites: if any
+    /// original location is taken, nothing is restored. Returns the items
+    /// still in the vault (empty when everything is back).
+    static func restore(_ items: [QuarantinedItem]) -> Result<[QuarantinedItem], Error> {
         let fm = FileManager.default
-        var adminCommands: [String] = []
-        for item in items {
-            if fm.fileExists(atPath: item.originalPath) {
-                return .failure(VaultError(message: String(format: String(localized: "A file already exists at %@."), item.originalPath)))
+        if let taken = items.first(where: { exists($0.originalPath) }) {
+            return .failure(VaultError(message: String(format: String(localized: "A file already exists at %@."), taken.originalPath)))
+        }
+
+        if items.contains(where: \.needsAdministrator) {
+            let commands = items.map { item in
+                let original = quoted(item.originalPath)
+                let parent = quoted((item.originalPath as NSString).deletingLastPathComponent)
+                let mode = String(item.permissions, radix: 8)
+                return "[ ! -e \(original) ] && [ ! -L \(original) ] && /bin/mkdir -p \(parent) && /bin/chmod -h \(mode) \(quoted(item.storedPath)) && /bin/mv -n \(quoted(item.storedPath)) \(original)"
             }
-            if item.needsAdministrator {
-                adminCommands.append("/bin/chmod \(String(item.permissions, radix: 8)) \(quoted(item.storedPath)) && /bin/mv \(quoted(item.storedPath)) \(quoted(item.originalPath))")
-                continue
+            if let failure = runAsAdministrator(commands) {
+                let remaining = items.filter { exists($0.storedPath) }
+                if remaining.count == items.count { return .failure(failure) }
+                return .success(remaining)
             }
-            do {
-                _ = chmod(item.storedPath, mode_t(item.permissions))
-                try fm.createDirectory(at: URL(fileURLWithPath: item.originalPath).deletingLastPathComponent(), withIntermediateDirectories: true)
-                try fm.moveItem(atPath: item.storedPath, toPath: item.originalPath)
-            } catch {
-                return .failure(error)
+        } else {
+            var restored: [QuarantinedItem] = []
+            for item in items {
+                do {
+                    try fm.createDirectory(at: URL(fileURLWithPath: item.originalPath).deletingLastPathComponent(), withIntermediateDirectories: true)
+                    _ = item.isSymlink == true ? lchmod(item.storedPath, mode_t(item.permissions)) : chmod(item.storedPath, mode_t(item.permissions))
+                    try fm.moveItem(atPath: item.storedPath, toPath: item.originalPath)
+                    restored.append(item)
+                } catch {
+                    // Undo, so the record and the disk keep agreeing.
+                    _ = item.isSymlink == true ? lchmod(item.storedPath, 0) : chmod(item.storedPath, 0)
+                    for done in restored {
+                        try? fm.moveItem(atPath: done.originalPath, toPath: done.storedPath)
+                        _ = done.isSymlink == true ? lchmod(done.storedPath, 0) : chmod(done.storedPath, 0)
+                    }
+                    return .failure(error)
+                }
             }
         }
-        if !adminCommands.isEmpty, let failure = runAsAdministrator(adminCommands) { return .failure(failure) }
-        return .success(())
+        return .success(items.filter { exists($0.storedPath) })
     }
 
     static func delete(_ vault: URL, items: [QuarantinedItem]) -> Result<Void, Error> {
         if items.contains(where: \.needsAdministrator) {
             if let failure = runAsAdministrator(["/bin/rm -rf \(quoted(vault.path))"]) { return .failure(failure) }
-            return .success(())
+            return exists(vault.path) ? .failure(VaultError(message: String(format: String(localized: "Some items couldn't be moved: %@"), vault.path))) : .success(())
         }
-        // Folders were locked with chmod 0; open them up so they can be removed.
+        // Items were locked with chmod 0; open them up so they can be removed.
+        // chmod -R doesn't follow links.
         _ = Shell.run("/bin/chmod", ["-R", "u+rwx", vault.path])
         do {
             try FileManager.default.removeItem(at: vault)
@@ -413,16 +487,66 @@ enum AntivirusVault {
         }
     }
 
+    /// Removes an emptied vault folder; never anything still inside it.
+    static func removeEmptyVault(_ vault: URL) {
+        rmdir(vault.path)
+    }
+
+    // MARK: Helpers
+
+    /// True for files, folders and links, including links to nothing.
+    private static func exists(_ path: String) -> Bool {
+        var info = stat()
+        return lstat(path, &info) == 0
+    }
+
+    private static func isSymlink(_ path: String) -> Bool {
+        var info = stat()
+        return lstat(path, &info) == 0 && (info.st_mode & S_IFMT) == S_IFLNK
+    }
+
+    /// Moving needs write access to the parent folder, and to a folder
+    /// itself when it is the thing being moved.
+    private static func canMove(_ path: String) -> Bool {
+        guard access((path as NSString).deletingLastPathComponent, W_OK) == 0 else { return false }
+        var info = stat()
+        if lstat(path, &info) == 0, (info.st_mode & S_IFMT) == S_IFDIR { return access(path, W_OK) == 0 }
+        return true
+    }
+
+    /// Daemons live in the system domain; agents, even in /Library, load
+    /// in the logged-in user's GUI domain.
+    private static func domain(for plist: String) -> String {
+        plist.contains("/LaunchDaemons/") ? "system" : "gui/\(getuid())"
+    }
+
     private static func quoted(_ path: String) -> String {
         "'" + path.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
 
-    /// One password prompt for all commands; nil on success.
+    /// One password prompt; the commands stop at the first failure. nil on
+    /// success.
     private static func runAsAdministrator(_ commands: [String]) -> Error? {
-        let script = commands.joined(separator: "; ")
+        let script = commands.map { "( \($0) )" }.joined(separator: " && ")
         let escaped = script.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
         // osascript in its own process: NSAppleScript must stay on the main thread.
-        let status = Shell.run("/usr/bin/osascript", ["-e", "do shell script \"\(escaped)\" with administrator privileges"]).status
-        return status == 0 ? nil : VaultError(message: String(localized: "The administrator password was not entered."))
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+        process.arguments = ["-e", "do shell script \"\(escaped)\" with administrator privileges"]
+        let errors = Pipe()
+        process.standardError = errors
+        process.standardOutput = FileHandle.nullDevice
+        do {
+            try process.run()
+        } catch {
+            return error
+        }
+        let message = String(data: errors.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        process.waitUntilExit()
+        guard process.terminationStatus != 0 else { return nil }
+        // -128 is "User canceled" in the password prompt.
+        if message.contains("-128") { return VaultError(message: String(localized: "The administrator password was not entered.")) }
+        return VaultError(message: String(format: String(localized: "The command run as administrator failed: %@"), message))
     }
 }

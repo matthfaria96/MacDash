@@ -10,6 +10,7 @@ struct AntivirusView: View {
     @State private var customURLs: [URL] = []
     @State private var listTab: ListTab = .quarantine
     @State private var pendingDelete: QuarantineRecord?
+    @State private var confirmClearHistory = false
     @State private var dropTargeted = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -60,6 +61,12 @@ struct AntivirusView: View {
         } message: { record in
             Text("\(record.detection.name) will be erased from the quarantine and can't be restored.")
         }
+        .confirmationDialog("Clear scan history?", isPresented: $confirmClearHistory, titleVisibility: .visible) {
+            Button("Clear history", role: .destructive) { store.clearHistory() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("The list of past scans is erased. Quarantine, trusted items and items to review stay as they are.")
+        }
         .alert("Antivirus", isPresented: Binding(get: { store.lastError != nil }, set: { if !$0 { store.lastError = nil } })) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -91,7 +98,7 @@ struct AntivirusView: View {
         CardSurface(padding: 14, elevation: .flat) {
             HStack(spacing: 0) {
                 metric(
-                    value: store.lastScan.map { $0.startedAt.formatted(.relative(presentation: .named)) } ?? String(localized: "Never"),
+                    value: store.lastCompletedScan.map { $0.formatted(.relative(presentation: .named)) } ?? String(localized: "Never"),
                     label: "Last scan", icon: "clock", tint: tint
                 )
                 Divider().frame(height: 38)
@@ -449,6 +456,16 @@ struct AntivirusView: View {
         if store.history.isEmpty {
             emptyRow(icon: "clock.arrow.circlepath", text: "No scans yet.")
         } else {
+            HStack {
+                Spacer()
+                Button(role: .destructive) {
+                    confirmClearHistory = true
+                } label: {
+                    Label("Clear history", systemImage: "trash")
+                }
+                .buttonStyle(GlassButtonStyle())
+                .disabled(store.isScanning)
+            }
             CardSurface(padding: 0, elevation: .flat) {
                 VStack(spacing: 0) {
                     ForEach(Array(store.history.prefix(20).enumerated()), id: \.element.id) { index, record in
@@ -801,84 +818,5 @@ extension TrustRule.Kind {
         case .path: return "folder"
         case .teamID: return "person.crop.square"
         }
-    }
-}
-
-// MARK: - Status row for Smart Care
-
-/// The Antivirus Quick scan Smart Care runs alongside its junk scan: one row
-/// with its state and a way into the Antivirus section, where findings wait.
-struct AntivirusStatusRow: View {
-    @ObservedObject private var store = AntivirusStore.shared
-    /// Hero list (true) or a card in the results (false).
-    var compact = false
-    let onOpen: () -> Void
-
-    private let tint = SectionPalette.antivirus.accent
-
-    var body: some View {
-        Button(action: onOpen) {
-            HStack(spacing: 12) {
-                PremiumIcon(systemName: "shield.lefthalf.filled", tint: tint, size: compact ? 24 : 34, style: .glass)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Antivirus")
-                        .font(.system(size: 13, weight: compact ? .regular : .semibold))
-                        .foregroundStyle(.white.opacity(0.92))
-                    if !compact {
-                        Text(detail)
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.white.opacity(0.6))
-                            .lineLimit(2)
-                    }
-                }
-                Spacer(minLength: 8)
-                status
-            }
-            .padding(compact ? EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0) : EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14))
-            .background {
-                if !compact {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white.opacity(0.05))
-                }
-            }
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .help(Text(AntivirusScanMode.quick.scopeDescription))
-        .accessibilityElement(children: .combine)
-    }
-
-    @ViewBuilder
-    private var status: some View {
-        if store.isScanning {
-            ProgressView().controlSize(.small)
-        } else if !store.pending.isEmpty {
-            HStack(spacing: 6) {
-                Text(String(format: String(localized: "%lld found"), Int64(store.pending.count)))
-                    .font(.system(size: 12, weight: .semibold).monospacedDigit())
-                    .foregroundStyle(Tint.orange)
-                if !compact {
-                    Text("Review")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(tint)
-                }
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.5))
-            }
-        } else if store.lastScan != nil {
-            Text("All clear")
-                .font(.system(size: 12))
-                .foregroundStyle(.white.opacity(0.45))
-        }
-    }
-
-    private var detail: String {
-        if case .scanning(let mode) = store.phase {
-            return String(format: String(localized: "%@ scan in progress"), mode.title)
-        }
-        if !store.pending.isEmpty {
-            return String(format: String(localized: "%lld items are waiting for your decision. Nothing was moved."), Int64(store.pending.count))
-        }
-        return String(localized: "No threats found")
     }
 }

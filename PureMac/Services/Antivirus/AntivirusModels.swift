@@ -112,6 +112,11 @@ struct Detection: Codable, Identifiable, Hashable, Sendable {
 
     /// Two detections are the same threat when they cover the same files.
     var fingerprint: String { components.map(\.path).sorted().joined(separator: "\n") }
+
+    func with(components: [ThreatComponent]) -> Detection {
+        Detection(id: id, name: name, category: category, severity: severity, source: source, rule: rule, reason: reason,
+                  components: components, signing: signing, detectedAt: detectedAt, mode: mode)
+    }
 }
 
 struct QuarantinedItem: Codable, Hashable, Sendable {
@@ -120,6 +125,9 @@ struct QuarantinedItem: Codable, Hashable, Sendable {
     let permissions: Int16
     /// Root-owned items need an administrator password to move back.
     let needsAdministrator: Bool
+    /// A link is moved as a link; its target's permissions are never touched.
+    /// Optional so records saved before it existed still load.
+    var isSymlink: Bool? = nil
 }
 
 struct QuarantineRecord: Codable, Identifiable, Hashable, Sendable {
@@ -155,6 +163,30 @@ struct AntivirusScanRecord: Codable, Identifiable, Hashable, Sendable {
     let detections: Int
     let wasCancelled: Bool
     var wasScheduled = false
+
+    init(id: UUID, mode: AntivirusScanMode, startedAt: Date, duration: TimeInterval, filesChecked: Int, detections: Int, wasCancelled: Bool, wasScheduled: Bool = false) {
+        self.id = id
+        self.mode = mode
+        self.startedAt = startedAt
+        self.duration = duration
+        self.filesChecked = filesChecked
+        self.detections = detections
+        self.wasCancelled = wasCancelled
+        self.wasScheduled = wasScheduled
+    }
+
+    /// Lenient about fields added later, so an older state.json still loads.
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.decode(UUID.self, forKey: .id)
+        mode = try values.decode(AntivirusScanMode.self, forKey: .mode)
+        startedAt = try values.decode(Date.self, forKey: .startedAt)
+        duration = try values.decodeIfPresent(TimeInterval.self, forKey: .duration) ?? 0
+        filesChecked = try values.decodeIfPresent(Int.self, forKey: .filesChecked) ?? 0
+        detections = try values.decodeIfPresent(Int.self, forKey: .detections) ?? 0
+        wasCancelled = try values.decodeIfPresent(Bool.self, forKey: .wasCancelled) ?? false
+        wasScheduled = try values.decodeIfPresent(Bool.self, forKey: .wasScheduled) ?? false
+    }
 }
 
 struct AntivirusProgress: Sendable {
@@ -180,8 +212,10 @@ final class AntivirusCleanCache: @unchecked Sendable {
         let inode: UInt64
     }
 
+    /// Status-change time in nanoseconds: it moves on every write and, unlike
+    /// the modification time, can't be set back by the file's owner.
     struct Stamp: Equatable {
-        let modified: Int
+        let changed: Int
         let size: Int64
     }
 

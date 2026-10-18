@@ -159,6 +159,7 @@ private struct AssistantSuggestion: Identifiable {
 /// still apply.
 private struct AssistantSuggestionsCarousel: View {
     @EnvironmentObject private var appState: AppState
+    @ObservedObject private var antivirus = AntivirusStore.shared
     let tint: Color
     let navigate: (AppSection) -> Void
     let close: () -> Void
@@ -392,36 +393,19 @@ private struct AssistantSuggestionsCarousel: View {
 
     // MARK: Catalog
 
-    /// Most urgent first. Each entry only appears while it applies.
+    /// Most urgent first. Each entry only appears while it applies. Only the
+    /// three essentials: Smart Care, Advanced Cleanup and Antivirus.
     private var all: [AssistantSuggestion] {
         var list: [AssistantSuggestion] = []
         let careState = appState.scanState(in: .smartCare)
 
-        if !appState.hasFullDiskAccess {
-            list.append(AssistantSuggestion(
-                id: "fullDiskAccess",
-                icon: "lock.shield.fill",
-                tint: Tint.orange,
-                title: String(localized: "Turn on Full Disk Access"),
-                detail: String(localized: "Lets scans reach protected caches and app data."),
-                actionTitle: "Set up",
-                remembers: false,
-                closesPanel: true
-            ) {
-                PermissionCoordinator.shared.requestAccess(context: .general) {
-                    appState.checkFullDiskAccess()
-                }
-            })
-        }
-
-        let threats = AntivirusStore.shared.pending.count
-        if threats > 0 {
+        if !antivirus.pending.isEmpty {
             list.append(AssistantSuggestion(
                 id: "reviewThreats",
                 icon: "shield.lefthalf.filled",
                 tint: SectionPalette.antivirus.accent,
                 title: String(localized: "Review possible threats"),
-                detail: String(format: String(localized: "%lld items are waiting for your decision. Nothing was moved."), Int64(threats)),
+                detail: String(format: String(localized: "%lld items are waiting for your decision. Nothing was moved."), Int64(antivirus.pending.count)),
                 actionTitle: "Review",
                 remembers: false
             ) { navigate(.antivirus) })
@@ -445,7 +429,7 @@ private struct AssistantSuggestionsCarousel: View {
                 icon: "desktopcomputer",
                 tint: SectionPalette.smartCare.accent,
                 title: String(localized: "Run Smart Care"),
-                detail: String(localized: "Junk and known threats in one quick pass."),
+                detail: String(localized: "Junk, caches and mail files in one quick pass."),
                 actionTitle: "Scan",
                 remembers: false
             ) {
@@ -454,41 +438,22 @@ private struct AssistantSuggestionsCarousel: View {
             })
         }
 
-        let disk = appState.diskInfo
-        if disk.totalSpace > 0, Double(disk.freeSpace) / Double(disk.totalSpace) < 0.15 {
+        // Never scanned, or not in the last week.
+        let lastAntivirusScan = antivirus.lastCompletedScan ?? .distantPast
+        if !antivirus.isScanning, Date().timeIntervalSince(lastAntivirusScan) > 7 * 86_400 {
             list.append(AssistantSuggestion(
-                id: "spaceLens",
-                icon: "chart.pie.fill",
-                tint: SectionPalette.forSection(.spaceLens).accent,
-                title: String(localized: "Find what fills your disk"),
-                detail: String(format: String(localized: "Only %@ free. Space Lens maps the biggest folders."), disk.formattedFree),
-                actionTitle: "Open"
-            ) { navigate(.spaceLens) })
+                id: "antivirusScan",
+                icon: "shield.lefthalf.filled",
+                tint: SectionPalette.antivirus.accent,
+                title: String(localized: "Run an Antivirus scan"),
+                detail: AntivirusScanMode.quick.scopeDescription,
+                actionTitle: "Scan",
+                remembers: false
+            ) {
+                navigate(.antivirus)
+                antivirus.start(.quick)
+            })
         }
-
-        list.append(AssistantSuggestion(
-            id: "appUpdates",
-            icon: "arrow.down.circle.fill",
-            tint: SectionPalette.apps.accent,
-            title: String(localized: "Check for app updates"),
-            detail: String(localized: "See which of your apps have a newer version."),
-            actionTitle: "Check"
-        ) {
-            appState.applicationsTab = .updates
-            navigate(.apps)
-        })
-
-        list.append(AssistantSuggestion(
-            id: "startupItems",
-            icon: "power",
-            tint: SectionPalette.apps.accent,
-            title: String(localized: "Review startup items"),
-            detail: String(localized: "Fewer items starting with your Mac means a faster login."),
-            actionTitle: "Review"
-        ) {
-            appState.applicationsTab = .startup
-            navigate(.apps)
-        })
 
         list.append(AssistantSuggestion(
             id: "unusedApps",
@@ -498,15 +463,6 @@ private struct AssistantSuggestionsCarousel: View {
             detail: String(localized: "Advanced Cleanup lists apps left unopened for months."),
             actionTitle: "Open"
         ) { navigate(.cleanup) })
-
-        list.append(AssistantSuggestion(
-            id: "duplicates",
-            icon: "doc.on.doc.fill",
-            tint: SectionPalette.forSection(.duplicates).accent,
-            title: String(localized: "Look for duplicate files"),
-            detail: String(localized: "Identical copies often hide in Downloads and Documents."),
-            actionTitle: "Open"
-        ) { navigate(.duplicates) })
 
         return list
     }

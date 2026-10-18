@@ -983,7 +983,6 @@
 /* Assistant suggestions, Threat Check, app sorting */
 "Threat Check" = "Перевірка загроз";
 "Known adware and suspicious launch items" = "Відоме рекламне ПЗ і підозрілі об'єкти автозапуску";
-"Checks where junk builds up and looks for known threats, then lets you choose what goes." = "Перевіряє місця, де накопичується непотріб, і шукає відомі загрози, а потім ви вирішуєте, що видалити.";
 "Last used" = "Останнє використання";
 "Ascending" = "За зростанням";
 "Descending" = "За спаданням";
@@ -996,7 +995,6 @@
 "Clean %@ of junk" = "Очистити %@ непотребу";
 "Smart Care results are ready to review." = "Результати Smart Care готові до перегляду.";
 "Run Smart Care" = "Запустити Smart Care";
-"Junk and known threats in one quick pass." = "Непотріб і відомі загрози за один швидкий прохід.";
 "Find what fills your disk" = "Дізнатися, що займає диск";
 "Only %@ free. Space Lens maps the biggest folders." = "Вільно лише %@. Space Lens покаже найбільші папки.";
 "Check for app updates" = "Перевірити оновлення програм";
@@ -1323,6 +1321,17 @@
 "After Full Disk Access" = "Після повного доступу до диска";
 
 /* Antivirus */
+"%@ changed since the scan. Scan again before moving it." = "%@ змінився після перевірки. Перевірте ще раз, перш ніж переміщувати.";
+"Some items couldn't be moved: %@" = "Не вдалося перемістити деякі об’єкти: %@";
+"Some items couldn't be restored: %@" = "Не вдалося відновити деякі об’єкти: %@";
+"Couldn't read the saved antivirus data. A copy was kept at %@." = "Не вдалося прочитати збережені дані антивіруса. Копію збережено в %@.";
+"The command run as administrator failed: %@" = "Команда від імені адміністратора завершилася помилкою: %@";
+"Checks where junk builds up, then lets you choose what goes." = "Перевіряє, де накопичується сміття, а потім ви обираєте, що видалити.";
+"Junk, caches and mail files in one quick pass." = "Сміття, кеші та файли Пошти за один швидкий прохід.";
+"Run an Antivirus scan" = "Запустити антивірусну перевірку";
+"Clear scan history?" = "Очистити історію перевірок?";
+"Clear history" = "Очистити історію";
+"The list of past scans is erased. Quarantine, trusted items and items to review stay as they are." = "Список минулих перевірок буде видалено. Карантин, довірені об’єкти та об’єкти на перевірку залишаться без змін.";
 "Scan type" = "Тип перевірки";
 "EICAR test file" = "Тестовий файл EICAR";
 "A harmless standard file used to check that antivirus software works." = "Нешкідливий стандартний файл, яким перевіряють, чи працює антивірус.";
