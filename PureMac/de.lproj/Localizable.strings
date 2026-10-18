@@ -849,7 +849,7 @@
 
 "A Mac cleaning app." = "Eine Reinigungs-App für den Mac.";
 "MacDash cleans your Mac: junk and caches, large files, app leftovers, unused apps, duplicate files and similar photos. It also uninstalls apps completely and checks protection settings and permissions. Nothing is removed without your approval." = "MacDash reinigt deinen Mac: Müll und Caches, große Dateien, App-Reste, ungenutzte Apps, doppelte Dateien und ähnliche Fotos. Außerdem deinstalliert es Apps vollständig und prüft Schutzeinstellungen und Berechtigungen. Nichts wird ohne deine Zustimmung entfernt.";
-"It is built on the code of two open-source projects: PureMac (MIT License) and Mac Sai (BSD 3-Clause License)." = "Es basiert auf dem Code zweier Open-Source-Projekte: PureMac (MIT-Lizenz) und Mac Sai (BSD-3-Clause-Lizenz).";
+"MacDash is free software under the GNU AGPL v3.0. It builds on the open-source projects listed in its licenses." = "MacDash ist freie Software unter der GNU AGPL v3.0. Es baut auf den Open-Source-Projekten auf, die in den Lizenzen aufgeführt sind.";
 
 "Minimum size" = "Mindestgröße";
 "Older than" = "Älter als";

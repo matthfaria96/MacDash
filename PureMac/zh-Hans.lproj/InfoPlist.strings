@@ -5,7 +5,7 @@
 "NSDownloadsFolderUsageDescription" = "MacDash 需要访问下载文件夹，以查找可清理文件和应用残留。";
 "NSRemovableVolumesUsageDescription" = "MacDash 需要访问可移动磁盘，以扫描可清理的文件。";
 "NSSystemAdministrationUsageDescription" = "MacDash 需要管理员权限，以清理受保护的缓存和应用文件。";
-"NSHumanReadableCopyright" = "版权所有 © 2026，采用 MIT 许可证。";
+"NSHumanReadableCopyright" = "版权所有 © 2026 Matheus Faria，采用 GNU AGPL v3.0 许可证。";
 
 "NSBluetoothAlwaysUsageDescription" = "MacDash 会读取已连接键盘、鼠标和耳机的电量，并在菜单栏面板中显示。";
 "NSLocationUsageDescription" = "MacDash 仅用此显示你的 Wi-Fi 网络名称。macOS 将网络名称视为位置信息；MacDash 从不读取你的位置。";

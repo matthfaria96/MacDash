@@ -911,7 +911,7 @@ struct AboutSettingsView: View {
                     .frame(maxWidth: 460)
                     .padding(.top, 26)
 
-                Text("It is built on the code of two open-source projects: PureMac (MIT License) and Mac Sai (BSD 3-Clause License).")
+                Text("MacDash is free software under the GNU AGPL v3.0. It builds on the open-source projects listed in its licenses.")
                     .font(.system(size: 11.5))
                     .foregroundStyle(SettingsStyle.secondary)
                     .multilineTextAlignment(.center)

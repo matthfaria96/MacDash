@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// View-side grouping of discovered leftovers into CleanMyMac-style buckets.
+/// View-side grouping of discovered leftovers into buckets by kind.
 /// Purely presentational — AppState's flat `discoveredFiles` stays the source
 /// of truth so the removal/selection logic is untouched.
 enum LeftoverGroup: String, CaseIterable, Identifiable {

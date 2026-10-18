@@ -14,6 +14,23 @@ struct OpenSourceLicensesView: View {
 
     private let entries = [
         Entry(
+            id: "macdash",
+            name: "MacDash",
+            license: "GNU Affero General Public License v3.0",
+            text: """
+            Copyright (C) 2026 Matheus Faria
+            Source code: https://github.com/matthfaria96/MacDash
+
+            MacDash is free software: you can redistribute it and/or modify it under \
+            the terms of the GNU Affero General Public License as published by the Free \
+            Software Foundation, either version 3 of the License, or (at your option) any \
+            later version. It is distributed WITHOUT ANY WARRANTY; without even the implied \
+            warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+            Full license text: https://www.gnu.org/licenses/agpl-3.0.html
+            """
+        ),
+        Entry(
             id: "puremac",
             name: "PureMac",
             license: "MIT License",

@@ -26,7 +26,7 @@ struct LanguageFileFinding: Sendable {
 }
 
 /// Finds unused .lproj localization folders inside installed app bundles
-/// (the CleanMyMac "Language Files" feature). Pure logic - nothing is deleted
+/// (a common "Language Files" cleanup). Pure logic - nothing is deleted
 /// here. The integrator surfaces each removable .lproj as its own
 /// CleanableItem (see `flatten`), and deletion runs through the existing
 /// CleaningEngine.removeItem flow.

@@ -845,7 +845,7 @@
 
 "A Mac cleaning app." = "Mac のクリーンアップアプリ。";
 "MacDash cleans your Mac: junk and caches, large files, app leftovers, unused apps, duplicate files and similar photos. It also uninstalls apps completely and checks protection settings and permissions. Nothing is removed without your approval." = "MacDash は Mac をクリーンアップします。不要ファイルとキャッシュ、大きなファイル、アプリの残り、使っていないアプリ、重複ファイル、似た写真。アプリの完全なアンインストールや、保護設定とアクセス権の確認もできます。承認なしに削除されることはありません。";
-"It is built on the code of two open-source projects: PureMac (MIT License) and Mac Sai (BSD 3-Clause License)." = "2つのオープンソースプロジェクトのコードを土台にしています：PureMac（MIT ライセンス）と Mac Sai（BSD 3-Clause ライセンス）。";
+"MacDash is free software under the GNU AGPL v3.0. It builds on the open-source projects listed in its licenses." = "MacDash は GNU AGPL v3.0 のフリーソフトウェアです。ライセンスに記載されたオープンソースプロジェクトを基にしています。";
 
 "Minimum size" = "最小サイズ";
 "Older than" = "次より古い";

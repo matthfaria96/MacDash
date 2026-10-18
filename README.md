@@ -27,5 +27,11 @@ As senhas do Wi‑Fi ficam nas chaves do sistema: o macOS pede o usuário e a se
 
 ## Créditos e licenças
 
-- Base: [PureMac](https://github.com/momenbasel/PureMac), licença MIT ([`LICENSE`](LICENSE)).
+MacDash é software livre, Copyright (C) 2026 Matheus Faria, sob a licença **GNU AGPL v3.0** ([`LICENSE`](LICENSE)). Você pode usar, estudar, modificar e redistribuir; quem distribuir uma versão modificada precisa publicar o código dela sob a mesma licença.
+
+- Base: [PureMac](https://github.com/momenbasel/PureMac), licença MIT (aviso em [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)).
 - Recursos adaptados do [Mac Sai](https://github.com/iliyami/MacSai), licença BSD de 3 cláusulas ([`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)).
+- Anéis da Lente de Espaço adaptados do [SquirrelDisk](https://github.com/adileo/squirreldisk) (AGPL-3.0) e tamanho por app adaptado do [Disk Audit](https://github.com/srwiseman/diskaudit-macos) (GPL-3.0).
+- Os demais créditos (Kitesail, Stats, Performance Monitor) estão em [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) e em Ajustes › Licenças de código aberto.
+- O antivírus foi escrito do zero. Ele não contém código, regras nem bases de dados de nenhum produto comercial; usa o padrão de teste EICAR e regras próprias.
+- Nomes de outros produtos citados pertencem aos seus donos; o MacDash não tem ligação com eles.

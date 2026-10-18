@@ -1,3 +1,7 @@
+// Per-app footprint and well-known extra locations adapted from Disk Audit (https://github.com/srwiseman/diskaudit-macos)
+// Copyright (C) 2026 Stephen Wiseman. GNU General Public License v3.0 or later.
+// See THIRD_PARTY_NOTICES.md.
+
 import Foundation
 
 /// How much space one installed app takes in total: its bundle plus the data

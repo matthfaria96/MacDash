@@ -228,7 +228,7 @@ struct IconTile: View {
     }
 }
 
-/// The composition of a section's backdrop, after the CleanMyMac screens:
+/// The composition of a section's backdrop:
 /// one or two pools of light, and dark pools that give the color depth.
 enum BackdropLayout {
     /// Light down the middle of the top; dark top left and bottom right (purple).

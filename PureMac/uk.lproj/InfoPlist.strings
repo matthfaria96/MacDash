@@ -5,7 +5,7 @@
 "NSDownloadsFolderUsageDescription" = "MacDash потрібен доступ до папки «Завантаження», щоб знаходити непотрібні й залишкові файли.";
 "NSRemovableVolumesUsageDescription" = "MacDash потрібен доступ до знімних томів для пошуку непотрібних файлів.";
 "NSSystemAdministrationUsageDescription" = "MacDash потрібні права адміністратора, щоб повністю очищати кеші та видаляти програми.";
-"NSHumanReadableCopyright" = "© 2026. Ліцензія MIT.";
+"NSHumanReadableCopyright" = "© 2026 Matheus Faria. Ліцензія GNU AGPL v3.0.";
 
 "NSBluetoothAlwaysUsageDescription" = "MacDash зчитує рівень заряду підключених клавіатур, мишей і навушників, щоб показати його на панелі рядка меню.";
 "NSLocationUsageDescription" = "MacDash використовує це лише для показу назви вашої мережі Wi-Fi. macOS вважає назви мереж даними про місцезнаходження; MacDash ніколи не дізнається, де ви.";

@@ -23,7 +23,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 2026. MIT License.</string>
+	<string>Copyright © 2026 Matheus Faria. GNU AGPL v3.0.</string>
 	<key>NSDesktopFolderUsageDescription</key>
 	<string>MacDash needs access to your Desktop to find junk and orphaned files.</string>
 	<key>NSDocumentsFolderUsageDescription</key>

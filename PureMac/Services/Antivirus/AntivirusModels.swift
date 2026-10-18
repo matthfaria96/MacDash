@@ -1,7 +1,8 @@
 import Foundation
 
 /// How much of the Mac a scan covers. The scopes follow what was measured on
-/// a commercial scanner (see Clones/Moonlock/SPEC.md §5.7), not its rules.
+/// a commercial scanner from the outside (which folders it reads), not on
+/// any of its code, rules or data.
 enum AntivirusScanMode: String, CaseIterable, Identifiable, Codable, Sendable {
     /// Downloads, Application Support, launch items and what they start,
     /// mounted disk images. About a minute.

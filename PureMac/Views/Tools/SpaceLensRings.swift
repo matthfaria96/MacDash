@@ -1,3 +1,7 @@
+// Sunburst geometry, layout and zoom animation adapted from SquirrelDisk (https://github.com/adileo/squirreldisk)
+// Copyright (c) Adileo Barone. GNU Affero General Public License v3.0.
+// See THIRD_PARTY_NOTICES.md.
+
 import SwiftUI
 
 /// Rings view of Space Lens: the current folder in the middle, its items in

@@ -1,7 +1,41 @@
 # Third-Party Notices
 
-MacDash includes code adapted from the projects listed below. Each
-project's license applies to the portions taken from it.
+MacDash is Copyright (C) 2026 Matheus Faria and is licensed under the GNU
+Affero General Public License v3.0 (see `LICENSE`). It includes code adapted
+from the projects listed below. Each project's notice is kept as its license
+requires; MIT and BSD code is compatible with, and distributed under, the
+AGPL as part of MacDash.
+
+## PureMac
+
+- Source: https://github.com/momenbasel/PureMac
+- License: MIT
+- Used in: the project this app started from (scanning, cleaning, app
+  uninstalling and the overall app structure)
+
+```
+MIT License
+
+Copyright (c) 2026 PureMac Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 
 ## Mac Sai
 
@@ -84,12 +118,19 @@ SOFTWARE.
 - Source: https://github.com/adileo/squirreldisk
 - Copyright (c) Adileo Barone
 - License: GNU Affero General Public License v3.0 (https://www.gnu.org/licenses/agpl-3.0.html)
+- Used in:
+  - `PureMac/Views/Tools/SpaceLensRings.swift`: sunburst geometry, layout,
+    hit testing and the zoom animation, ported from `src/ui/sunburst.rs`
 
 ## Disk Audit
 
 - Source: https://github.com/srwiseman/diskaudit-macos
 - Copyright (C) 2026 Stephen Wiseman
 - License: GNU General Public License v3.0 or later (https://www.gnu.org/licenses/gpl-3.0.html)
+- Used in:
+  - `PureMac/Services/AppFootprintScanner.swift`: per-app footprint (bundle
+    plus Library folders) and the table of well-known extra locations,
+    ported from `src-tauri/src/app_resolver.rs`
 
 ## Stats
 
