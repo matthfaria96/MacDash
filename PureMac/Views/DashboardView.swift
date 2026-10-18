@@ -342,7 +342,6 @@ struct DashboardView: View {
         case .userCache: return "App and browser caches"
         case .trashBins: return "Files in your Trash"
         case .mailAttachments: return "Downloaded attachments"
-        case .threats: return "Known adware only, not an antivirus"
         default: return LocalizedStringKey(category.description)
         }
     }
@@ -388,6 +387,8 @@ struct DashboardView: View {
                     Rectangle().fill(Color.white.opacity(0.1)).frame(height: 0.5).padding(.leading, 34)
                 }
             }
+            Rectangle().fill(Color.white.opacity(0.1)).frame(height: 0.5).padding(.leading, 34)
+            AntivirusStatusRow(compact: true) { onNavigate(.antivirus) }
             if let date = appState.lastScanDate {
                 HStack(spacing: 4) {
                     Text("Last scan")
@@ -424,7 +425,8 @@ struct DashboardView: View {
                     appState.resetSmartCareToStart()
                 }
             },
-            onScanAgain: { appState.startSmartScan() }
+            onScanAgain: { appState.startSmartScan() },
+            onOpenAntivirus: { onNavigate(.antivirus) }
         )
     }
 

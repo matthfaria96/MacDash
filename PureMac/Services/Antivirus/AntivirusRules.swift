@@ -3,8 +3,8 @@ import Foundation
 import Security
 
 /// Detection rules. Everything here comes from public sources: the EICAR
-/// test standard, adware family names already used by Threat Check
-/// (`ThreatSignatures`), and launch-item heuristics. No vendor database.
+/// test standard, adware family names (`ThreatSignatures`, ported from
+/// Mac Sai), and launch-item heuristics. No vendor database.
 enum AntivirusRules {
     /// Bumped whenever the rules change, so cached "clean" verdicts expire.
     static let version = "2026.10.17"
@@ -83,7 +83,7 @@ enum AntivirusRules {
 
     // MARK: Adware names
 
-    /// The same family list Threat Check uses.
+    /// Known adware family names, from `ThreatSignatures`.
     static func adwareFamily(in name: String) -> String? {
         ThreatSignatures.knownPatterns.first { name.localizedCaseInsensitiveContains($0) }
     }

@@ -219,14 +219,6 @@ actor CleaningEngine {
                     if let trashedPath = resulting?.path {
                         result.trashedPaths.insert(trashedPath)
                     }
-                } else if item.category == .threats {
-                    // A flagged item may be a false positive, so it goes to
-                    // the Trash where it can be put back.
-                    var resulting: NSURL?
-                    try fileManager.trashItem(at: resolvedURL, resultingItemURL: &resulting)
-                    if let trashedPath = resulting?.path {
-                        result.trashedPaths.insert(trashedPath)
-                    }
                 } else {
                     try fileManager.removeItem(at: itemURL)
                 }
@@ -671,9 +663,6 @@ actor CleaningEngine {
         if item.category == .largeFiles {
             return isExplicitSingleFileDeletable(resolvedPath: resolvedPath)
         }
-        if item.category == .threats {
-            return isThreatRemovalPath(resolvedPath)
-        }
         return isSafeToDelete(resolvedPath: resolvedPath)
             || (includeUninstallPaths && isSafeUninstallEscalationPath(resolvedPath))
     }
@@ -894,21 +883,6 @@ actor CleaningEngine {
             || isReceiptPath(normalized, rootedAt: "/var/db/receipts")
             || isPlistUnder(normalized, root: "/Library/LaunchDaemons")
             || isPlistUnder(normalized, root: "/Library/LaunchAgents")
-    }
-
-    /// Only the places Threat Check looks: launch plists directly inside the
-    /// launch folders, and items inside the user's support and extension
-    /// folders. Never a folder root itself.
-    private func isThreatRemovalPath(_ path: String) -> Bool {
-        let normalized = (path as NSString).standardizingPath
-        let home = homeDirectory.path
-        let launchFolders = ["\(home)/Library/LaunchAgents", "/Library/LaunchAgents", "/Library/LaunchDaemons"]
-        if launchFolders.contains(where: { isPlistUnder(normalized, root: $0) }) { return true }
-        let roots = ["\(home)/Library/Application Support", "\(home)/Library/Safari/Extensions"]
-        return roots.contains { root in
-            normalized != root && isInside(normalized, root: root)
-                && !ProviderPaths.isProviderOwned(normalized, homeDirectory: homeDirectory)
-        }
     }
 
     private func isAppBundlePath(_ path: String, rootedAt root: String) -> Bool {

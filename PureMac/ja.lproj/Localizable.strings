@@ -984,7 +984,6 @@
 "Threat Check" = "脅威チェック";
 "Known adware and suspicious launch items" = "既知のアドウェアと不審な起動項目";
 "Checks where junk builds up and looks for known threats, then lets you choose what goes." = "不要ファイルがたまる場所と既知の脅威を確認し、削除するものを選べます。";
-"Known adware only, not an antivirus" = "既知のアドウェアのみ。ウイルス対策ソフトではありません";
 "Last used" = "最終使用日";
 "Ascending" = "昇順";
 "Descending" = "降順";
@@ -994,7 +993,6 @@
 "Turn on Full Disk Access" = "フルディスクアクセスをオンにする";
 "Lets scans reach protected caches and app data." = "保護されたキャッシュや App のデータもスキャンできるようになります。";
 "Review possible threats" = "脅威の可能性を確認";
-"Threat Check flagged %lld items." = "脅威チェックで %lld 項目が検出されました。";
 "Clean %@ of junk" = "%@ の不要ファイルを削除";
 "Smart Care results are ready to review." = "スマートケアの結果を確認できます。";
 "Run Smart Care" = "スマートケアを実行";
@@ -1325,6 +1323,7 @@
 "After Full Disk Access" = "フルディスクアクセスの後";
 
 /* Antivirus */
+"Scan type" = "スキャンの種類";
 "EICAR test file" = "EICARテストファイル";
 "A harmless standard file used to check that antivirus software works." = "ウイルス対策ソフトウェアが動作しているか確認するための、無害な標準ファイルです。";
 "This file matches the fingerprint of known malware." = "このファイルは既知のマルウェアのフィンガープリントと一致します。";

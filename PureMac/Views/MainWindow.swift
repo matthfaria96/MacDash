@@ -371,6 +371,10 @@ struct MainWindow: View {
         }
         selectSection(section)
         if section == .smartCare, defaults.bool(forKey: "DebugScan") { appState.startSmartScan() }
+        // `-DebugAntivirusScan deep` starts that Antivirus scan on launch.
+        if let mode = defaults.string(forKey: "DebugAntivirusScan").flatMap(AntivirusScanMode.init(rawValue:)) {
+            AntivirusStore.shared.start(mode)
+        }
         if section == .spaceLens, let root = defaults.string(forKey: "DebugSpaceLensRoot") {
             SpaceLensModel.shared.location = root == "/" ? .startupDisk : .custom(URL(fileURLWithPath: root))
             SpaceLensModel.shared.start()

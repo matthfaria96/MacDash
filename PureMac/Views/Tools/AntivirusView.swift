@@ -5,7 +5,8 @@ import SwiftUI
 /// is touched until the user decides, item by item.
 struct AntivirusView: View {
     @ObservedObject private var store = AntivirusStore.shared
-    @AppStorage("antivirus.mode") private var mode: AntivirusScanMode = .quick
+    /// Always opens on Quick; the other modes are one click away.
+    @State private var mode: AntivirusScanMode = .quick
     @State private var customURLs: [URL] = []
     @State private var listTab: ListTab = .quarantine
     @State private var pendingDelete: QuarantineRecord?
@@ -135,36 +136,61 @@ struct AntivirusView: View {
         }
     }
 
+    /// One line: the chosen mode (Quick by default), a native popup to change
+    /// it, and Analyze. Test and schedule sit quietly underneath.
     private var idlePanel: some View {
         CardSurface(padding: 18, elevation: .flat, tint: dropTargeted ? tint : nil) {
-            VStack(alignment: .leading, spacing: 16) {
-                // Four across when they fit, otherwise two by two.
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .top, spacing: 10) { modeTiles(minWidth: 200) }
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                        modeTiles(minWidth: 0)
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 14) {
+                    PremiumIcon(systemName: mode.icon, tint: tint, size: 44, style: .glass)
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 8) {
+                            Text(mode.title)
+                                .font(.system(size: 16, weight: .semibold))
+                            Text(mode.durationHint)
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                        Text(mode.scopeDescription)
+                            .font(.system(size: 12))
+                            .foregroundStyle(.white.opacity(0.62))
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                }
-                if mode == .custom { customPicker }
-
-                HStack(spacing: 10) {
+                    Spacer(minLength: 12)
+                    Picker("Scan type", selection: $mode) {
+                        ForEach(AntivirusScanMode.allCases) { option in
+                            Label(option.title, systemImage: option.icon).tag(option)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .fixedSize()
                     Button {
+                        if mode == .custom && customURLs.isEmpty {
+                            chooseCustom()
+                            guard !customURLs.isEmpty else { return }
+                        }
                         store.start(mode, custom: customURLs)
                     } label: {
                         Label("Analyze", systemImage: "magnifyingglass")
-                            .padding(.horizontal, 10)
+                            .padding(.horizontal, 6)
                     }
                     .buttonStyle(GlassProminentButtonStyle(large: true))
                     .keyboardShortcut(.defaultAction)
-                    .disabled(mode == .custom && customURLs.isEmpty)
+                }
 
+                if mode == .custom { customPicker }
+
+                Divider().opacity(0.5)
+
+                HStack(spacing: 10) {
                     Button {
                         store.testProtection()
                     } label: {
                         Label("Test protection", systemImage: "testtube.2")
                     }
-                    .buttonStyle(GlassButtonStyle())
-                    .controlSize(.large)
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(tint)
                     .help("Creates the harmless EICAR test file in MacDash's folder and scans it")
 
                     Spacer(minLength: 8)
@@ -175,11 +201,13 @@ struct AntivirusView: View {
                         Text("Weekly").tag(AntivirusStore.Schedule.weekly)
                     } label: {
                         Label("Automatic Quick scan", systemImage: "calendar.badge.clock")
+                            .foregroundStyle(.secondary)
                     }
                     .pickerStyle(.menu)
                     .fixedSize()
                     .help("Runs while MacDash is open. Findings wait for your review.")
                 }
+                .font(.system(size: 12))
             }
         }
         .dropDestination(for: URL.self) { urls, _ in
@@ -189,13 +217,6 @@ struct AntivirusView: View {
             store.start(.custom, custom: urls)
             return true
         } isTargeted: { dropTargeted = $0 }
-    }
-
-    private func modeTiles(minWidth: CGFloat) -> some View {
-        ForEach(AntivirusScanMode.allCases) { option in
-            ModeTile(mode: option, isSelected: mode == option, tint: tint) { mode = option }
-                .frame(minWidth: minWidth)
-        }
     }
 
     private var customPicker: some View {
@@ -245,31 +266,10 @@ struct AntivirusView: View {
                         .controlSize(.large)
                         .tint(tint)
                 }
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(phaseTitle(store.progress.phase, mode: running))
-                        .font(.system(size: 18, weight: .semibold))
-                    Text("\(store.progress.filesChecked.formatted()) items checked · \(store.progress.detections.formatted()) to review")
-                        .font(.callout.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                    Text(store.progress.currentPath)
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                }
+                ScanProgressText(ticker: store.ticker, mode: running)
                 Spacer(minLength: 0)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
-        }
-    }
-
-    private func phaseTitle(_ phase: AntivirusProgress.Phase, mode: AntivirusScanMode) -> String {
-        switch phase {
-        case .preparing: return String(localized: "Preparing scan")
-        case .launchItems: return String(localized: "Checking launch agents and daemons")
-        case .files: return String(format: String(localized: "%@ scan in progress"), mode.title)
-        case .processes: return String(localized: "Checking running programs")
         }
     }
 
@@ -495,51 +495,37 @@ struct AntivirusView: View {
     }
 }
 
-// MARK: - Mode tile
+// MARK: - Scan progress
 
-private struct ModeTile: View {
+/// The only part of the screen that redraws while a scan runs.
+private struct ScanProgressText: View {
+    @ObservedObject var ticker: AntivirusProgressTicker
     let mode: AntivirusScanMode
-    let isSelected: Bool
-    let tint: Color
-    let action: () -> Void
-    @State private var hovering = false
 
     var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 7) {
-                HStack {
-                    Image(systemName: mode.icon)
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(isSelected ? tint : .white.opacity(0.75))
-                    Spacer()
-                    Text(mode.durationHint)
-                        .font(.system(size: 10.5, weight: .semibold))
-                        .foregroundStyle(.secondary)
-                }
-                Text(mode.title)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white)
-                Text(mode.scopeDescription)
-                    .font(.system(size: 11.5))
-                    .foregroundStyle(.white.opacity(0.62))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(13)
-            .frame(maxWidth: .infinity, minHeight: 122, alignment: .topLeading)
-            .background {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(isSelected ? tint.opacity(0.14) : Color.white.opacity(hovering ? 0.07 : 0.04))
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .strokeBorder(isSelected ? tint.opacity(0.75) : Color.white.opacity(0.08), lineWidth: isSelected ? 1.2 : 0.6)
-            }
-            .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        let progress = ticker.progress
+        VStack(alignment: .leading, spacing: 6) {
+            Text(phaseTitle(progress.phase))
+                .font(.system(size: 18, weight: .semibold))
+            Text("\(progress.filesChecked.formatted()) items checked · \(progress.detections.formatted()) to review")
+                .font(.callout.monospacedDigit())
+                .foregroundStyle(.secondary)
+            Text(progress.currentPath)
+                .font(.caption.monospaced())
+                .foregroundStyle(.tertiary)
+                .lineLimit(1)
+                .truncationMode(.middle)
         }
-        .buttonStyle(.plain)
-        .onHover { hovering = $0 }
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityElement(children: .combine)
+    }
+
+    private func phaseTitle(_ phase: AntivirusProgress.Phase) -> String {
+        switch phase {
+        case .preparing: return String(localized: "Preparing scan")
+        case .launchItems: return String(localized: "Checking launch agents and daemons")
+        case .files: return String(format: String(localized: "%@ scan in progress"), mode.title)
+        case .processes: return String(localized: "Checking running programs")
+        }
     }
 }
 
@@ -815,5 +801,84 @@ extension TrustRule.Kind {
         case .path: return "folder"
         case .teamID: return "person.crop.square"
         }
+    }
+}
+
+// MARK: - Status row for Smart Care
+
+/// The Antivirus Quick scan Smart Care runs alongside its junk scan: one row
+/// with its state and a way into the Antivirus section, where findings wait.
+struct AntivirusStatusRow: View {
+    @ObservedObject private var store = AntivirusStore.shared
+    /// Hero list (true) or a card in the results (false).
+    var compact = false
+    let onOpen: () -> Void
+
+    private let tint = SectionPalette.antivirus.accent
+
+    var body: some View {
+        Button(action: onOpen) {
+            HStack(spacing: 12) {
+                PremiumIcon(systemName: "shield.lefthalf.filled", tint: tint, size: compact ? 24 : 34, style: .glass)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Antivirus")
+                        .font(.system(size: 13, weight: compact ? .regular : .semibold))
+                        .foregroundStyle(.white.opacity(0.92))
+                    if !compact {
+                        Text(detail)
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.white.opacity(0.6))
+                            .lineLimit(2)
+                    }
+                }
+                Spacer(minLength: 8)
+                status
+            }
+            .padding(compact ? EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0) : EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14))
+            .background {
+                if !compact {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white.opacity(0.05))
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(Text(AntivirusScanMode.quick.scopeDescription))
+        .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder
+    private var status: some View {
+        if store.isScanning {
+            ProgressView().controlSize(.small)
+        } else if !store.pending.isEmpty {
+            HStack(spacing: 6) {
+                Text(String(format: String(localized: "%lld found"), Int64(store.pending.count)))
+                    .font(.system(size: 12, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(Tint.orange)
+                if !compact {
+                    Text("Review")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(tint)
+                }
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.5))
+            }
+        } else if store.lastScan != nil {
+            Text("All clear")
+                .font(.system(size: 12))
+                .foregroundStyle(.white.opacity(0.45))
+        }
+    }
+
+    private var detail: String {
+        if case .scanning(let mode) = store.phase {
+            return String(format: String(localized: "%@ scan in progress"), mode.title)
+        }
+        if !store.pending.isEmpty {
+            return String(format: String(localized: "%lld items are waiting for your decision. Nothing was moved."), Int64(store.pending.count))
+        }
+        return String(localized: "No threats found")
     }
 }

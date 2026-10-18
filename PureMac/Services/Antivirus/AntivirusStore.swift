@@ -31,7 +31,9 @@ final class AntivirusStore: ObservableObject {
     }
 
     @Published private(set) var phase: Phase = .idle
-    @Published private(set) var progress = AntivirusProgress()
+    /// Live progress lives in its own object: only the progress text
+    /// redraws during a scan, not the whole screen and its lists.
+    let ticker = AntivirusProgressTicker()
     @Published private(set) var pending: [Detection] = []
     @Published private(set) var quarantine: [QuarantineRecord] = []
     @Published private(set) var trusted: [TrustRule] = []
@@ -45,9 +47,12 @@ final class AntivirusStore: ObservableObject {
     var quarantineFolder: URL { folder.appendingPathComponent("Quarantine", isDirectory: true) }
     private var stateURL: URL { folder.appendingPathComponent("state.json") }
     private var scanTask: Task<Void, Never>?
+    /// The background walk itself. A detached task doesn't inherit
+    /// cancellation, so Stop cancels this one directly.
+    private var scanWork: Task<AntivirusScanOutcome, Never>?
     private var scheduleTimer: Timer?
     /// Clean files from earlier scans this session; skipped while unchanged.
-    private var cache: [String: AntivirusCacheEntry] = [:]
+    private let cache = AntivirusCleanCache()
 
     init(folder: URL? = nil) {
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -77,23 +82,25 @@ final class AntivirusStore: ObservableObject {
         let cache = self.cache
         let started = Date()
         phase = .scanning(mode)
-        progress = AntivirusProgress()
+        ticker.progress = AntivirusProgress()
 
-        scanTask = Task { [weak self] in
-            let outcome = await Task.detached(priority: .utility) {
-                await scanner.scan(mode: mode, custom: custom, trust: trust, cache: cache) { update in
-                    Task { @MainActor [weak self] in
-                        guard let self, self.isScanning else { return }
-                        self.progress = update
-                    }
+        let work = Task.detached(priority: .utility) {
+            await scanner.scan(mode: mode, custom: custom, trust: trust, cache: cache) { update in
+                Task { @MainActor [weak self] in
+                    guard let self, self.isScanning else { return }
+                    self.ticker.progress = update
                 }
-            }.value
+            }
+        }
+        scanWork = work
+        scanTask = Task { [weak self] in
+            let outcome = await work.value
             self?.finish(outcome, mode: mode, started: started, scheduled: scheduled)
         }
     }
 
     func stop() {
-        scanTask?.cancel()
+        scanWork?.cancel()
     }
 
     /// Writes the EICAR test file into MacDash's own folder and scans just
@@ -113,7 +120,7 @@ final class AntivirusStore: ObservableObject {
 
     private func finish(_ outcome: AntivirusScanOutcome, mode: AntivirusScanMode, started: Date, scheduled: Bool) {
         scanTask = nil
-        cache.merge(outcome.cleanFiles) { _, new in new }
+        scanWork = nil
         // A threat already waiting keeps its place; quarantined paths can't
         // be found again.
         let known = Set(pending.map(\.fingerprint))
@@ -132,7 +139,6 @@ final class AntivirusStore: ObservableObject {
         )
         history.insert(record, at: 0)
         history = Array(history.prefix(50))
-        progress.detections = outcome.detections.count
         phase = .finished(record)
         save()
         if scheduled, !fresh.isEmpty { notify(count: fresh.count) }
@@ -297,6 +303,11 @@ final class AntivirusStore: ObservableObject {
             lastError = error.localizedDescription
         }
     }
+}
+
+@MainActor
+final class AntivirusProgressTicker: ObservableObject {
+    @Published var progress = AntivirusProgress()
 }
 
 /// File operations for quarantine. Items the user can't move (root-owned

@@ -1089,6 +1089,9 @@ final class AppState: ObservableObject {
         scanScope = .smartCare
         clearSmartCareResults()
         beginScan(categories: CleaningCategory.smartCare, replacingResults: false)
+        // Threats aren't junk: the Antivirus Quick scan runs alongside, and
+        // what it finds waits for review in the Antivirus section.
+        AntivirusStore.shared.start(.quick)
     }
 
     func resetSmartCareToStart() {

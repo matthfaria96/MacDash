@@ -414,16 +414,17 @@ private struct AssistantSuggestionsCarousel: View {
             })
         }
 
-        if let threats = appState.categoryResults[.threats], threats.itemCount > 0 {
+        let threats = AntivirusStore.shared.pending.count
+        if threats > 0 {
             list.append(AssistantSuggestion(
                 id: "reviewThreats",
-                icon: CleaningCategory.threats.icon,
-                tint: CleaningCategory.threats.color,
+                icon: "shield.lefthalf.filled",
+                tint: SectionPalette.antivirus.accent,
                 title: String(localized: "Review possible threats"),
-                detail: String(format: String(localized: "Threat Check flagged %lld items."), Int64(threats.itemCount)),
+                detail: String(format: String(localized: "%lld items are waiting for your decision. Nothing was moved."), Int64(threats)),
                 actionTitle: "Review",
                 remembers: false
-            ) { navigate(.smartCare) })
+            ) { navigate(.antivirus) })
         }
 
         if careState == .completed, appState.smartCareSelectedSize > 0 {

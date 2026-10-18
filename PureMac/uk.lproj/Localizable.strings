@@ -984,7 +984,6 @@
 "Threat Check" = "Перевірка загроз";
 "Known adware and suspicious launch items" = "Відоме рекламне ПЗ і підозрілі об'єкти автозапуску";
 "Checks where junk builds up and looks for known threats, then lets you choose what goes." = "Перевіряє місця, де накопичується непотріб, і шукає відомі загрози, а потім ви вирішуєте, що видалити.";
-"Known adware only, not an antivirus" = "Лише відоме рекламне ПЗ, це не антивірус";
 "Last used" = "Останнє використання";
 "Ascending" = "За зростанням";
 "Descending" = "За спаданням";
@@ -994,7 +993,6 @@
 "Turn on Full Disk Access" = "Увімкнути повний доступ до диска";
 "Lets scans reach protected caches and app data." = "Дозволяє перевіркам дістатися захищених кешів і даних програм.";
 "Review possible threats" = "Переглянути можливі загрози";
-"Threat Check flagged %lld items." = "Перевірка загроз позначила об'єктів: %lld.";
 "Clean %@ of junk" = "Очистити %@ непотребу";
 "Smart Care results are ready to review." = "Результати Smart Care готові до перегляду.";
 "Run Smart Care" = "Запустити Smart Care";
@@ -1325,6 +1323,7 @@
 "After Full Disk Access" = "Після повного доступу до диска";
 
 /* Antivirus */
+"Scan type" = "Тип перевірки";
 "EICAR test file" = "Тестовий файл EICAR";
 "A harmless standard file used to check that antivirus software works." = "Нешкідливий стандартний файл, яким перевіряють, чи працює антивірус.";
 "This file matches the fingerprint of known malware." = "Цей файл збігається з відбитком відомої шкідливої програми.";

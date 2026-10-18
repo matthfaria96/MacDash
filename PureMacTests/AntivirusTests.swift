@@ -19,7 +19,7 @@ final class AntivirusTests: XCTestCase {
     }
 
     private func customScan(_ urls: [URL], trust: [TrustRule] = []) async -> AntivirusScanOutcome {
-        await scanner().scan(mode: .custom, custom: urls, trust: .init(rules: trust), cache: [:]) { _ in }
+        await scanner().scan(mode: .custom, custom: urls, trust: .init(rules: trust), cache: AntivirusCleanCache()) { _ in }
     }
 
     // MARK: Rules
@@ -192,5 +192,26 @@ final class AntivirusTests: XCTestCase {
         let reloaded = AntivirusStore(folder: folder.appendingPathComponent("Store"))
         XCTAssertEqual(reloaded.trusted.count, 1)
         XCTAssertEqual(reloaded.history.count, 1)
+    }
+
+    @MainActor
+    func testStopEndsTheBackgroundScan() async throws {
+        let store = AntivirusStore(folder: folder.appendingPathComponent("Store"))
+        // Many small files, so the walk takes long enough to interrupt.
+        let tree = folder.appendingPathComponent("tree")
+        for index in 0..<3000 {
+            let dir = tree.appendingPathComponent("d\(index % 30)")
+            try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            try Data("file \(index)".utf8).write(to: dir.appendingPathComponent("f\(index).txt"))
+        }
+
+        store.start(.custom, custom: [tree, URL(fileURLWithPath: "/Applications")])
+        try await Task.sleep(nanoseconds: 100_000_000)
+        store.stop()
+        let deadline = Date().addingTimeInterval(5)
+        while store.isScanning, Date() < deadline { try await Task.sleep(nanoseconds: 50_000_000) }
+
+        XCTAssertFalse(store.isScanning, "Stop must end the background walk")
+        XCTAssertEqual(store.history.first?.wasCancelled, true)
     }
 }

@@ -980,7 +980,6 @@
 "Threat Check" = "Recherche de menaces";
 "Known adware and suspicious launch items" = "Logiciels publicitaires connus et éléments de démarrage suspects";
 "Checks where junk builds up and looks for known threats, then lets you choose what goes." = "Vérifie où s'accumulent les fichiers inutiles et cherche les menaces connues, puis vous choisissez ce qui part.";
-"Known adware only, not an antivirus" = "Logiciels publicitaires connus uniquement, pas un antivirus";
 "Last used" = "Dernière utilisation";
 "Ascending" = "Croissant";
 "Descending" = "Décroissant";
@@ -990,7 +989,6 @@
 "Turn on Full Disk Access" = "Activer l'accès complet au disque";
 "Lets scans reach protected caches and app data." = "Permet aux analyses d'atteindre les caches et données d'apps protégés.";
 "Review possible threats" = "Examiner les menaces possibles";
-"Threat Check flagged %lld items." = "La recherche de menaces a signalé %lld éléments.";
 "Clean %@ of junk" = "Nettoyer %@ de fichiers inutiles";
 "Smart Care results are ready to review." = "Les résultats de l'Entretien intelligent sont prêts.";
 "Run Smart Care" = "Lancer l'Entretien intelligent";
@@ -1321,6 +1319,7 @@
 "After Full Disk Access" = "Après l’accès complet au disque";
 
 /* Antivirus */
+"Scan type" = "Type d'analyse";
 "EICAR test file" = "Fichier de test EICAR";
 "A harmless standard file used to check that antivirus software works." = "Un fichier standard et inoffensif qui sert à vérifier qu’un antivirus fonctionne.";
 "This file matches the fingerprint of known malware." = "Ce fichier correspond à l’empreinte d’un logiciel malveillant connu.";

@@ -445,6 +445,8 @@ struct SmartCareResultsView: View {
     var showsNavigation = true
     var onBackToStart: () -> Void = {}
     var onScanAgain: () -> Void = {}
+    /// Set by Smart Care: shows the Antivirus Quick scan that ran alongside.
+    var onOpenAntivirus: (() -> Void)? = nil
 
     private var results: [CategoryResult] {
         appState.allResults
@@ -564,6 +566,10 @@ struct SmartCareResultsView: View {
             }
 
             summaryHero
+
+            if let onOpenAntivirus {
+                AntivirusStatusRow(onOpen: onOpenAntivirus)
+            }
 
             if targets.isEmpty {
                 emptyState

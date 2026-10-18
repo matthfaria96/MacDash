@@ -4,9 +4,9 @@
 
 import Foundation
 
-/// Threat Check rules. This is a surface check against a small list of
-/// well-known macOS adware families plus a few launch-agent heuristics; it is
-/// not an antivirus and makes no claim to catch new or targeted malware.
+/// Adware family names and launch-agent heuristics, used by the Antivirus
+/// scanner (`AntivirusRules`). A small list of well-known macOS families; it
+/// makes no claim to catch new or targeted malware on its own.
 enum ThreatSignatures {
     /// Name fragments of long-lived macOS adware and scareware families.
     /// Matched case-insensitively against file and folder names.

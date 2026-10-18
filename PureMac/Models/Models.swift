@@ -17,6 +17,8 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     case dockerCache = "Docker Cache"
     case universalBinaries = "Universal Binaries"
     case languageFiles = "Language Files"
+    /// Retired: threat detection moved to the Antivirus section. Kept so
+    /// settings saved by older versions still decode.
     case threats = "Threat Check"
     case virtualMachines = "Virtual Machines"
     case dockerData = "Docker Images & Volumes"
@@ -91,9 +93,11 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     }
 
     /// The essential, low-risk areas Smart Care scans. Everything else lives in
-    /// Advanced Cleanup, so the two screens never share an area.
+    /// Advanced Cleanup, so the two screens never share an area. Threats are
+    /// not a cleanup area: Smart Care runs the Antivirus Quick scan instead,
+    /// and its findings wait for review there.
     static var smartCare: [CleaningCategory] {
-        [.systemJunk, .userCache, .trashBins, .mailAttachments, .threats].filter(scannable.contains)
+        [.systemJunk, .userCache, .trashBins, .mailAttachments].filter(scannable.contains)
     }
 
     /// Areas whose findings are counted rather than weighed: a flagged launch

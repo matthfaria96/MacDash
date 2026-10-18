@@ -104,7 +104,7 @@ struct AntivirusScanner: Sendable {
         mode: AntivirusScanMode,
         custom: [URL] = [],
         trust: Trust,
-        cache: [String: AntivirusCacheEntry],
+        cache: AntivirusCleanCache,
         progress: @escaping @Sendable (AntivirusProgress) -> Void
     ) async -> AntivirusScanOutcome {
         var state = ScanState(mode: mode, trust: trust, cache: cache, progress: progress)
@@ -128,7 +128,6 @@ struct AntivirusScanner: Sendable {
         return AntivirusScanOutcome(
             detections: state.detections,
             filesChecked: state.progress.filesChecked,
-            cleanFiles: state.clean,
             wasCancelled: Task.isCancelled
         )
     }
@@ -136,17 +135,16 @@ struct AntivirusScanner: Sendable {
     private struct ScanState {
         let mode: AntivirusScanMode
         let trust: Trust
-        let cache: [String: AntivirusCacheEntry]
+        let cache: AntivirusCleanCache
         let report: @Sendable (AntivirusProgress) -> Void
         var progress = AntivirusProgress()
         var detections: [Detection] = []
-        var clean: [String: AntivirusCacheEntry] = [:]
         /// Paths already part of a detection, so a program started by a
         /// flagged launch agent isn't reported twice.
         var claimed: Set<String> = []
         var lastReport = Date.distantPast
 
-        init(mode: AntivirusScanMode, trust: Trust, cache: [String: AntivirusCacheEntry], progress: @escaping @Sendable (AntivirusProgress) -> Void) {
+        init(mode: AntivirusScanMode, trust: Trust, cache: AntivirusCleanCache, progress: @escaping @Sendable (AntivirusProgress) -> Void) {
             self.mode = mode
             self.trust = trust
             self.cache = cache
@@ -163,7 +161,7 @@ struct AntivirusScanner: Sendable {
 
         mutating func flush(force: Bool = false) {
             let now = Date()
-            guard force || now.timeIntervalSince(lastReport) > 0.1 else { return }
+            guard force || now.timeIntervalSince(lastReport) > 0.25 else { return }
             lastReport = now
             report(progress)
         }
@@ -227,11 +225,9 @@ struct AntivirusScanner: Sendable {
         if info.st_flags & 0x4000_0000 != 0 { return }
         let size = Int64(info.st_size)
         guard size > 0 else { return }
-        let entry = AntivirusCacheEntry(inode: UInt64(info.st_ino), modified: TimeInterval(info.st_mtimespec.tv_sec), size: size)
-        if archive == nil, state.cache[path] == entry {
-            state.clean[path] = entry
-            return
-        }
+        let fileID = AntivirusCleanCache.FileID(device: info.st_dev, inode: UInt64(info.st_ino))
+        let stamp = AntivirusCleanCache.Stamp(modified: info.st_mtimespec.tv_sec, size: size)
+        if archive == nil, state.cache.isClean(fileID, stamp) { return }
 
         guard let head = readHead(url, count: 4096) else { return }
         let component = { (sha: String?) in
@@ -259,7 +255,7 @@ struct AntivirusScanner: Sendable {
         }
 
         let kind = AntivirusRules.kind(of: head)
-        if kind == .zip, state.mode.scansArchives, archiveDepth < 2, size < 200 * 1_048_576 {
+        if kind == .zip, state.mode.scansArchives, archiveDepth < 2, size < 100 * 1_048_576 {
             scanArchive(url, depth: archiveDepth, outer: archive ?? path, state: &state)
             return
         }
@@ -283,7 +279,7 @@ struct AntivirusScanner: Sendable {
                 return
             }
         }
-        if archive == nil { state.clean[path] = entry }
+        if archive == nil { state.cache.markClean(fileID, stamp) }
     }
 
     private func readHead(_ url: URL, count: Int) -> Data? {

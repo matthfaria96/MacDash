@@ -82,7 +82,8 @@ actor ScanEngine {
         case .languageFiles:
             return scanLanguageFiles()
         case .threats:
-            return scanThreats()
+            // Retired; the Antivirus section does this now.
+            return CategoryResult(category: .threats, items: [], totalSize: 0)
         case .virtualMachines:
             let items = VirtualMachineFinder.findMachines(home: home)
             return CategoryResult(category: category, items: items, totalSize: items.reduce(0) { $0 + $1.size })
@@ -311,59 +312,6 @@ actor ScanEngine {
 
         let totalSize = items.reduce(0) { $0 + $1.size }
         return CategoryResult(category: .mailAttachments, items: items, totalSize: totalSize)
-    }
-
-    /// Threat Check: launch items and support folders matched against
-    /// `ThreatSignatures`. Known adware families come preselected; launch items
-    /// flagged only by their arguments wait for the user to review them.
-    private func scanThreats() -> CategoryResult {
-        let ownPrefixes = [Bundle.main.bundleIdentifier, "com.macdash", "com.mactidy"].compactMap { $0 }
-        // (folder, recursive depth, file extensions to consider; empty = any)
-        let targets: [(path: String, depth: Int, extensions: Set<String>)] = [
-            ("\(home)/Library/LaunchAgents", 1, ["plist"]),
-            ("/Library/LaunchAgents", 1, ["plist"]),
-            ("/Library/LaunchDaemons", 1, ["plist"]),
-            ("\(home)/Library/Application Support/Google/Chrome/Default/Extensions", 1, []),
-            ("\(home)/Library/Safari/Extensions", 1, []),
-            ("\(home)/Library/Application Support", 3, ["sh", "command", "scpt", "app"]),
-        ]
-
-        var items: [CleanableItem] = []
-        var seen = Set<String>()
-        for target in targets {
-            guard let enumerator = fileManager.enumerator(
-                at: URL(fileURLWithPath: target.path),
-                includingPropertiesForKeys: [.isSymbolicLinkKey],
-                options: [.skipsHiddenFiles, .skipsPackageDescendants]
-            ) else { continue }
-            for case let url as URL in enumerator {
-                if Task.isCancelled { break }
-                if enumerator.level >= target.depth { enumerator.skipDescendants() }
-                report(url.path)
-                let ext = url.pathExtension.lowercased()
-                guard target.extensions.isEmpty || target.extensions.contains(ext),
-                      (try? url.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink) != true,
-                      let reason = ThreatSignatures.reason(for: url, ignoringLabelPrefixes: ownPrefixes),
-                      seen.insert(url.path).inserted
-                else { continue }
-
-                var isDir: ObjCBool = false
-                fileManager.fileExists(atPath: url.path, isDirectory: &isDir)
-                let size = isDir.boolValue
-                    ? directorySize(path: url.path)
-                    : ((try? fileManager.attributesOfItem(atPath: url.path)[.size]) as? Int64 ?? 0)
-                items.append(CleanableItem(
-                    name: url.lastPathComponent,
-                    path: url.path,
-                    // Every result must weigh something to be listed at all.
-                    size: max(size, 1),
-                    category: .threats,
-                    isSelected: reason == .knownFamily,
-                    lastModified: fileModDate(path: url.path)
-                ))
-            }
-        }
-        return CategoryResult(category: .threats, items: items, totalSize: items.reduce(0) { $0 + $1.size })
     }
 
     private func scanTrash() -> CategoryResult {

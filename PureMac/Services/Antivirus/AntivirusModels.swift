@@ -171,16 +171,41 @@ struct AntivirusProgress: Sendable {
     var currentPath = ""
 }
 
-/// What a scan is allowed to skip without opening the file again.
-struct AntivirusCacheEntry: Hashable, Sendable {
-    let inode: UInt64
-    let modified: TimeInterval
-    let size: Int64
+/// Files found clean, so the next scan can skip them while they stay
+/// unchanged. Keyed by device and inode rather than path: about 32 bytes an
+/// entry instead of a path string, and it never touches the main thread.
+final class AntivirusCleanCache: @unchecked Sendable {
+    struct FileID: Hashable {
+        let device: Int32
+        let inode: UInt64
+    }
+
+    struct Stamp: Equatable {
+        let modified: Int
+        let size: Int64
+    }
+
+    private var entries: [FileID: Stamp] = [:]
+    private let lock = NSLock()
+
+    func isClean(_ id: FileID, _ stamp: Stamp) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        return entries[id] == stamp
+    }
+
+    func markClean(_ id: FileID, _ stamp: Stamp) {
+        lock.lock(); defer { lock.unlock() }
+        entries[id] = stamp
+    }
+
+    func removeAll() {
+        lock.lock(); defer { lock.unlock() }
+        entries.removeAll()
+    }
 }
 
 struct AntivirusScanOutcome: Sendable {
     let detections: [Detection]
     let filesChecked: Int
-    let cleanFiles: [String: AntivirusCacheEntry]
     let wasCancelled: Bool
 }

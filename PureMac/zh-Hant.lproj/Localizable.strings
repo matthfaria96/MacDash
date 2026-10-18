@@ -984,7 +984,6 @@
 "Threat Check" = "威脅檢查";
 "Known adware and suspicious launch items" = "已知廣告軟體和可疑的啟動項目";
 "Checks where junk builds up and looks for known threats, then lets you choose what goes." = "檢查垃圾堆積的位置並尋找已知威脅，然後由你決定刪除什麼。";
-"Known adware only, not an antivirus" = "僅限已知廣告軟體，並非防毒軟體";
 "Last used" = "上次使用";
 "Ascending" = "遞增";
 "Descending" = "遞減";
@@ -994,7 +993,6 @@
 "Turn on Full Disk Access" = "開啟完整磁碟取用權限";
 "Lets scans reach protected caches and app data." = "讓掃描能存取受保護的快取和 App 資料。";
 "Review possible threats" = "檢視可能的威脅";
-"Threat Check flagged %lld items." = "威脅檢查標記了 %lld 個項目。";
 "Clean %@ of junk" = "清理 %@ 垃圾";
 "Smart Care results are ready to review." = "智慧照護結果已可檢視。";
 "Run Smart Care" = "執行智慧照護";
@@ -1325,6 +1323,7 @@
 "After Full Disk Access" = "完整磁碟取用權之後";
 
 /* Antivirus */
+"Scan type" = "掃描類型";
 "EICAR test file" = "EICAR 測試檔案";
 "A harmless standard file used to check that antivirus software works." = "一個無害的標準檔案，用來檢查防毒軟體是否正常運作。";
 "This file matches the fingerprint of known malware." = "此檔案與已知惡意軟體的指紋相符。";
