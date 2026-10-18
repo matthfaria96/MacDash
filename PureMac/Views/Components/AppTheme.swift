@@ -52,6 +52,15 @@ struct SectionPalette {
         accent: Color(red: 1.0, green: 0.5, blue: 0.85),
         layout: .leftGlow
     )
+    /// Near-black with blue-gray light and an ice accent: cold, quiet and
+    /// apart from every other section.
+    static let antivirus = SectionPalette(
+        primary: Color(red: 0.19, green: 0.25, blue: 0.33),
+        secondary: Color(red: 0.09, green: 0.12, blue: 0.17),
+        deep: Color(red: 0.015, green: 0.02, blue: 0.035),
+        accent: Color(red: 0.74, green: 0.88, blue: 1.0),
+        layout: .topGlow
+    )
     static let apps = SectionPalette(
         primary: Color(red: 0.07, green: 0.3, blue: 0.72),
         secondary: Color(red: 0.18, green: 0.16, blue: 0.62),
@@ -101,6 +110,7 @@ struct SectionPalette {
         switch section ?? .smartCare {
         case .smartCare: return .smartCare
         case .protection: return .protection
+        case .antivirus: return .antivirus
         case .apps: return .apps
         case .duplicates: return .duplicates
         case .spaceLens: return .spaceLens

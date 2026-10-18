@@ -8,6 +8,7 @@ import AppKit
 enum AppSection: Hashable {
     case smartCare
     case protection
+    case antivirus
     case apps
     case duplicates
     case similarPhotos

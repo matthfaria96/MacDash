@@ -103,6 +103,8 @@ struct MainWindow: View {
             applyDebugLaunchSelection()
             #endif
             applyMenuBarNavigation()
+            // Scheduled antivirus scans; findings only wait for review.
+            AntivirusStore.shared.startScheduler()
         }
         .onChange(of: appState.cleanErrorIsFDAFixable) { isFDAFixable in
             guard isFDAFixable else { return }
@@ -133,7 +135,7 @@ struct MainWindow: View {
     /// Sidebar layout: Smart Care followed by the tools, one continuous list.
     /// Each destination has its own color.
     private static let mainSections: [AppSection] = [
-        .cleanup, .apps, .protection, .processes, .spaceLens, .duplicates, .similarPhotos
+        .cleanup, .apps, .protection, .antivirus, .processes, .spaceLens, .duplicates, .similarPhotos
     ]
 
     private var sidebar: some View {
@@ -235,6 +237,7 @@ struct MainWindow: View {
         case .processes: return "sidebar.processes"
         case .similarPhotos: return "sidebar.similarPhotos"
         case .protection: return "sidebar.protection"
+        case .antivirus: return "sidebar.antivirus"
         case .settings: return "sidebar.settings"
         case .cleanup: return "sidebar.cleanup"
         }
@@ -357,7 +360,7 @@ struct MainWindow: View {
         let defaults = UserDefaults.standard
         if defaults.bool(forKey: "DebugAssistant") { assistantOpen = true }
         let sections: [String: AppSection] = [
-            "smartCare": .smartCare, "apps": .apps, "cleanup": .cleanup, "protection": .protection,
+            "smartCare": .smartCare, "apps": .apps, "cleanup": .cleanup, "protection": .protection, "antivirus": .antivirus,
             "duplicates": .duplicates, "similarPhotos": .similarPhotos, "spaceLens": .spaceLens, "processes": .processes, "settings": .settings,
         ]
         guard let name = defaults.string(forKey: "DebugSection"), let section = sections[name] else { return }
@@ -406,6 +409,8 @@ struct MainWindow: View {
             SimilarPhotosView()
         case .protection:
             ProtectionHubView()
+        case .antivirus:
+            AntivirusView()
         case .settings:
             // Settings keeps plain system symbols, like System Settings.
             SettingsView()
@@ -475,6 +480,7 @@ struct SidebarItem {
         switch section {
         case .smartCare: (title, icon) = ("Smart Care", "desktopcomputer")
         case .protection: (title, icon) = ("Protection", "hand.raised.fill")
+        case .antivirus: (title, icon) = ("Antivirus", "shield.lefthalf.filled")
         case .apps: (title, icon) = ("Applications", "square.grid.2x2.fill")
         case .duplicates: (title, icon) = ("Duplicate Finder", "doc.on.doc.fill")
         case .spaceLens: (title, icon) = ("Space Lens", "chart.pie.fill")

@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D0B525A69F5A48FDAA5C593C /* AntivirusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F2E9686E674D6EBA8233CF /* AntivirusTests.swift */; };
+		ADA1A94A843D4B42B5638DA1 /* AntivirusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3879B1C2E60049D5845F152F /* AntivirusView.swift */; };
+		93C36FB863A347F2AEB21970 /* AntivirusStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C33A70915B48FDB51378BD /* AntivirusStore.swift */; };
+		C3D180B4B55A4FC9BEA7EEB3 /* AntivirusScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B31546ECC244CEDBA45628C /* AntivirusScanner.swift */; };
+		1E4E4C03B0024237916DC00F /* AntivirusRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20CC108BB4A4016A46B27F9 /* AntivirusRules.swift */; };
+		7062A31E12A54894BB45CB1B /* AntivirusModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3FC8968890E4499A79AFBCC /* AntivirusModels.swift */; };
 		013EF7B96BF046D4DB38FBC5 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 241E0895B09C71AB423B2F9E /* Localizable.strings */; };
 		0BB6BC2EAFB02407FBC6CDA6 /* ApplicationUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59873E44B520DE069F80CCD6 /* ApplicationUpdater.swift */; };
 		33AEF8B8D54A0652B7029AD9 /* UnusedAppsFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E311181AA63B63E774422F6A /* UnusedAppsFinder.swift */; };
@@ -139,6 +145,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		75F2E9686E674D6EBA8233CF /* AntivirusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AntivirusTests.swift; sourceTree = "<group>"; };
+		3879B1C2E60049D5845F152F /* AntivirusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AntivirusView.swift; sourceTree = "<group>"; };
+		22C33A70915B48FDB51378BD /* AntivirusStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Antivirus/AntivirusStore.swift; sourceTree = "<group>"; };
+		4B31546ECC244CEDBA45628C /* AntivirusScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Antivirus/AntivirusScanner.swift; sourceTree = "<group>"; };
+		E20CC108BB4A4016A46B27F9 /* AntivirusRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Antivirus/AntivirusRules.swift; sourceTree = "<group>"; };
+		B3FC8968890E4499A79AFBCC /* AntivirusModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Antivirus/AntivirusModels.swift; sourceTree = "<group>"; };
 		02E502E2B5C6AECC76E5CFEF /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		043F28E28FB7B2D9E39E5F70 /* PerformanceInspectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceInspectorTests.swift; sourceTree = "<group>"; };
 		04F5D30AEC87F2213C8D59AD /* XcodeBuildMCPDerivedDataSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XcodeBuildMCPDerivedDataSupportTests.swift; sourceTree = "<group>"; };
@@ -313,6 +325,7 @@
 				A5984F53676A523D97AF2A89 /* NodeCachePathTests.swift */,
 				043F28E28FB7B2D9E39E5F70 /* PerformanceInspectorTests.swift */,
 				3BBCB7D8C9A325A7FFEEF391 /* ProcessResourceMonitorTests.swift */,
+				75F2E9686E674D6EBA8233CF /* AntivirusTests.swift */,
 				853B6D91596DB63ACE660F74 /* ProtectionAuditTests.swift */,
 				F4C6ED023B3A9C2E62585A62 /* MacSaiPortTests.swift */,
 				DBB66F6F2035D5DA3330B531 /* SpaceLensScannerTests.swift */,
@@ -341,6 +354,7 @@
 				5A0AF1B9C42A20B6C9FC2DD9 /* AppUpdatesView.swift */,
 				1343918E4CD9C8DA99EFA588 /* DuplicateFinderView.swift */,
 				48F804C73B6DD4F8619B25B5 /* ProcessResourcesView.swift */,
+				3879B1C2E60049D5845F152F /* AntivirusView.swift */,
 				F270D47D1DD94D4577482B90 /* ProtectionView.swift */,
 				4EC53F303E676EDF62AABF3E /* SpaceLensView.swift */,
 				B784450171D18434DB6F563E /* SpaceLensApps.swift */,
@@ -411,6 +425,10 @@
 				5C8619CA3ECD70CBBC96475C /* PerformanceInspector.swift */,
 				F9DCBD97CC88D77AE8DB01A4 /* PermissionCoordinator.swift */,
 				FE52AA3D827BF3A574DC5822 /* ProcessResourceMonitor.swift */,
+				B3FC8968890E4499A79AFBCC /* AntivirusModels.swift */,
+				E20CC108BB4A4016A46B27F9 /* AntivirusRules.swift */,
+				4B31546ECC244CEDBA45628C /* AntivirusScanner.swift */,
+				22C33A70915B48FDB51378BD /* AntivirusStore.swift */,
 				6F9B44A9C1B4065126789622 /* ProtectionAudit.swift */,
 				A711CDF5285F68775D9B5513 /* ScanEngine.swift */,
 				28181F034530331A550C6A3D /* SchedulerService.swift */,
@@ -645,6 +663,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADA1A94A843D4B42B5638DA1 /* AntivirusView.swift in Sources */,
+				93C36FB863A347F2AEB21970 /* AntivirusStore.swift in Sources */,
+				C3D180B4B55A4FC9BEA7EEB3 /* AntivirusScanner.swift in Sources */,
+				1E4E4C03B0024237916DC00F /* AntivirusRules.swift in Sources */,
+				7062A31E12A54894BB45CB1B /* AntivirusModels.swift in Sources */,
 				DC32253D26D0E29762006DA0 /* AppBundleDragHandle.swift in Sources */,
 				EE1998ADD24388A0C91E62F9 /* AppVersion.swift in Sources */,
 				1B0D043102FDB245312A5147 /* AppFilesView.swift in Sources */,
@@ -748,6 +771,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0B525A69F5A48FDAA5C593C /* AntivirusTests.swift in Sources */,
 				59B3096E2AE8ED0397B16798 /* AppLanguagePreferencesTests.swift in Sources */,
 				E2403D82F00D749C9AD4A6D4 /* AppStateTests.swift in Sources */,
 				D15B7A053D69D4348D9DCD88 /* ApplicationUpdaterTests.swift in Sources */,
