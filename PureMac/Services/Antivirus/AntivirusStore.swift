@@ -394,13 +394,16 @@ enum AntivirusVault {
             )
         }
         let launchItems = detection.launchItems.map(\.path).filter(exists)
-        let pids = detection.components
+        let processes = detection.components
             .filter { $0.role == .program || $0.role == .file }
-            .flatMap { AntivirusScanner.processIDs(runningAt: $0.path) }
+            .flatMap { component in AntivirusScanner.processIDs(runningAt: component.path).map { (pid: $0, path: component.path) } }
 
         if planned.contains(where: \.needsAdministrator) {
             var commands = launchItems.map { "/bin/launchctl bootout \(domain(for: $0)) \(quoted($0)) 2>/dev/null || true" }
-            commands += pids.map { "/bin/kill -TERM \($0) 2>/dev/null || true" }
+            // The password prompt can sit open for minutes, and a process id
+            // can be reused in that time: only stop it if it still runs the
+            // threat's program.
+            commands += processes.map { "[ \"$(/bin/ps -o comm= -p \($0.pid))\" = \(quoted($0.path)) ] && /bin/kill -TERM \($0.pid) 2>/dev/null || true" }
             commands += planned.map { item in
                 "/bin/mv -n \(quoted(item.originalPath)) \(quoted(item.storedPath)) && /bin/chmod -h 0 \(quoted(item.storedPath))"
             }
@@ -412,7 +415,7 @@ enum AntivirusVault {
             }
         } else {
             for path in launchItems { _ = Shell.run("/bin/launchctl", ["bootout", domain(for: path), path]) }
-            for pid in pids { kill(pid, SIGTERM) }
+            for process in processes { kill(process.pid, SIGTERM) }
             for item in planned {
                 guard (try? fm.moveItem(atPath: item.originalPath, toPath: item.storedPath)) != nil else { continue }
                 // Not readable or runnable while it waits. A link keeps its
