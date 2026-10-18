@@ -334,7 +334,12 @@ struct MainWindow: View {
         .animation(reduceMotion ? nil : .spring(response: 0.48, dampingFraction: 0.86), value: selectedSection)
         .animation(reduceMotion ? nil : MotionTokens.gentle, value: appState.fdaBannerDismissed)
         .animation(reduceMotion ? nil : MotionTokens.gentle, value: appState.hasFullDiskAccess)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // The detail column takes exactly the room the window leaves it. Its
+        // ideal width is ignored: text reports its full untruncated length as
+        // ideal, so a page that just received data (long process names, live
+        // numbers) would otherwise widen past the window and push the sidebar
+        // off its left edge.
+        .frame(minWidth: 0, idealWidth: 0, maxWidth: .infinity, maxHeight: .infinity)
         .environment(\.themeTint, selectedPalette.accent)
         // Content scrolling under the see-through title bar fades into the
         // backdrop instead of colliding with the section name.

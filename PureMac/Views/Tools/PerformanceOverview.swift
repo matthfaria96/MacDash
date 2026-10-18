@@ -41,6 +41,9 @@ struct PerformanceOverview: View {
     @Namespace private var selection
 
     private let palette = PerformancePalette.processes
+    /// Below this the four tiles can't show their values whole side by side.
+    private static let fourAcrossWidth: CGFloat = 820
+    @State private var rowWidth: CGFloat = 1000
     private let info = MacSystemInfo.current
 
     enum Vital: String, CaseIterable, Identifiable {
@@ -50,24 +53,23 @@ struct PerformanceOverview: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            HStack(spacing: 12) {
-                ForEach(Array(Vital.allCases.enumerated()), id: \.element) { index, vital in
-                    if model.snapshot == nil {
-                        tileSkeleton
-                    } else {
-                        VitalTile(
-                            tile: tile(vital),
-                            isSelected: selected == vital,
-                            index: index,
-                            namespace: selection
-                        ) {
-                            withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) {
-                                selected = selected == vital ? nil : vital
-                            }
-                        }
-                    }
+            // Four across on a wide page, two by two on a narrow one, so the
+            // values never get cut or widen the page. Decided by the room
+            // available, not by the values, so the layout doesn't flip as
+            // the numbers change.
+            Group {
+                if rowWidth >= Self.fourAcrossWidth {
+                    HStack(spacing: 12) { tiles }
+                } else {
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) { tiles }
                 }
             }
+            .frame(maxWidth: .infinity)
+            .background(GeometryReader { proxy in
+                Color.clear
+                    .onAppear { rowWidth = proxy.size.width }
+                    .onChange(of: proxy.size.width) { rowWidth = $0 }
+            })
             if let selected, let snapshot = model.snapshot {
                 CardSurface(padding: 18, tint: tile(selected).tint) {
                     drawer(selected, snapshot: snapshot)
@@ -82,6 +84,25 @@ struct PerformanceOverview: View {
     }
 
     // MARK: - Tiles
+
+    private var tiles: some View {
+        ForEach(Array(Vital.allCases.enumerated()), id: \.element) { index, vital in
+            if model.snapshot == nil {
+                tileSkeleton
+            } else {
+                VitalTile(
+                    tile: tile(vital),
+                    isSelected: selected == vital,
+                    index: index,
+                    namespace: selection
+                ) {
+                    withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) {
+                        selected = selected == vital ? nil : vital
+                    }
+                }
+            }
+        }
+    }
 
     struct TileModel {
         let title: LocalizedStringKey
