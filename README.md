@@ -1,37 +1,39 @@
 # MacDash
 
-App nativo para macOS (SwiftUI) de limpeza e manutenção: Cuidado inteligente, Limpeza avançada, Aplicativos (desinstalar, itens de início e atualizações), Proteção (permissões de apps, verificações de segurança, Wi‑Fi e extensões de navegador), Processos, Lente de espaço, Arquivos duplicados e Fotos semelhantes.
+**English** · [Português](README.pt-BR.md)
 
-Nada é removido sem a sua aprovação: toda verificação termina numa tela de revisão.
+A native macOS app (SwiftUI) for cleaning and maintenance: Smart Care, Advanced Cleanup, Applications (uninstall, login items and updates), Protection (app permissions, security checks, Wi‑Fi and browser extensions), Processes, Space Lens, Duplicate Files and Similar Photos.
 
-## Compilar e abrir
+Nothing is removed without your approval: every scan ends on a review screen.
+
+## Build and run
 
 ```bash
-scripts/dev.sh run     # compila (Debug) e abre o app
-scripts/dev.sh build   # só compila
-scripts/dev.sh test    # roda os testes
+scripts/dev.sh run     # builds (Debug) and opens the app
+scripts/dev.sh build   # builds only
+scripts/dev.sh test    # runs the tests
 ```
 
-O app fica em `build/derived/Build/Products/Debug/MacTidy.app`. O projeto Xcode é `PureMac.xcodeproj` (scheme `PureMac`). Os nomes internos do projeto continuam `PureMac`; o produto é `MacTidy.app`, com bundle ID `com.mactidy.app`. Requer macOS 13 ou mais novo.
+The app ends up in `build/derived/Build/Products/Debug/MacTidy.app`. The Xcode project is `PureMac.xcodeproj` (scheme `PureMac`). The project's internal names are still `PureMac`; the product is `MacTidy.app`, with bundle ID `com.mactidy.app`. Requires macOS 13 or later.
 
-## Permissões
+## Permissions
 
-Em **Ajustes › Permissões** (e no primeiro uso) o app mostra, verificado ao vivo com o macOS:
+In **Settings › Permissions** (and on first use) the app shows, checked live with macOS:
 
-- **Acesso Total ao Disco** (obrigatório): para examinar Mail, Safari, contêineres de apps e a Lixeira, e para ler as permissões dos apps em Proteção.
-- **Gerenciamento de Apps**: para remover e atualizar outros apps.
-- **Automação do System Events**: para ligar e desligar itens de início.
-- **Notificações**: para avisar quando uma verificação agendada termina.
+- **Full Disk Access** (required): to scan Mail, Safari, app containers and the Trash, and to read app permissions in Protection.
+- **App Management**: to remove and update other apps.
+- **System Events automation**: to turn login items on and off.
+- **Notifications**: to tell you when a scheduled scan finishes.
 
-As senhas do Wi‑Fi ficam nas chaves do sistema: o macOS pede o usuário e a senha da sua conta do Mac. Escolha "Sempre Permitir" e aquela rede não pergunta de novo.
+Wi‑Fi passwords live in the system keychain: macOS asks for your Mac account's user name and password. Choose "Always Allow" and that network won't ask again.
 
-## Créditos e licenças
+## Credits and licenses
 
-MacDash é software livre, Copyright (C) 2026 Matheus Faria, sob a licença **GNU AGPL v3.0** ([`LICENSE`](LICENSE)). Você pode usar, estudar, modificar e redistribuir; quem distribuir uma versão modificada precisa publicar o código dela sob a mesma licença.
+MacDash is free software, Copyright (C) 2026 Matheus Faria, under the **GNU AGPL v3.0** license ([`LICENSE`](LICENSE)). You may use, study, modify and redistribute it; anyone who distributes a modified version must publish its source under the same license.
 
-- Base: [PureMac](https://github.com/momenbasel/PureMac), licença MIT (aviso em [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)).
-- Recursos adaptados do [Mac Sai](https://github.com/iliyami/MacSai), licença BSD de 3 cláusulas ([`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)).
-- Anéis da Lente de Espaço adaptados do [SquirrelDisk](https://github.com/adileo/squirreldisk) (AGPL-3.0) e tamanho por app adaptado do [Disk Audit](https://github.com/srwiseman/diskaudit-macos) (GPL-3.0).
-- Os demais créditos (Kitesail, Stats, Performance Monitor) estão em [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) e em Ajustes › Licenças de código aberto.
-- O antivírus foi escrito do zero. Ele não contém código, regras nem bases de dados de nenhum produto comercial; usa o padrão de teste EICAR e regras próprias.
-- Nomes de outros produtos citados pertencem aos seus donos; o MacDash não tem ligação com eles.
+- Based on [PureMac](https://github.com/momenbasel/PureMac), MIT license (notice in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)).
+- Features adapted from [Mac Sai](https://github.com/iliyami/MacSai), 3-clause BSD license ([`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)).
+- Space Lens rings adapted from [SquirrelDisk](https://github.com/adileo/squirreldisk) (AGPL-3.0) and per-app size adapted from [Disk Audit](https://github.com/srwiseman/diskaudit-macos) (GPL-3.0).
+- The other credits (Kitesail, Stats, Performance Monitor) are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and in Settings › Open source licenses.
+- The antivirus was written from scratch. It contains no code, rules or databases from any commercial product; it uses the EICAR test pattern and its own rules.
+- Other product names mentioned belong to their owners; MacDash is not affiliated with them.
