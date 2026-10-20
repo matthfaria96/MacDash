@@ -919,7 +919,7 @@ struct AboutSettingsView: View {
                     .padding(.top, 14)
 
                 HStack(spacing: 18) {
-                    Link("macdash.app", destination: URL(string: "https://macdash.app")!)
+                    Link("witchmymac.com", destination: URL(string: "http://witchmymac.com")!)
                         .font(.system(size: 12))
                     Button("Open-source licenses") { showLicenses = true }
                         .buttonStyle(.link)
