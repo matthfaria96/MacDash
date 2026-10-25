@@ -8,7 +8,7 @@ struct GeneralCleanupRunView: View {
     /// Returns to the General Cleanup overview.
     var onBack: () -> Void = {}
 
-    @State private var reviewing: ReviewTarget?
+    @State private var reviewing: ReviewTarget? = DemoMode.initialReview
     @State private var showConfirmation = false
     @State private var pendingItems: [CleanableItem] = []
     @State private var pendingOrphans: Set<URL> = []

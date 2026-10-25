@@ -59,6 +59,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         #endif
         NSWindow.allowsAutomaticWindowTabbing = false
+        // MACDASH_DEMO=1 (site screenshots): no menu bar item, Full Disk Access touch or updater.
+        if DemoMode.isActive { return }
 
         // Install the menu-bar monitor if the user has it enabled. Never under
         // XCTest — the status-item machinery would stall the test-host run loop.

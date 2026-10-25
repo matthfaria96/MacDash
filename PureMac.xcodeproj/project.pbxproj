@@ -133,6 +133,7 @@
 		FBEE9208E222616A8DF1FE75 /* ProviderPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFB912A9A6CFDCB972E978F /* ProviderPaths.swift */; };
 		FF6B92CAF96A58625A56A1C0 /* ProtectionAudit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9B44A9C1B4065126789622 /* ProtectionAudit.swift */; };
 		19B5A0E7BD0B60CA26E4579C /* AppUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDBE61B84D3ED07767B12CD /* AppUpdater.swift */; };
+		D3E0A1B2C3D4E5F60718293A /* DemoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E0A1B2C3D4E5F60718293B /* DemoMode.swift */; };
 		CF11DE62E57AB57A45758A40 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = F8AED9D47AA8BE085CB49A25 /* Sparkle */; };
 /* End PBXBuildFile section */
 
@@ -301,6 +302,7 @@
 		F9DCBD97CC88D77AE8DB01A4 /* PermissionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionCoordinator.swift; sourceTree = "<group>"; };
 		FE52AA3D827BF3A574DC5822 /* ProcessResourceMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessResourceMonitor.swift; sourceTree = "<group>"; };
 		7DDBE61B84D3ED07767B12CD /* AppUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdater.swift; sourceTree = "<group>"; };
+		D3E0A1B2C3D4E5F60718293B /* DemoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoMode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -497,6 +499,7 @@
 			isa = PBXGroup;
 			children = (
 				7DDBE61B84D3ED07767B12CD /* AppUpdater.swift */,
+				D3E0A1B2C3D4E5F60718293B /* DemoMode.swift */,
 				31EEAF29E24D97774F62C45E /* AppVersion.swift */,
 			);
 			path = Core;
@@ -690,6 +693,7 @@
 				7062A31E12A54894BB45CB1B /* AntivirusModels.swift in Sources */,
 				DC32253D26D0E29762006DA0 /* AppBundleDragHandle.swift in Sources */,
 				19B5A0E7BD0B60CA26E4579C /* AppUpdater.swift in Sources */,
+				D3E0A1B2C3D4E5F60718293A /* DemoMode.swift in Sources */,
 				EE1998ADD24388A0C91E62F9 /* AppVersion.swift in Sources */,
 				1B0D043102FDB245312A5147 /* AppFilesView.swift in Sources */,
 				F1F506C146E17D6CEC4A12F3 /* AppInfoFetcher.swift in Sources */,

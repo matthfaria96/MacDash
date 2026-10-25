@@ -479,7 +479,7 @@ struct MacSystemInfo {
     static let current = MacSystemInfo()
 
     private init() {
-        computerName = Host.current().localizedName ?? String(localized: "This Mac")
+        computerName = DemoMode.isActive ? DemoMode.computerName : Host.current().localizedName ?? String(localized: "This Mac")
         let model = Self.sysctlString("hw.model") ?? String(localized: "Unknown")
         hardwareModel = model
         let lower = model.lowercased()

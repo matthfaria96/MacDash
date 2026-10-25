@@ -8,7 +8,7 @@ struct DashboardView: View {
 
     @State private var showConfirmation = false
     @State private var pendingCleanItems: [CleanableItem] = []
-    @State private var reviewingCategory: ReviewTarget?
+    @State private var reviewingCategory: ReviewTarget? = DemoMode.initialReview
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
 

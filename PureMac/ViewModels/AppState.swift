@@ -240,7 +240,11 @@ final class AppState: ObservableObject {
             presentExternalUninstall(appPath: buffered)
         }
 
-        if performStartupTasks {
+        if DemoMode.isActive {
+            loadDiskInfo()
+            loadInstalledApps()
+            if let scope = DemoMode.initialResults { applyDemoResults(scope) }
+        } else if performStartupTasks {
             loadDiskInfo()
             checkFullDiskAccess()
             loadInstalledApps()
@@ -260,6 +264,8 @@ final class AppState: ObservableObject {
     // MARK: - App Loading
 
     func loadInstalledApps() {
+        if DemoMode.isActive { installedApps = DemoMode.installedApps(); return }
+
         isLoadingApps = true
         Task.detached(priority: .userInitiated) {
             let apps = AppInfoFetcher.shared.fetchInstalledApps()
@@ -303,6 +309,8 @@ final class AppState: ObservableObject {
     }
 
     func scanForAppFiles(_ app: InstalledApp) {
+        guard !DemoMode.isActive else { return }  // demo: never touch the Mac
+
         discoveredFiles = []
         selectedFiles = []
         isScanningAppFiles = true
@@ -333,6 +341,8 @@ final class AppState: ObservableObject {
     }
 
     func removeSelectedFiles(confirmedURLs: Set<URL>? = nil) {
+        guard !DemoMode.isActive else { return }  // demo: never touch the Mac
+
         // Re-entrance guard: if a previous removal is still resolving and
         // the FDA sheet/retry hasn't finished, a second call would race-
         // overwrite `lastFailedRemovalURLs` before the first batch's retry
@@ -603,6 +613,8 @@ final class AppState: ObservableObject {
     }
 
     func findOrphans() {
+        guard !DemoMode.isActive else { return }  // demo: never touch the Mac
+
         orphanScanTask?.cancel()
         orphanScanGeneration = UUID()
         let generation = orphanScanGeneration
@@ -718,6 +730,8 @@ final class AppState: ObservableObject {
     /// Moves the given orphans to the Trash, asking for administrator rights
     /// only for items that need them. Returns a message when some items fail.
     func removeOrphans(_ batch: Set<URL>) async -> String? {
+        guard !DemoMode.isActive else { return nil }  // demo: never touch the Mac
+
         guard !isRemovingOrphans, !batch.isEmpty else { return nil }
         isRemovingOrphans = true
         defer { isRemovingOrphans = false }
@@ -1076,6 +1090,8 @@ final class AppState: ObservableObject {
     // MARK: - Disk Info
 
     func loadDiskInfo() {
+        if DemoMode.isActive { diskInfo = DemoMode.diskInfo; return }
+
         Task {
             let info = await scanEngine.getDiskInfo()
             self.diskInfo = info
@@ -1085,6 +1101,8 @@ final class AppState: ObservableObject {
     // MARK: - Scanning
 
     func startSmartScan() {
+        if DemoMode.isActive { applyDemoResults(.smartCare); return }
+
         guard !scanState.isActive else { return }
         scanScope = .smartCare
         clearSmartCareResults()
@@ -1189,6 +1207,8 @@ final class AppState: ObservableObject {
     }
 
     func findUnusedApps() {
+        guard !DemoMode.isActive else { return }  // demo: never touch the Mac
+
         unusedAppsTask?.cancel()
         isSearchingUnusedApps = true
         hasSearchedUnusedApps = false
@@ -1221,6 +1241,8 @@ final class AppState: ObservableObject {
     /// an administrator password only for items that need it. Returns the space
     /// freed and an error message when something could not be removed.
     func removeUnusedApps(_ ids: Set<String>) async -> (freed: Int64, error: String?) {
+        guard !DemoMode.isActive else { return (0, nil) }  // demo: never touch the Mac
+
         guard !isRemovingUnusedApps else { return (0, nil) }
         let apps = unusedApps.filter { ids.contains($0.id) }
         guard !apps.isEmpty else { return (0, nil) }
@@ -1281,6 +1303,8 @@ final class AppState: ObservableObject {
 
     /// One scan for every selected System and Developer area.
     func startGeneralCleanup() {
+        if DemoMode.isActive { applyDemoResults(.generalCleanup); return }
+
         guard !scanState.isActive, !isSearchingOrphans, !isSearchingUnusedApps, !isRemovingOrphans,
               !isRemovingUnusedApps, hasEnabledCleanupAreas else { return }
         scanScope = .generalCleanup
@@ -1385,6 +1409,8 @@ final class AppState: ObservableObject {
     // MARK: - Cleaning
 
     func cleanAll(itemIDs: Set<UUID>? = nil, scheduled: Bool = false) {
+        guard !DemoMode.isActive else { return }  // demo: never touch the Mac
+
         guard !scanState.isActive else { return }
 
         let itemsToClean = allResults.flatMap { $0.items }.filter { item in
@@ -1519,6 +1545,8 @@ final class AppState: ObservableObject {
     // MARK: - Purgeable
 
     func purgePurgeable() {
+        guard !DemoMode.isActive else { return }  // demo: never touch the Mac
+
         loadDiskInfo()
     }
 
@@ -1531,6 +1559,8 @@ final class AppState: ObservableObject {
     }
 
     func runScheduledScan() async {
+        guard !DemoMode.isActive else { return }
+
         guard canRunScheduledScan(isAppActive: NSApp.isActive) else { return }
         let categories = scheduler.config.categoriesToScan.filter { CleaningCategory.smartCare.contains($0) }
         guard !categories.isEmpty else { return }
@@ -1594,5 +1624,32 @@ final class AppState: ObservableObject {
         )
         let finder = AppPathFinder(appInfo: appInfo, locations: locations)
         finder.findPathsAsync(completion: completion)
+    }
+}
+
+// MARK: - Demo mode (MACDASH_DEMO=1, site screenshots)
+
+extension AppState {
+    /// Fills one screen with DemoMode's fictional findings, as if its scan had just finished.
+    func applyDemoResults(_ scope: ScanScope) {
+        scanScope = scope
+        let categories = scope == .smartCare ? CleaningCategory.smartCare : enabledCleanupCategories
+        for category in categories {
+            guard let result = DemoMode.result(for: category) else { continue }
+            categoryResults[category] = result
+        }
+        if scope == .generalCleanup {
+            let orphans = DemoMode.orphans
+            orphanedFiles = orphans.map(\.url)
+            for orphan in orphans { orphanSizes[orphan.url] = orphan.size }
+            hasSearchedOrphans = true
+            unusedApps = DemoMode.unusedApps
+            hasSearchedUnusedApps = true
+            cleanupDetailOpen = DemoMode.initialReview != nil
+        }
+        totalJunkSize = smartCareJunkSize
+        scanProgress = 1
+        lastScanDate = Date()
+        scanState = .completed
     }
 }

@@ -104,7 +104,7 @@ struct MainWindow: View {
             #endif
             applyMenuBarNavigation()
             // Scheduled antivirus scans; findings only wait for review.
-            AntivirusStore.shared.startScheduler()
+            if !DemoMode.isActive { AntivirusStore.shared.startScheduler() }
         }
         .onChange(of: appState.cleanErrorIsFDAFixable) { isFDAFixable in
             guard isFDAFixable else { return }
