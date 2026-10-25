@@ -8,17 +8,19 @@ Nada é removido sem a sua aprovação: toda verificação termina numa tela de 
 
 ## Instalar
 
-1. Baixe o `MacDash-x.y.z.dmg` em [Releases](https://github.com/matthfaria96/MacDash/releases) ou em [witchmymac.com](https://witchmymac.com).
-2. Abra o DMG e arraste o **MacDash** para **Aplicativos**.
-3. O app não é notarizado, então o macOS o bloqueia na primeira vez. Para liberar, cole isto no Terminal:
+Escolha um:
 
-   ```bash
+1. **Terminal, uma linha (recomendado).** Cole isto no Terminal:
+   ```sh
+   curl -fsSL https://witchmymac.com/install.sh | bash -s macdash
+   ```
+   Ele baixa a versão mais nova do GitHub, confere o SHA-256, instala o MacDash em Aplicativos e abre. Não aparece aviso do macOS, porque arquivos baixados pelo `curl` não ganham a marca de "baixado da internet". Rode a mesma linha de novo para atualizar. O script é aberto: [install.sh](https://witchmymac.com/install.sh).
+2. **Baixe o DMG** em [Releases](https://github.com/matthfaria96/MacDash/releases) ou em [witchmymac.com](https://witchmymac.com), arraste o MacDash para Aplicativos e libere uma vez com:
+   ```sh
    xattr -dr com.apple.quarantine "/Applications/MacDash.app"
    ```
-
-   Isso só remove daquele app a marca de "baixado da internet".
-
-   Sem o Terminal: abra o app, clique em **OK** no aviso e depois vá em **Ajustes do Sistema › Privacidade e Segurança** e clique em **Abrir Mesmo Assim**.
+   Ele só tira daquele app a marca de "baixado da internet".
+3. **Baixe o DMG** e libere pelos Ajustes do Sistema: abra o app, clique em OK no aviso e vá em Ajustes do Sistema › Privacidade e Segurança › Abrir Mesmo Assim.
 
 Requer macOS 13 ou mais novo.
 
