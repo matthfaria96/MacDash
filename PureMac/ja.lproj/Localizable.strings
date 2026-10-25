@@ -1430,3 +1430,6 @@
 "Trust developer %@" = "デベロッパ「%@」を信頼";
 "Trust" = "信頼";
 "Move to Quarantine" = "隔離に移動";
+
+/* In-app updates (AppUpdater) */
+"Check for Updates…" = "アップデートを確認…";

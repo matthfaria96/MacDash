@@ -149,3 +149,11 @@ SOFTWARE.
 - Used in:
   - `PureMac/Services/HardwareSensors.swift`: GPU load, disk activity, fans and system power
   - `PureMac/Services/MenuBarReadout.swift`: template drawing and fixed slot widths for the menu bar readout
+
+## Sparkle
+
+- Source: https://github.com/sparkle-project/Sparkle
+- Copyright (c) 2006-2013 Andy Matuschak and the Sparkle contributors
+- License: MIT
+- Used in:
+  - `PureMac/Core/AppUpdater.swift`: MacDash's own in-app updates (Check for Updates…); the framework ships in `Contents/Frameworks/Sparkle.framework`

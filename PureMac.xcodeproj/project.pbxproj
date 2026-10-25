@@ -132,6 +132,8 @@
 		F4F02F966001A1504C2B4D33 /* SimulatorRuntimeSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D81BE7EA5DB17F4A0300AD /* SimulatorRuntimeSupportTests.swift */; };
 		FBEE9208E222616A8DF1FE75 /* ProviderPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFB912A9A6CFDCB972E978F /* ProviderPaths.swift */; };
 		FF6B92CAF96A58625A56A1C0 /* ProtectionAudit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9B44A9C1B4065126789622 /* ProtectionAudit.swift */; };
+		19B5A0E7BD0B60CA26E4579C /* AppUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDBE61B84D3ED07767B12CD /* AppUpdater.swift */; };
+		CF11DE62E57AB57A45758A40 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = F8AED9D47AA8BE085CB49A25 /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -298,7 +300,19 @@
 		F77B9D7D5353CD42BD03ADBB /* ApplicationUpdaterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationUpdaterTests.swift; sourceTree = "<group>"; };
 		F9DCBD97CC88D77AE8DB01A4 /* PermissionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionCoordinator.swift; sourceTree = "<group>"; };
 		FE52AA3D827BF3A574DC5822 /* ProcessResourceMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessResourceMonitor.swift; sourceTree = "<group>"; };
+		7DDBE61B84D3ED07767B12CD /* AppUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdater.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		54790370CFD0AE81AD1ED55F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CF11DE62E57AB57A45758A40 /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		13CF0676D0E93925F46C13AA = {
@@ -482,6 +496,7 @@
 		D4333B07691BD85CAE0E5B15 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				7DDBE61B84D3ED07767B12CD /* AppUpdater.swift */,
 				31EEAF29E24D97774F62C45E /* AppVersion.swift */,
 			);
 			path = Core;
@@ -565,6 +580,7 @@
 			buildPhases = (
 				63C589367B714FC06B0519E5 /* Sources */,
 				3975A867E04014FA565E9F46 /* Resources */,
+				54790370CFD0AE81AD1ED55F /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -572,6 +588,7 @@
 			);
 			name = PureMac;
 			packageProductDependencies = (
+				F8AED9D47AA8BE085CB49A25 /* Sparkle */,
 			);
 			productName = MacDash;
 			productReference = 311078221878708524283765 /* MacDash.app */;
@@ -633,6 +650,9 @@
 			);
 			mainGroup = 13CF0676D0E93925F46C13AA;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				08D0D5C93716DC15F7F851D8 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4562CA9E5625FA4EEEFECB6D /* Products */;
 			projectDirPath = "";
@@ -669,6 +689,7 @@
 				1E4E4C03B0024237916DC00F /* AntivirusRules.swift in Sources */,
 				7062A31E12A54894BB45CB1B /* AntivirusModels.swift in Sources */,
 				DC32253D26D0E29762006DA0 /* AppBundleDragHandle.swift in Sources */,
+				19B5A0E7BD0B60CA26E4579C /* AppUpdater.swift in Sources */,
 				EE1998ADD24388A0C91E62F9 /* AppVersion.swift in Sources */,
 				1B0D043102FDB245312A5147 /* AppFilesView.swift in Sources */,
 				F1F506C146E17D6CEC4A12F3 /* AppInfoFetcher.swift in Sources */,
@@ -896,7 +917,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -917,7 +938,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PureMac/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -1023,7 +1044,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1038,7 +1059,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PureMac/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -1097,6 +1118,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		08D0D5C93716DC15F7F851D8 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F8AED9D47AA8BE085CB49A25 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 08D0D5C93716DC15F7F851D8 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 37BE87544E2EC9F6FF1CD280 /* Project object */;
 }

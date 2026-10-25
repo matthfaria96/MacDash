@@ -1429,3 +1429,6 @@
 "Trust developer %@" = "信任开发者 %@";
 "Trust" = "信任";
 "Move to Quarantine" = "移到隔离区";
+
+/* In-app updates (AppUpdater) */
+"Check for Updates…" = "检查更新…";

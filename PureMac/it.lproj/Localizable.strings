@@ -1430,3 +1430,6 @@
 "Trust developer %@" = "Considera attendibile lo sviluppatore %@";
 "Trust" = "Considera attendibile";
 "Move to Quarantine" = "Sposta in quarantena";
+
+/* In-app updates (AppUpdater) */
+"Check for Updates…" = "Verifica aggiornamenti…";

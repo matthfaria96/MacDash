@@ -1431,3 +1431,6 @@
 "Trust developer %@" = "Confiar no desenvolvedor %@";
 "Trust" = "Confiar";
 "Move to Quarantine" = "Mover para a quarentena";
+
+/* In-app updates (AppUpdater) */
+"Check for Updates…" = "Verificar Atualizações…";

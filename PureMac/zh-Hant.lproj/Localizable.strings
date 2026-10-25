@@ -1430,3 +1430,6 @@
 "Trust developer %@" = "信任開發者 %@";
 "Trust" = "信任";
 "Move to Quarantine" = "移到隔離區";
+
+/* In-app updates (AppUpdater) */
+"Check for Updates…" = "檢查更新項目…";

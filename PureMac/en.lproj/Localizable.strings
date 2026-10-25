@@ -1432,3 +1432,6 @@
 "Trust developer %@" = "Trust developer %@";
 "Trust" = "Trust";
 "Move to Quarantine" = "Move to Quarantine";
+
+/* In-app updates (AppUpdater) */
+"Check for Updates…" = "Check for Updates…";

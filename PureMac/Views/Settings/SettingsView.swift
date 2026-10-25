@@ -926,6 +926,10 @@ struct AboutSettingsView: View {
                         .font(.system(size: 12))
                 }
                 .padding(.top, 10)
+
+                CheckForUpdatesButton()
+                    .controlSize(.small)
+                    .padding(.top, 14)
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 36)

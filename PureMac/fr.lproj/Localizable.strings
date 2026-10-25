@@ -1426,3 +1426,6 @@
 "Trust developer %@" = "Approuver le développeur %@";
 "Trust" = "Approuver";
 "Move to Quarantine" = "Placer en quarantaine";
+
+/* In-app updates (AppUpdater) */
+"Check for Updates…" = "Rechercher des mises à jour…";

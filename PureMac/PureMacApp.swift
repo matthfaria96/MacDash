@@ -76,6 +76,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // appears when an .app bundle is right-clicked (issue #109).
         NSApp.servicesProvider = self
         NSUpdateDynamicServices()
+        // In-app updates (Sparkle): daily check and the Check for Updates… item.
+        if NSClassFromString("XCTestCase") == nil {
+            AppUpdater.shared.start()
+        }
     }
 
     /// Create or tear down the menu-bar status item to match the current
@@ -161,6 +165,9 @@ struct PureMacApp: App {
         .defaultSize(width: 1200, height: 780)
         .commands {
             CommandGroup(replacing: .newItem) {}
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesButton()
+            }
         }
 
         Settings {

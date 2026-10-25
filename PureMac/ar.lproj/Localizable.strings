@@ -1430,3 +1430,6 @@
 "Trust developer %@" = "الوثوق بالمطور %@";
 "Trust" = "وثوق";
 "Move to Quarantine" = "نقل إلى الحجر الصحي";
+
+/* In-app updates (AppUpdater) */
+"Check for Updates…" = "التحقق من وجود تحديثات…";

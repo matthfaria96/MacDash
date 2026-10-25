@@ -42,6 +42,16 @@
 	<string>MacDash reads the battery level of your connected keyboards, mice and headphones to show it in the menu bar panel.</string>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>MacDash uses Apple Events to reveal files in Finder and to manage your login items through System Events.</string>
+	<key>SUFeedURL</key>
+	<string>https://witchmymac.com/appcast/macdash.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>yhoDaYLDki5BV0c44pefouDhxbliuGqLKxXKXXK1Pb0=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
+	<key>SUAutomaticallyUpdate</key>
+	<false/>
 	<key>NSServices</key>
 	<array>
 		<dict>
