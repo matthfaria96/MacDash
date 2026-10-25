@@ -6,6 +6,22 @@ A native macOS app (SwiftUI) for cleaning and maintenance: Smart Care, Advanced 
 
 Nothing is removed without your approval: every scan ends on a review screen.
 
+## Install
+
+1. Download `MacDash-x.y.z.dmg` from [Releases](https://github.com/matthfaria96/MacDash/releases) or from [witchmymac.com](https://witchmymac.com).
+2. Open the DMG and drag **MacDash** to **Applications**.
+3. The app is not notarized, so macOS blocks it the first time. To allow it, paste this in Terminal:
+
+   ```bash
+   xattr -dr com.apple.quarantine "/Applications/MacDash.app"
+   ```
+
+   This only removes the "downloaded from the internet" mark from that app.
+
+   Without Terminal: open the app, click **OK** on the warning, then go to **System Settings › Privacy & Security** and click **Open Anyway**.
+
+Requires macOS 13 or later.
+
 ## Build and run
 
 ```bash
@@ -14,7 +30,7 @@ scripts/dev.sh build   # builds only
 scripts/dev.sh test    # runs the tests
 ```
 
-The app ends up in `build/derived/Build/Products/Debug/MacTidy.app`. The Xcode project is `PureMac.xcodeproj` (scheme `PureMac`). The project's internal names are still `PureMac`; the product is `MacTidy.app`, with bundle ID `com.mactidy.app`. Requires macOS 13 or later.
+The app ends up in `build/derived/Build/Products/Debug/MacDash.app`. The Xcode project is `PureMac.xcodeproj` (scheme `PureMac`). The project's internal names are still `PureMac`; the product is `MacDash.app`, with bundle ID `com.macdash.app`. Requires macOS 13 or later.
 
 ## Permissions
 

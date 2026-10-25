@@ -6,6 +6,22 @@ App nativo para macOS (SwiftUI) de limpeza e manutenção: Cuidado inteligente, 
 
 Nada é removido sem a sua aprovação: toda verificação termina numa tela de revisão.
 
+## Instalar
+
+1. Baixe o `MacDash-x.y.z.dmg` em [Releases](https://github.com/matthfaria96/MacDash/releases) ou em [witchmymac.com](https://witchmymac.com).
+2. Abra o DMG e arraste o **MacDash** para **Aplicativos**.
+3. O app não é notarizado, então o macOS o bloqueia na primeira vez. Para liberar, cole isto no Terminal:
+
+   ```bash
+   xattr -dr com.apple.quarantine "/Applications/MacDash.app"
+   ```
+
+   Isso só remove daquele app a marca de "baixado da internet".
+
+   Sem o Terminal: abra o app, clique em **OK** no aviso e depois vá em **Ajustes do Sistema › Privacidade e Segurança** e clique em **Abrir Mesmo Assim**.
+
+Requer macOS 13 ou mais novo.
+
 ## Compilar e abrir
 
 ```bash
@@ -14,7 +30,7 @@ scripts/dev.sh build   # só compila
 scripts/dev.sh test    # roda os testes
 ```
 
-O app fica em `build/derived/Build/Products/Debug/MacTidy.app`. O projeto Xcode é `PureMac.xcodeproj` (scheme `PureMac`). Os nomes internos do projeto continuam `PureMac`; o produto é `MacTidy.app`, com bundle ID `com.mactidy.app`. Requer macOS 13 ou mais novo.
+O app fica em `build/derived/Build/Products/Debug/MacDash.app`. O projeto Xcode é `PureMac.xcodeproj` (scheme `PureMac`). Os nomes internos do projeto continuam `PureMac`; o produto é `MacDash.app`, com bundle ID `com.macdash.app`. Requer macOS 13 ou mais novo.
 
 ## Permissões
 
