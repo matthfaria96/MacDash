@@ -98,13 +98,13 @@ struct SectionPalette {
         accent: Color(red: 1.0, green: 0.55, blue: 0.3),
         layout: .cornerGlow
     )
-    /// Deep ultramarine indigo with a periwinkle accent: between the blue of
-    /// Applications and the violet of Smart Care, and used by nothing else.
+    /// Indigo melting into true purple, with a lavender accent: bluer than
+    /// Smart Care's magenta and more violet than the blue of Applications.
     static let driveOffload = SectionPalette(
-        primary: Color(red: 0.24, green: 0.2, blue: 0.74),
-        secondary: Color(red: 0.13, green: 0.1, blue: 0.5),
-        deep: Color(red: 0.03, green: 0.03, blue: 0.19),
-        accent: Color(red: 0.6, green: 0.62, blue: 1.0),
+        primary: Color(red: 0.4, green: 0.22, blue: 0.82),
+        secondary: Color(red: 0.2, green: 0.12, blue: 0.58),
+        deep: Color(red: 0.06, green: 0.03, blue: 0.2),
+        accent: Color(red: 0.74, green: 0.64, blue: 1.0),
         layout: .cornerGlow
     )
     static let settings = SectionPalette(

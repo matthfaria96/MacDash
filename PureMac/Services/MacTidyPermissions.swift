@@ -37,7 +37,7 @@ final class MacTidyPermissions: ObservableObject {
         var purpose: String {
             switch self {
             case .fullDiskAccess:
-                return String(localized: "Lets scans reach Mail, Safari, app containers and the Trash, and lets Protection read app permissions.")
+                return String(localized: "Lets scans reach Mail, Safari, app containers, the Trash, Documents and Downloads in one go, instead of macOS asking folder by folder. Protection and Drive Offload use it too.")
             case .appManagement:
                 return String(localized: "Lets MacDash remove apps and install app updates.")
             case .automation:

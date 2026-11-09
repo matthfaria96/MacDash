@@ -321,12 +321,6 @@ struct MainWindow: View {
     @ViewBuilder
     private var detailContainer: some View {
         VStack(spacing: 0) {
-            if selectedSection != .settings && !appState.hasFullDiskAccess && !appState.fdaBannerDismissed {
-                accessBanner
-                    .padding(.horizontal, 20)
-                    .padding(.top, 14)
-                    .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
-            }
             detailView
                 .id(selectedSection)
                 .transition(reduceMotion ? .opacity : .asymmetric(
@@ -440,48 +434,6 @@ struct MainWindow: View {
 
     private var selectedPalette: SectionPalette {
         SectionPalette.forSection(selectedSection)
-    }
-
-    private var accessBanner: some View {
-        HStack(spacing: 12) {
-            PremiumIcon(systemName: "lock.shield.fill", tint: Tint.orange, size: 32)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Full Disk Access is off")
-                    .font(.system(size: 13, weight: .semibold))
-                Text("Protected caches and app containers will be skipped.")
-                    .font(.system(size: 11.5))
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            Button("Set up") {
-                permission.requestAccess(context: .general) {
-                    appState.checkFullDiskAccess()
-                }
-            }
-            .buttonStyle(GlassProminentButtonStyle())
-            .controlSize(.regular)
-            .tint(Tint.accent)
-            Button {
-                appState.fdaBannerDismissed = true
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(.secondary)
-                    .padding(6)
-            }
-            .buttonStyle(.plain)
-            .help("Dismiss")
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Tint.orange.opacity(0.075))
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .strokeBorder(Tint.orange.opacity(0.18), lineWidth: 0.5)
-        }
     }
 }
 

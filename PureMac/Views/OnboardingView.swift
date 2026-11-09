@@ -176,8 +176,10 @@ private struct TourScene: View {
         Feature(icon: "wand.and.stars", palette: .cleanup, title: "Advanced Cleanup", detail: "Large files, app leftovers and apps you no longer open."),
         Feature(icon: "square.grid.2x2.fill", palette: .apps, title: "Applications", detail: "Uninstall completely, manage startup items, update apps."),
         Feature(icon: "hand.raised.fill", palette: .protection, title: "Protection", detail: "App permissions, security checks, Wi-Fi and browser extensions."),
+        Feature(icon: "shield.lefthalf.filled", palette: .antivirus, title: "Antivirus", detail: "Checks your files for malware, now or on a schedule."),
         Feature(icon: "waveform.path.ecg.rectangle.fill", palette: .processes, title: "Processes", detail: "What your open apps use right now, and free memory."),
         Feature(icon: "chart.pie.fill", palette: .spaceLens, title: "Space Lens", detail: "A live map of what fills your disk."),
+        Feature(icon: DriveOffloadView.symbol, palette: .driveOffload, title: "Drive Offload", detail: "Moves large folders to an external drive, and back."),
         Feature(icon: "doc.on.doc.fill", palette: .duplicates, title: "Duplicate Finder", detail: "Identical files, checked byte by byte."),
         Feature(icon: "photo.stack.fill", palette: .photos, title: "Similar Photos", detail: "Near-identical shots grouped side by side."),
     ]

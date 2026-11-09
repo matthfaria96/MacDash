@@ -4,17 +4,21 @@ import UniformTypeIdentifiers
 
 /// Drive Offload: moves large folders to an external drive and leaves a link
 /// behind, so apps keep finding them. Every move can be turned off again.
+///
+/// Kept deliberately quiet: one line per folder (name, one sentence, size, one
+/// action). Paths, the drive's details and secondary actions live in tooltips,
+/// context menus and the collapsed "Other options".
 struct DriveOffloadView: View {
     var onNavigate: (AppSection) -> Void = { _ in }
 
     @ObservedObject private var store = DriveOffloadStore.shared
+    @ObservedObject private var permission = PermissionCoordinator.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var pendingMove: OffloadCandidate?
     @State private var pendingRestore: OffloadRecord?
     @State private var keepCopyOnDrive = false
-    @State private var showsBlocked = false
+    @State private var showsOtherOptions = false
     @State private var showsFormatGuide = false
-    @State private var expandedNative: Set<String> = []
     @State private var isDropTargeted = false
 
     static let symbol = "externaldrive.connected.to.line.below.fill"
@@ -22,27 +26,29 @@ struct DriveOffloadView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 18) {
                 header
                 if let message = store.message {
                     NoticeBanner(text: message.text, isError: message.isError) { store.message = nil }
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
+                if store.skippedProtectedFolders { accessCard }
                 drivesCard
                 if let operation = store.operation, !operation.title.isEmpty {
                     operationCard(operation)
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
-                warnings
+                notices
                 movedSection
-                recommendationsSection
-                cleanSection
-                nativeSection
-                blockedSection
-                footnote
+                suggestionsSection
+                otherOptionsSection
+                Text("Keep the drive connected and eject it before unplugging.")
+                    .font(.system(size: 11.5))
+                    .foregroundStyle(.tertiary)
+                    .padding(.top, 2)
             }
             .padding(24)
-            .frame(maxWidth: 1040, alignment: .leading)
+            .frame(maxWidth: 920, alignment: .leading)
             .frame(maxWidth: .infinity)
         }
         .overlay {
@@ -59,6 +65,7 @@ struct DriveOffloadView: View {
         .animation(reduceMotion ? nil : MotionTokens.gentle, value: store.records)
         .animation(reduceMotion ? nil : MotionTokens.gentle, value: store.operation)
         .animation(reduceMotion ? nil : MotionTokens.gentle, value: store.candidates)
+        .animation(reduceMotion ? nil : MotionTokens.gentle, value: store.skippedProtectedFolders)
         .onAppear {
             store.refreshVolumes()
             if !store.hasScanned { store.scan() }
@@ -75,9 +82,8 @@ struct DriveOffloadView: View {
             Text(String(format: String(localized: "%@ (%@) will be copied to %@ and checked file by file. Only then is it deleted from the Mac and replaced by a link, so apps find it in the same place. You can bring it back at any time."),
                         candidate.title, DriveOffloadStore.format(candidate.size), store.selectedVolume?.name ?? ""))
         }
-        .sheet(item: $pendingRestore) { record in
-            restoreSheet(record)
-        }
+        .sheet(item: $pendingRestore) { restoreSheet($0) }
+        .sheet(isPresented: $showsFormatGuide) { formatGuide }
         .alert(item: $store.busyApps) { prompt in
             Alert(
                 title: Text("Close these apps first"),
@@ -95,122 +101,149 @@ struct DriveOffloadView: View {
             title: Text("Drive Offload"),
             systemImage: Self.symbol,
             tint: accent,
-            detail: {
-                Text("Move large folders to an external drive. A link stays in their place, so apps don't notice, and every move can be undone.")
-            },
+            detail: { Text("Move large folders to an external drive. Everything can be undone.") },
             accessory: {
                 HStack(spacing: 8) {
+                    Button {
+                        store.scan()
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                    .buttonStyle(GlassIconButtonStyle())
+                    .disabled(store.isScanning || store.operation != nil)
+                    .help("Check Again")
                     Button {
                         pickFolders()
                     } label: {
                         Label("Add Folder", systemImage: "plus")
                     }
                     .buttonStyle(GlassButtonStyle())
-                    Button {
-                        store.scan()
-                    } label: {
-                        Label("Check Again", systemImage: "arrow.clockwise")
-                    }
-                    .buttonStyle(GlassButtonStyle())
-                    .disabled(store.isScanning || store.operation != nil)
                 }
             }
         )
+    }
+
+    // MARK: - Full Disk Access
+
+    /// One request for everything, instead of macOS asking folder by folder.
+    private var accessCard: some View {
+        CardSurface(padding: 16, elevation: .flat, tint: accent) {
+            HStack(spacing: 14) {
+                CategoryBadge(systemName: "lock.shield.fill", tint: accent, size: 36)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Allow full access once")
+                        .font(.system(size: 14, weight: .semibold))
+                    Text("Then MacDash checks every folder without macOS asking item by item.")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 8)
+                Button("Allow Access") {
+                    permission.requestAccess(context: .general) { store.scan() }
+                }
+                .buttonStyle(GlassProminentButtonStyle())
+                .tint(accent)
+            }
+        }
     }
 
     // MARK: - Drives
 
     private var drivesCard: some View {
         CardSurface(padding: 18, elevation: .flat, tint: accent) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .center, spacing: 14) {
-                    driveTile(
-                        symbol: "internaldrive.fill",
-                        name: String(localized: "This Mac"),
-                        free: store.internalFree,
-                        total: store.internalTotal,
-                        chips: [(String(localized: "Startup disk"), Tint.blue)],
-                        tint: Tint.blue
-                    )
-                    flowArrow
-                    if let volume = store.selectedVolume {
-                        driveTile(
-                            symbol: "externaldrive.fill",
-                            name: volume.name,
-                            free: volume.availableCapacity,
-                            total: volume.totalCapacity,
-                            chips: volumeChips(volume),
-                            tint: volume.supportsOffload ? accent : Tint.orange,
-                            picker: store.volumes.count > 1
-                        )
-                    } else {
-                        noDriveTile
-                    }
+            HStack(alignment: .center, spacing: 18) {
+                driveColumn(
+                    symbol: "internaldrive.fill",
+                    name: String(localized: "This Mac"),
+                    free: store.internalFree,
+                    total: store.internalTotal,
+                    tint: Tint.blue
+                ) {
+                    Label("Startup disk", systemImage: "internaldrive")
+                        .font(.system(size: 11.5, weight: .medium))
+                        .foregroundStyle(.secondary)
                 }
-                if store.offloadedBytes > 0 {
-                    Divider().opacity(0.4)
-                    HStack(spacing: 10) {
-                        Image(systemName: "sparkles")
-                            .foregroundStyle(accent)
-                        Text(String(format: String(localized: "%@ moved off your Mac in %lld folders."),
-                                    DriveOffloadStore.format(store.offloadedBytes), Int64(store.records.count)))
-                            .font(.system(size: 13, weight: .medium))
-                        Spacer()
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(accent.opacity(0.8))
+                    .accessibilityHidden(true)
+                if let volume = store.selectedVolume {
+                    driveColumn(
+                        symbol: "externaldrive.fill",
+                        name: volume.name,
+                        free: volume.availableCapacity,
+                        total: volume.totalCapacity,
+                        tint: volume.supportsOffload ? accent : Tint.orange
+                    ) {
+                        driveStatus(volume)
+                    }
+                    .help(driveDetails(volume))
+                } else {
+                    driveColumn(
+                        symbol: "externaldrive.fill",
+                        name: String(localized: "No external drive"),
+                        free: 0, total: 0,
+                        tint: Color.white.opacity(0.5)
+                    ) {
+                        Text("Connect an SSD formatted as APFS.")
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
         }
     }
 
-    private func volumeChips(_ volume: OffloadVolume) -> [(String, Color)] {
-        var chips: [(String, Color)] = [(volume.fileSystemLabel, volume.supportsOffload ? Tint.green : Tint.orange)]
-        if let ssd = volume.isSolidState { chips.append((ssd ? "SSD" : String(localized: "Hard disk"), ssd ? accent : Tint.yellow)) }
-        if let bus = volume.busProtocol, !bus.isEmpty { chips.append((bus, Color.white.opacity(0.7))) }
-        return chips
-    }
-
-    private var flowArrow: some View {
-        ZStack {
-            Circle()
-                .fill(accent.opacity(0.14))
-                .frame(width: 40, height: 40)
-            Image(systemName: "arrow.left.arrow.right")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(accent)
-        }
-        .accessibilityHidden(true)
-    }
-
-    private func driveTile(
-        symbol: String, name: String, free: Int64, total: Int64,
-        chips: [(String, Color)], tint: Color, picker: Bool = false
+    private func driveColumn<Extra: View>(
+        symbol: String, name: String, free: Int64, total: Int64, tint: Color,
+        @ViewBuilder extra: () -> Extra
     ) -> some View {
         HStack(alignment: .top, spacing: 12) {
-            CategoryBadge(systemName: symbol, tint: tint, size: 42)
+            CategoryBadge(systemName: symbol, tint: tint, size: 38)
             VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 6) {
+                HStack(spacing: 4) {
                     Text(name)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 14, weight: .semibold))
                         .lineLimit(1)
-                    if picker { volumeMenu }
+                    if symbol == "externaldrive.fill", store.volumes.count > 1 { volumeMenu }
                 }
                 if total > 0 {
                     GlowProgressBar(progress: Double(total - free) / Double(total), tint: tint)
-                        .frame(height: 6)
+                        .frame(height: 5)
                     Text(String(format: String(localized: "%@ free of %@"), DriveOffloadStore.format(free), DriveOffloadStore.format(total)))
                         .font(.system(size: 11.5).monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
-                HStack(spacing: 5) {
-                    ForEach(chips, id: \.0) { chip in
-                        StatusChip(label: chip.0, tint: chip.1)
-                    }
-                }
+                extra()
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(GlassPanelBackground(cornerRadius: 14))
+    }
+
+    @ViewBuilder
+    private func driveStatus(_ volume: OffloadVolume) -> some View {
+        if volume.supportsOffload {
+            Label("Ready", systemImage: "checkmark.circle.fill")
+                .font(.system(size: 11.5, weight: .medium))
+                .foregroundStyle(Tint.green)
+        } else {
+            HStack(spacing: 6) {
+                Label(String(format: String(localized: "%@ · needs APFS"), volume.fileSystemLabel), systemImage: "exclamationmark.triangle.fill")
+                    .font(.system(size: 11.5, weight: .medium))
+                    .foregroundStyle(Tint.orange)
+                Button("How to convert") { showsFormatGuide = true }
+                    .buttonStyle(.link)
+                    .font(.system(size: 11.5, weight: .medium))
+            }
+        }
+    }
+
+    private func driveDetails(_ volume: OffloadVolume) -> String {
+        var parts = [volume.fileSystemLabel]
+        if let ssd = volume.isSolidState { parts.append(ssd ? "SSD" : String(localized: "Hard disk")) }
+        if let bus = volume.busProtocol, !bus.isEmpty { parts.append(bus) }
+        return parts.joined(separator: " · ")
     }
 
     private var volumeMenu: some View {
@@ -231,29 +264,12 @@ struct DriveOffloadView: View {
         .help("Choose the drive")
     }
 
-    private var noDriveTile: some View {
-        HStack(spacing: 12) {
-            CategoryBadge(systemName: "externaldrive.fill", tint: Color.white.opacity(0.5), size: 42)
-            VStack(alignment: .leading, spacing: 3) {
-                Text("No external drive")
-                    .font(.system(size: 15, weight: .semibold))
-                Text("Connect an SSD formatted as APFS.")
-                    .font(.system(size: 11.5))
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(GlassPanelBackground(cornerRadius: 14))
-    }
-
     // MARK: - Progress
 
     private func operationCard(_ operation: OffloadOperation) -> some View {
         CardSurface(padding: 16, elevation: .flat, tint: accent) {
             HStack(spacing: 14) {
-                ProgressView()
-                    .controlSize(.small)
+                ProgressView().controlSize(.small)
                 VStack(alignment: .leading, spacing: 6) {
                     Text(operationTitle(operation))
                         .font(.system(size: 14, weight: .semibold))
@@ -261,8 +277,7 @@ struct DriveOffloadView: View {
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                     if let progress = operation.progress {
-                        GlowProgressBar(progress: progress, tint: accent)
-                            .frame(height: 6)
+                        GlowProgressBar(progress: progress, tint: accent).frame(height: 5)
                     }
                 }
                 Spacer()
@@ -291,108 +306,30 @@ struct DriveOffloadView: View {
         }
     }
 
-    // MARK: - Warnings
+    // MARK: - Notices
 
     @ViewBuilder
-    private var warnings: some View {
-        if let volume = store.selectedVolume, !volume.supportsOffload {
-            formatWarning(volume)
-        }
+    private var notices: some View {
         if let volume = store.selectedVolume, volume.isSolidState == false {
-            infoCard(
-                symbol: "tortoise.fill", tint: Tint.yellow,
-                title: "This is a hard disk",
-                text: "Moved folders open slower than on an SSD. Prefer models, archives and media over projects you build every day."
-            )
-        }
-        if store.skippedProtectedFolders {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: "lock.shield.fill")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(accent)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Documents and Downloads weren't checked")
-                        .font(.system(size: 13, weight: .semibold))
-                    Text("macOS asks for permission every time an app reads them. Turn on Full Disk Access for MacDash to include them, or add a folder yourself with Add Folder.")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                Spacer()
-                Button("Open Settings") { FullDiskAccessManager.shared.openFullDiskAccessSettings() }
-                    .buttonStyle(GlassButtonStyle())
-            }
-            .padding(14)
-            .background(GlassPanelBackground(cornerRadius: 14))
+            notice("tortoise.fill", Tint.yellow,
+                   "This is a hard disk",
+                   "Moved folders open slower than on an SSD. Prefer models, archives and media over projects you build every day.")
         }
         ForEach(store.ghostMounts, id: \.self) { path in
-            infoCard(
-                symbol: "exclamationmark.triangle.fill", tint: Tint.orange,
-                title: "An app wrote while the drive was away",
-                text: LocalizedStringKey(String(format: String(localized: "A plain folder now sits at %@. When the drive returns, macOS gives it another name, and MacDash points the links there automatically."), path))
-            )
+            notice("exclamationmark.triangle.fill", Tint.orange,
+                   "An app wrote while the drive was away",
+                   LocalizedStringKey(String(format: String(localized: "A plain folder now sits at %@. When the drive returns, macOS gives it another name, and MacDash points the links there automatically."), path)))
         }
     }
 
-    private func formatWarning(_ volume: OffloadVolume) -> some View {
-        CardSurface(padding: 16, elevation: .flat, tint: Tint.orange) {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .top, spacing: 12) {
-                    CategoryBadge(systemName: "exclamationmark.triangle.fill", tint: Tint.orange, size: 34)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(format: String(localized: "%@ is formatted as %@"), volume.name, volume.fileSystemLabel))
-                            .font(.system(size: 14, weight: .semibold))
-                        Text("ExFAT and FAT are Windows formats. They have no journal, so unplugging without ejecting can corrupt files. They also don't keep macOS permissions, are slow with many small files and don't work with Time Machine. MacDash only moves folders to APFS.")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    Spacer()
-                    Button(showsFormatGuide ? "Hide steps" : "How to convert") {
-                        withAnimation(reduceMotion ? nil : MotionTokens.snappy) { showsFormatGuide.toggle() }
-                    }
-                    .buttonStyle(GlassButtonStyle())
-                }
-                if showsFormatGuide {
-                    VStack(alignment: .leading, spacing: 8) {
-                        guideStep(1, "Get temporary space as large as what's on the drive: another external disk (which can then become your Time Machine backup) or a cloud plan for a month.")
-                        guideStep(2, "Copy everything to it and open a few files to check the copy.")
-                        guideStep(3, "In Disk Utility, choose View › Show All Devices, select the drive itself (not the volume), click Erase, and choose APFS with the GUID Partition Map scheme.")
-                        guideStep(4, "Copy your files back. The drive is now ready for Drive Offload.")
-                        Button {
-                            NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Utilities/Disk Utility.app"))
-                        } label: {
-                            Label("Open Disk Utility", systemImage: "arrow.up.forward.app")
-                        }
-                        .buttonStyle(GlassButtonStyle())
-                        .padding(.top, 2)
-                    }
-                    .padding(.leading, 46)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                }
-            }
-        }
-    }
-
-    private func guideStep(_ number: Int, _ text: LocalizedStringKey) -> some View {
+    private func notice(_ symbol: String, _ tint: Color, _ title: LocalizedStringKey, _ text: LocalizedStringKey) -> some View {
         HStack(alignment: .top, spacing: 10) {
-            Text(verbatim: "\(number)")
-                .font(.system(size: 11, weight: .bold, design: .rounded))
-                .frame(width: 20, height: 20)
-                .background(Circle().fill(Tint.orange.opacity(0.22)))
-            Text(text)
-                .font(.system(size: 12.5))
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-
-    private func infoCard(symbol: String, tint: Color, title: LocalizedStringKey, text: LocalizedStringKey) -> some View {
-        HStack(alignment: .top, spacing: 12) {
             Image(systemName: symbol)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(tint)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.system(size: 13, weight: .semibold))
+                .padding(.top, 1)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.system(size: 12.5, weight: .semibold))
                 Text(text)
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
@@ -400,26 +337,22 @@ struct DriveOffloadView: View {
             }
             Spacer()
         }
-        .padding(14)
-        .background(GlassPanelBackground(cornerRadius: 14))
+        .padding(12)
+        .background(GlassPanelBackground(cornerRadius: 12))
     }
 
-    // MARK: - Moved
+    // MARK: - On the drive
 
     @ViewBuilder
     private var movedSection: some View {
         if !store.records.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
-                sectionTitle("On the drive", count: store.records.count,
-                             note: "Turn one off to bring it back to your Mac.")
-                CardSurface(padding: 0, elevation: .flat) {
-                    VStack(spacing: 0) {
-                        ForEach(Array(store.records.enumerated()), id: \.element.id) { index, record in
-                            recordRow(record)
-                            if index < store.records.count - 1 { Divider().opacity(0.3).padding(.leading, 62) }
-                        }
-                    }
-                }
+                sectionTitle(
+                    "On the drive",
+                    note: String(format: String(localized: "%@ moved off your Mac in %lld folders."),
+                                 DriveOffloadStore.format(store.offloadedBytes), Int64(store.records.count))
+                )
+                list(store.records) { recordRow($0) }
             }
         }
     }
@@ -427,47 +360,27 @@ struct DriveOffloadView: View {
     private func recordRow(_ record: OffloadRecord) -> some View {
         let status = store.statuses[record.id] ?? .interrupted
         return HStack(spacing: 12) {
-            CategoryBadge(systemName: symbol(for: record), tint: status == .healthy ? accent : Tint.orange, size: 36)
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(record.title)
-                        .font(.system(size: 13.5, weight: .semibold))
-                        .lineLimit(1)
-                    statusChip(status)
-                }
-                Text(displayPath(record.sourcePath))
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
+            CategoryBadge(systemName: symbol(for: record), tint: status == .healthy ? accent : Tint.orange, size: 32)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(record.title)
+                    .font(.system(size: 13.5, weight: .semibold))
                     .lineLimit(1)
-                    .truncationMode(.middle)
-                if let hint = statusHint(status) {
-                    Text(hint)
-                        .font(.system(size: 11))
+                if let problem = statusProblem(status) {
+                    Text(problem)
+                        .font(.system(size: 11.5))
                         .foregroundStyle(Tint.orange)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
             Spacer(minLength: 8)
-            Text(DriveOffloadStore.format(record.size))
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                .monospacedDigit()
             repairButton(record, status: status)
-            if status == .healthy {
-                Button {
-                    store.revealCopy(record)
-                } label: {
-                    Image(systemName: "magnifyingglass")
-                }
-                .buttonStyle(GlassIconButtonStyle())
-                .help("Show on the drive")
-            }
+            sizeText(record.size)
             Toggle("", isOn: Binding(
                 get: { true },
                 set: { on in
-                    if !on {
-                        keepCopyOnDrive = false
-                        pendingRestore = record
-                    }
+                    guard !on else { return }
+                    keepCopyOnDrive = false
+                    pendingRestore = record
                 }
             ))
             .labelsHidden()
@@ -477,30 +390,25 @@ struct DriveOffloadView: View {
             .help(status == .healthy ? "Bring back to the Mac" : "Connect the drive and fix the status first")
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 11)
+        .contentShape(Rectangle())
+        .help(displayPath(record.sourcePath))
+        .contextMenu {
+            Button("Show on the drive") { store.revealCopy(record) }
+                .disabled(status != .healthy)
+        }
     }
 
     private func symbol(for record: OffloadRecord) -> String {
         DriveOffloadCatalog.entries.first { $0.id == record.catalogID }?.symbol ?? "folder.fill"
     }
 
-    private func statusChip(_ status: OffloadLinkStatus) -> some View {
-        switch status {
-        case .healthy: return StatusChip(label: String(localized: "On the drive"), systemImage: "checkmark", tint: Tint.green)
-        case .driveOffline: return StatusChip(label: String(localized: "Drive disconnected"), systemImage: "bolt.horizontal.circle", tint: Tint.orange)
-        case .needsRelink: return StatusChip(label: String(localized: "Updating link"), systemImage: "link", tint: Tint.yellow)
-        case .conflict: return StatusChip(label: String(localized: "Needs repair"), systemImage: "exclamationmark.triangle", tint: Tint.orange)
-        case .linkMissing: return StatusChip(label: String(localized: "Link missing"), systemImage: "link.badge.plus", tint: Tint.orange)
-        case .copyMissing: return StatusChip(label: String(localized: "Copy not found"), systemImage: "questionmark.folder", tint: Tint.red)
-        case .interrupted: return StatusChip(label: String(localized: "Interrupted"), systemImage: "pause.circle", tint: Tint.yellow)
-        }
-    }
-
-    private func statusHint(_ status: OffloadLinkStatus) -> LocalizedStringKey? {
+    /// Nothing is shown while all is well; otherwise one short line says what's wrong.
+    private func statusProblem(_ status: OffloadLinkStatus) -> LocalizedStringKey? {
         switch status {
         case .healthy, .needsRelink: return nil
-        case .driveOffline: return "Apps that use this folder can't reach it until the drive is back."
-        case .conflict: return "An app made a new folder here while the drive was away. Repair moves its files to the drive without overwriting anything."
+        case .driveOffline: return "Drive disconnected. Apps can't reach this folder until it's back."
+        case .conflict: return "An app made a new folder here while the drive was away."
         case .linkMissing: return "The link on the Mac was deleted. The files are safe on the drive."
         case .copyMissing: return "The drive is connected, but this folder isn't on it anymore."
         case .interrupted: return "Connect the drive to finish or undo the last step."
@@ -515,6 +423,7 @@ struct DriveOffloadView: View {
                 .buttonStyle(GlassProminentButtonStyle())
                 .tint(accent)
                 .disabled(store.operation != nil)
+                .help("Moves its files to the drive without overwriting anything.")
         case .linkMissing:
             Button("Restore Link") { store.recreateLink(record) }
                 .buttonStyle(GlassProminentButtonStyle())
@@ -561,7 +470,7 @@ struct DriveOffloadView: View {
         .frame(width: 460)
     }
 
-    // MARK: - Recommendations
+    // MARK: - Suggestions
 
     private var movable: [OffloadCandidate] {
         store.candidates
@@ -569,79 +478,52 @@ struct DriveOffloadView: View {
             .sorted { ($0.verdict, -$0.size) < ($1.verdict, -$1.size) }
     }
 
-    @ViewBuilder
-    private var recommendationsSection: some View {
+    private var suggestionsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionTitle("Can move", count: movable.count,
-                         note: "Large folders that can live on the drive. The biggest gains come first.")
+            sectionTitle("Suggestions", note: String(localized: "Large folders that can live on the drive. The biggest gains come first."))
             if store.isScanning && movable.isEmpty {
-                CardSurface(padding: 18, elevation: .flat) {
-                    HStack(spacing: 12) {
-                        ProgressView().controlSize(.small)
-                        Text("Measuring folders…").foregroundStyle(.secondary)
-                        Spacer()
-                    }
+                placeholderRow {
+                    ProgressView().controlSize(.small)
+                    Text("Measuring folders…").foregroundStyle(.secondary)
                 }
             } else if movable.isEmpty {
-                CardSurface(padding: 18, elevation: .flat) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "checkmark.circle.fill").foregroundStyle(Tint.green)
-                        Text("Nothing large left to move. Add any folder with the button above or by dropping it here.")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                    }
+                placeholderRow {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(Tint.green)
+                    Text("Nothing large left to move. Add any folder with the button above or by dropping it here.")
+                        .foregroundStyle(.secondary)
                 }
             } else {
-                CardSurface(padding: 0, elevation: .flat) {
-                    VStack(spacing: 0) {
-                        ForEach(Array(movable.enumerated()), id: \.element.id) { index, candidate in
-                            candidateRow(candidate)
-                            if index < movable.count - 1 { Divider().opacity(0.3).padding(.leading, 62) }
-                        }
-                    }
-                }
+                list(movable) { candidateRow($0) }
             }
         }
     }
 
     private func candidateRow(_ candidate: OffloadCandidate) -> some View {
         HStack(spacing: 12) {
-            CategoryBadge(systemName: candidate.symbol, tint: accent, size: 36)
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
+            CategoryBadge(systemName: candidate.symbol, tint: accent, size: 32)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 5) {
                     Text(candidate.title)
                         .font(.system(size: 13.5, weight: .semibold))
                         .lineLimit(1)
                     if candidate.verdict == .recommended {
-                        StatusChip(label: String(localized: "Recommended"), systemImage: "star.fill", tint: accent)
-                    }
-                    if candidate.entry?.regenerates == true {
-                        StatusChip(label: String(localized: "Downloads again if lost"), tint: Tint.green)
-                    }
-                    if candidate.inDailyUse {
-                        StatusChip(label: String(localized: "Used today"), systemImage: "clock", tint: Tint.yellow)
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(accent)
+                            .help("Recommended")
+                            .accessibilityLabel("Recommended")
                     }
                 }
                 Text(candidate.detail)
                     .font(.system(size: 11.5))
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                Text(displayPath(candidate.url.path))
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.tertiary)
                     .lineLimit(1)
-                    .truncationMode(.middle)
             }
             Spacer(minLength: 8)
-            sizeLabel(candidate)
-            if candidate.isCustom {
-                Button {
-                    store.removeCustom(candidate)
-                } label: {
-                    Image(systemName: "xmark")
-                }
-                .buttonStyle(GlassIconButtonStyle())
-                .help("Remove from the list")
+            if candidate.measure == nil {
+                ProgressView().controlSize(.mini)
+            } else {
+                sizeText(candidate.size)
             }
             Button("Move") { pendingMove = candidate }
                 .buttonStyle(GlassProminentButtonStyle())
@@ -650,17 +532,14 @@ struct DriveOffloadView: View {
                 .help(moveHelp)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-    }
-
-    @ViewBuilder
-    private func sizeLabel(_ candidate: OffloadCandidate) -> some View {
-        if candidate.measure == nil {
-            ProgressView().controlSize(.mini)
-        } else {
-            Text(DriveOffloadStore.format(candidate.size))
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                .monospacedDigit()
+        .padding(.vertical, 11)
+        .contentShape(Rectangle())
+        .help(displayPath(candidate.url.path))
+        .contextMenu {
+            Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([candidate.url]) }
+            if candidate.isCustom {
+                Button("Remove from the list") { store.removeCustom(candidate) }
+            }
         }
     }
 
@@ -673,162 +552,201 @@ struct DriveOffloadView: View {
         return volume.supportsOffload ? "Move to the drive" : "The drive needs to be APFS"
     }
 
-    // MARK: - Clean / native / blocked
+    // MARK: - Other options
 
     private var cleanable: [OffloadCandidate] { store.candidates.filter { $0.verdict == .clean } }
     private var native: [OffloadCandidate] { store.candidates.filter { $0.verdict == .native } }
     private var blocked: [OffloadCandidate] { store.candidates.filter { $0.verdict == .blocked } }
 
+    /// Everything that isn't a plain move, folded away until asked for.
     @ViewBuilder
-    private var cleanSection: some View {
-        if !cleanable.isEmpty {
-            VStack(alignment: .leading, spacing: 10) {
-                sectionTitle("Better cleaned", count: cleanable.count,
-                             note: "These rebuild on their own. Cleaning frees the space for good, with nothing to move.")
-                CardSurface(padding: 0, elevation: .flat) {
-                    VStack(spacing: 0) {
-                        ForEach(Array(cleanable.enumerated()), id: \.element.id) { index, candidate in
-                            simpleRow(candidate, tint: Tint.green) {
-                                Button("Open Advanced Cleanup") { onNavigate(.cleanup) }
-                                    .buttonStyle(GlassButtonStyle())
-                            }
-                            if index < cleanable.count - 1 { Divider().opacity(0.3).padding(.leading, 62) }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var nativeSection: some View {
-        if !native.isEmpty {
-            VStack(alignment: .leading, spacing: 10) {
-                sectionTitle("Use the app's own setting", count: native.count,
-                             note: "These apps can't follow a link, but they can move their data themselves.")
-                CardSurface(padding: 0, elevation: .flat) {
-                    VStack(spacing: 0) {
-                        ForEach(Array(native.enumerated()), id: \.element.id) { index, candidate in
-                            VStack(alignment: .leading, spacing: 0) {
-                                simpleRow(candidate, tint: Tint.blue) {
-                                    Button(expandedNative.contains(candidate.id) ? "Hide" : "How") {
-                                        withAnimation(reduceMotion ? nil : MotionTokens.snappy) {
-                                            if expandedNative.contains(candidate.id) {
-                                                expandedNative.remove(candidate.id)
-                                            } else {
-                                                expandedNative.insert(candidate.id)
-                                            }
-                                        }
-                                    }
-                                    .buttonStyle(GlassButtonStyle())
-                                }
-                                if expandedNative.contains(candidate.id), case .nativeSetting(let how) = candidate.advice {
-                                    Text(how)
-                                        .font(.system(size: 12))
-                                        .foregroundStyle(.white.opacity(0.85))
-                                        .fixedSize(horizontal: false, vertical: true)
-                                        .padding(.leading, 64)
-                                        .padding(.trailing, 16)
-                                        .padding(.bottom, 12)
-                                        .transition(.opacity)
-                                }
-                            }
-                            if index < native.count - 1 { Divider().opacity(0.3).padding(.leading, 62) }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var blockedSection: some View {
-        if !blocked.isEmpty {
-            VStack(alignment: .leading, spacing: 10) {
+    private var otherOptionsSection: some View {
+        let count = cleanable.count + native.count + blocked.count
+        if count > 0 {
+            VStack(alignment: .leading, spacing: 12) {
                 Button {
-                    withAnimation(reduceMotion ? nil : MotionTokens.snappy) { showsBlocked.toggle() }
+                    withAnimation(reduceMotion ? nil : MotionTokens.snappy) { showsOtherOptions.toggle() }
                 } label: {
                     HStack(spacing: 6) {
-                        Image(systemName: showsBlocked ? "chevron.down" : "chevron.right")
-                            .font(.system(size: 11, weight: .semibold))
-                        Text(String(format: String(localized: "Not recommended (%lld)"), Int64(blocked.count)))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .bold))
+                            .rotationEffect(.degrees(showsOtherOptions ? 90 : 0))
+                        Text("Other options")
                             .font(.system(size: 13, weight: .semibold))
+                        Text(count.formatted())
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 1)
+                            .background(Capsule().fill(Color.white.opacity(0.12)))
                     }
                     .foregroundStyle(.secondary)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                if showsBlocked {
-                    CardSurface(padding: 0, elevation: .flat) {
-                        VStack(spacing: 0) {
-                            ForEach(Array(blocked.enumerated()), id: \.element.id) { index, candidate in
-                                simpleRow(candidate, tint: Color.white.opacity(0.45), detail: candidate.block?.message ?? OffloadBlockReason.otherDisk.message) {
-                                    EmptyView()
+
+                if showsOtherOptions {
+                    VStack(alignment: .leading, spacing: 14) {
+                        if !cleanable.isEmpty {
+                            group("Better cleaned", note: "They rebuild on their own, so cleaning frees the space for good.") {
+                                list(cleanable) { candidate in
+                                    plainRow(candidate, detail: candidate.detail, tint: Tint.green) {
+                                        Button("Clean") { onNavigate(.cleanup) }
+                                            .buttonStyle(GlassButtonStyle())
+                                            .help("Open Advanced Cleanup")
+                                    }
                                 }
-                                if index < blocked.count - 1 { Divider().opacity(0.3).padding(.leading, 62) }
+                            }
+                        }
+                        if !native.isEmpty {
+                            group("Use the app's own setting", note: "These apps can't follow a link, but they can move their data themselves.") {
+                                list(native) { candidate in
+                                    plainRow(candidate, detail: nativeHow(candidate), tint: Tint.blue, detailLines: 3) { EmptyView() }
+                                }
+                            }
+                        }
+                        if !blocked.isEmpty {
+                            group("Not recommended", note: nil) {
+                                list(blocked) { candidate in
+                                    plainRow(candidate, detail: candidate.block?.message ?? OffloadBlockReason.otherDisk.message,
+                                             tint: Color.white.opacity(0.45)) { EmptyView() }
+                                }
                             }
                         }
                     }
-                    .transition(.opacity)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
         }
     }
 
-    private func simpleRow<Accessory: View>(
-        _ candidate: OffloadCandidate, tint: Color, detail: String? = nil,
+    private func nativeHow(_ candidate: OffloadCandidate) -> String {
+        if case .nativeSetting(let how) = candidate.advice { return how }
+        return candidate.detail
+    }
+
+    private func group<Content: View>(_ title: LocalizedStringKey, note: LocalizedStringKey?, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.system(size: 13, weight: .semibold))
+                if let note {
+                    Text(note).font(.system(size: 11.5)).foregroundStyle(.secondary)
+                }
+            }
+            content()
+        }
+    }
+
+    private func plainRow<Accessory: View>(
+        _ candidate: OffloadCandidate, detail: String, tint: Color, detailLines: Int = 1,
         @ViewBuilder accessory: () -> Accessory
     ) -> some View {
         HStack(spacing: 12) {
-            CategoryBadge(systemName: candidate.symbol, tint: tint, size: 36)
-            VStack(alignment: .leading, spacing: 3) {
+            CategoryBadge(systemName: candidate.symbol, tint: tint, size: 28)
+            VStack(alignment: .leading, spacing: 2) {
                 Text(candidate.title)
-                    .font(.system(size: 13.5, weight: .semibold))
+                    .font(.system(size: 13, weight: .medium))
                     .lineLimit(1)
-                Text(detail ?? candidate.detail)
+                Text(detail)
                     .font(.system(size: 11.5))
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                    .lineLimit(detailLines)
+                    .fixedSize(horizontal: false, vertical: detailLines > 1)
             }
             Spacer(minLength: 8)
-            if candidate.size > 0 { sizeLabel(candidate) }
+            if candidate.size > 0 { sizeText(candidate.size) }
             accessory()
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 9)
+        .help(displayPath(candidate.url.path))
     }
 
-    // MARK: - Footnote
+    // MARK: - Format guide
 
-    private var footnote: some View {
+    private var formatGuide: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 12) {
+                CategoryBadge(systemName: "externaldrive.fill", tint: Tint.orange, size: 40)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Convert the drive to APFS")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("ExFAT and FAT are Windows formats. They have no journal, so unplugging without ejecting can corrupt files. They also don't keep macOS permissions, are slow with many small files and don't work with Time Machine. MacDash only moves folders to APFS.")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            VStack(alignment: .leading, spacing: 10) {
+                guideStep(1, "Get temporary space as large as what's on the drive: another external disk (which can then become your Time Machine backup) or a cloud plan for a month.")
+                guideStep(2, "Copy everything to it and open a few files to check the copy.")
+                guideStep(3, "In Disk Utility, choose View › Show All Devices, select the drive itself (not the volume), click Erase, and choose APFS with the GUID Partition Map scheme.")
+                guideStep(4, "Copy your files back. The drive is now ready for Drive Offload.")
+            }
+            HStack {
+                Button {
+                    NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Utilities/Disk Utility.app"))
+                } label: {
+                    Label("Open Disk Utility", systemImage: "arrow.up.forward.app")
+                }
+                .buttonStyle(GlassButtonStyle())
+                Spacer()
+                Button("Done") { showsFormatGuide = false }
+                    .keyboardShortcut(.defaultAction)
+                    .buttonStyle(GlassProminentButtonStyle())
+                    .tint(accent)
+            }
+        }
+        .padding(22)
+        .frame(width: 500)
+    }
+
+    private func guideStep(_ number: Int, _ text: LocalizedStringKey) -> some View {
         HStack(alignment: .top, spacing: 10) {
-            Image(systemName: "info.circle")
-                .foregroundStyle(.secondary)
-            Text("Keep the drive connected and always eject it before unplugging. Time Machine only backs up moved folders if the drive itself is included in the backup. Moved folders sit in “MacDash Offload” on the drive, with a note explaining each one.")
-                .font(.system(size: 11.5))
-                .foregroundStyle(.secondary)
+            Text(verbatim: "\(number)")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .frame(width: 20, height: 20)
+                .background(Circle().fill(accent.opacity(0.22)))
+            Text(text)
+                .font(.system(size: 12.5))
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.top, 4)
     }
 
-    // MARK: - Helpers
+    // MARK: - Building blocks
 
-    private func sectionTitle(_ title: LocalizedStringKey, count: Int, note: LocalizedStringKey) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            HStack(spacing: 8) {
-                Text(title)
-                    .font(.system(size: 17, weight: .semibold))
-                Text(count.formatted())
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 2)
-                    .background(Capsule().fill(Color.white.opacity(0.12)))
+    private func list<Item: Identifiable, Row: View>(_ items: [Item], @ViewBuilder row: @escaping (Item) -> Row) -> some View {
+        CardSurface(padding: 0, elevation: .flat) {
+            VStack(spacing: 0) {
+                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                    row(item)
+                    if index < items.count - 1 { Divider().opacity(0.25).padding(.leading, 60) }
+                }
             }
-            Text(note)
-                .font(.system(size: 12))
-                .foregroundStyle(.secondary)
         }
-        .padding(.top, 6)
+    }
+
+    private func placeholderRow<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        CardSurface(padding: 16, elevation: .flat) {
+            HStack(spacing: 10) {
+                content()
+                Spacer()
+            }
+            .font(.system(size: 12.5))
+        }
+    }
+
+    private func sizeText(_ bytes: Int64) -> some View {
+        Text(DriveOffloadStore.format(bytes))
+            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .monospacedDigit()
+            .frame(minWidth: 62, alignment: .trailing)
+    }
+
+    private func sectionTitle(_ title: LocalizedStringKey, note: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title).font(.system(size: 16, weight: .semibold))
+            Text(note).font(.system(size: 12)).foregroundStyle(.secondary)
+        }
     }
 
     private func displayPath(_ path: String) -> String {
