@@ -137,7 +137,7 @@ struct MainWindow: View {
     /// Sidebar layout: Smart Care followed by the tools, one continuous list.
     /// Each destination has its own color.
     private static let mainSections: [AppSection] = [
-        .cleanup, .apps, .protection, .antivirus, .processes, .spaceLens, .driveOffload, .duplicates, .similarPhotos
+        .cleanup, .apps, .protection, .antivirus, .processes, .driveOffload, .spaceLens, .duplicates, .similarPhotos
     ]
 
     private var sidebar: some View {

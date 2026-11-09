@@ -943,7 +943,7 @@
 "App Management" = "Gerenciamento de Apps";
 "Automation of System Events" = "Automação do System Events";
 "Notifications" = "Notificações";
-"Lets scans reach Mail, Safari, app containers, the Trash, Documents and Downloads in one go, instead of macOS asking folder by folder. Protection and Drive Offload use it too." = "Permite que as verificações acessem Mail, Safari, contêineres de apps, o Lixo, Documentos e Downloads de uma vez, em vez de o macOS pedir pasta por pasta. A Proteção e o Disco Externo também usam.";
+"Lets scans reach Mail, Safari, app containers, the Trash, Documents and Downloads in one go, instead of macOS asking folder by folder. Protection and Drive Offload use it too." = "Permite que as verificações acessem Mail, Safari, contêineres de apps, o Lixo, Documentos e Downloads de uma vez, em vez de o macOS pedir pasta por pasta. A Proteção e o Disco externo também usam.";
 "Lets MacDash remove apps and install app updates." = "Permite que o MacDash remova apps e instale atualizações.";
 "Lets Startup Items turn login items on and off." = "Permite que Itens de início liguem e desliguem itens de login.";
 "Tells you when a scheduled scan finishes." = "Avisa quando uma verificação agendada termina.";
@@ -1500,7 +1500,7 @@
 "%@ is back on your Mac." = "%@ voltou para o seu Mac.";
 "Linked again. %lld new items were moved to the drive; the empty stand-in is in the Trash." = "Link refeito. %lld itens novos foram movidos para o disco; a pasta substituta vazia está no Lixo.";
 "The link is back." = "O link voltou.";
-"These folders were moved here by MacDash. Each one is linked from its original place on the Mac. To bring one back, open MacDash › Drive Offload and turn it off. Don't rename or delete them while they're in use." = "Estas pastas foram movidas para cá pelo MacDash. Cada uma tem um link no seu lugar original no Mac. Para trazer uma de volta, abra MacDash › Disco Externo e desative-a. Não renomeie nem apague estas pastas enquanto estiverem em uso.";
+"These folders were moved here by MacDash. Each one is linked from its original place on the Mac. To bring one back, open MacDash › Drive Offload and turn it off. Don't rename or delete them while they're in use." = "Estas pastas foram movidas para cá pelo MacDash. Cada uma tem um link no seu lugar original no Mac. Para trazer uma de volta, abra MacDash › Disco externo e desative-a. Não renomeie nem apague estas pastas enquanto estiverem em uso.";
 "%@ (%@) will be copied to %@ and checked file by file. Only then is it deleted from the Mac and replaced by a link, so apps find it in the same place. You can bring it back at any time." = "%@ (%@) será copiado para %@ e conferido arquivo por arquivo. Só então é apagado do Mac e trocado por um link, para que os apps o encontrem no mesmo lugar. Você pode trazê-lo de volta quando quiser.";
 "%@ are using this folder. Moving it while they write could lose data." = "%@ estão usando esta pasta. Movê-la enquanto eles gravam pode perder dados.";
 "%@ moved off your Mac in %lld folders." = "%@ tirados do seu Mac em %lld pastas.";
@@ -1516,7 +1516,7 @@
 "Choose folders to move to the external drive." = "Escolha pastas para mover para o disco externo.";
 "Close these apps first" = "Feche estes apps primeiro";
 "Quit and Continue" = "Fechar e continuar";
-"Drive Offload" = "Disco Externo";
+"Drive Offload" = "Disco externo";
 "No external drive" = "Nenhum disco externo";
 "Connect an SSD formatted as APFS." = "Conecte um SSD formatado em APFS.";
 "ExFAT and FAT are Windows formats. They have no journal, so unplugging without ejecting can corrupt files. They also don't keep macOS permissions, are slow with many small files and don't work with Time Machine. MacDash only moves folders to APFS." = "ExFAT e FAT são formatos do Windows. Não têm journaling, então desconectar sem ejetar pode corromper arquivos. Também não guardam as permissões do macOS, são lentos com muitos arquivos pequenos e não funcionam com o Time Machine. O MacDash só move pastas para APFS.";
@@ -1552,7 +1552,7 @@
 "Get temporary space as large as what's on the drive: another external disk (which can then become your Time Machine backup) or a cloud plan for a month." = "Arrume um espaço temporário do tamanho do que está no disco: outro disco externo (que depois pode virar seu backup do Time Machine) ou um plano de nuvem por um mês.";
 "Copy everything to it and open a few files to check the copy." = "Copie tudo para lá e abra alguns arquivos para conferir a cópia.";
 "In Disk Utility, choose View › Show All Devices, select the drive itself (not the volume), click Erase, and choose APFS with the GUID Partition Map scheme." = "No Utilitário de Disco, escolha Visualizar › Mostrar Todos os Dispositivos, selecione o próprio disco (não o volume), clique em Apagar e escolha APFS com o esquema Mapa de Partição GUID.";
-"Copy your files back. The drive is now ready for Drive Offload." = "Copie seus arquivos de volta. O disco está pronto para o Disco Externo.";
+"Copy your files back. The drive is now ready for Drive Offload." = "Copie seus arquivos de volta. O disco está pronto para o Disco externo.";
 "Move to the external drive?" = "Mover para o disco externo?";
 "How to convert" = "Como converter";
 "Bring back to the Mac" = "Trazer de volta para o Mac";
