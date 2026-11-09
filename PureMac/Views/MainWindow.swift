@@ -90,6 +90,8 @@ struct MainWindow: View {
             if showUpdates { selectSection(.settings) }
         }
         .onAppear {
+            // Finishes interrupted moves and starts watching drives come and go.
+            _ = DriveOffloadStore.shared
             if appState.showUpdateSettings {
                 selectSection(.settings)
             } else if appState.pendingExternalApp != nil {
@@ -135,7 +137,7 @@ struct MainWindow: View {
     /// Sidebar layout: Smart Care followed by the tools, one continuous list.
     /// Each destination has its own color.
     private static let mainSections: [AppSection] = [
-        .cleanup, .apps, .protection, .antivirus, .processes, .spaceLens, .duplicates, .similarPhotos
+        .cleanup, .apps, .protection, .antivirus, .processes, .spaceLens, .driveOffload, .duplicates, .similarPhotos
     ]
 
     private var sidebar: some View {
@@ -234,6 +236,7 @@ struct MainWindow: View {
         case .apps: return "sidebar.uninstaller"
         case .duplicates: return "sidebar.duplicates"
         case .spaceLens: return "sidebar.spaceLens"
+        case .driveOffload: return "sidebar.driveOffload"
         case .processes: return "sidebar.processes"
         case .similarPhotos: return "sidebar.similarPhotos"
         case .protection: return "sidebar.protection"
@@ -366,7 +369,7 @@ struct MainWindow: View {
         if defaults.bool(forKey: "DebugAssistant") { assistantOpen = true }
         let sections: [String: AppSection] = [
             "smartCare": .smartCare, "apps": .apps, "cleanup": .cleanup, "protection": .protection, "antivirus": .antivirus,
-            "duplicates": .duplicates, "similarPhotos": .similarPhotos, "spaceLens": .spaceLens, "processes": .processes, "settings": .settings,
+            "duplicates": .duplicates, "similarPhotos": .similarPhotos, "spaceLens": .spaceLens, "driveOffload": .driveOffload, "processes": .processes, "settings": .settings,
         ]
         guard let name = defaults.string(forKey: "DebugSection"), let section = sections[name] else { return }
         if let tab = defaults.string(forKey: "DebugTab") {
@@ -410,6 +413,8 @@ struct MainWindow: View {
             ApplicationsHubView()
         case .spaceLens:
             SpaceLensView()
+        case .driveOffload:
+            DriveOffloadView { selectSection($0) }
         case .processes:
             ProcessesView()
         case .duplicates:
@@ -493,6 +498,7 @@ struct SidebarItem {
         case .apps: (title, icon) = ("Applications", "square.grid.2x2.fill")
         case .duplicates: (title, icon) = ("Duplicate Finder", "doc.on.doc.fill")
         case .spaceLens: (title, icon) = ("Space Lens", "chart.pie.fill")
+        case .driveOffload: (title, icon) = ("Drive Offload", DriveOffloadView.symbol)
         case .processes: (title, icon) = ("Processes", "waveform.path.ecg.rectangle.fill")
         case .similarPhotos: (title, icon) = ("Similar Photos", "photo.stack.fill")
         case .cleanup: (title, icon) = ("Advanced Cleanup", "wand.and.stars")

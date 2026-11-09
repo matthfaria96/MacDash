@@ -14,6 +14,7 @@ enum AppSection: Hashable {
     case similarPhotos
     case cleanup
     case spaceLens
+    case driveOffload
     case processes
     case settings
 }

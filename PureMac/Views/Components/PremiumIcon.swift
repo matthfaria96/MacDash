@@ -151,6 +151,9 @@ struct PremiumIconSpec {
             return PremiumIconSpec(shape: .blob, glyph: symbol, glyphScale: 0.44)
         case has("trash", "xmark.bin", "bin"):
             return PremiumIconSpec(shape: .circle, glyph: symbol, glyphScale: 0.42, disc: true)
+        case has("externaldrive.connected"):
+            // Drive Offload: a drive with a two-way transfer companion.
+            return PremiumIconSpec(shape: .squircle, glyph: symbol, glyphScale: 0.5, badge: ("arrow.left.arrow.right", .circle, nil))
         case has("internaldrive", "externaldrive", "opticaldiscdrive", "server"):
             return PremiumIconSpec(shape: .squircle, glyph: symbol, glyphScale: 0.5)
         case has("folder", "archivebox", "tray"):

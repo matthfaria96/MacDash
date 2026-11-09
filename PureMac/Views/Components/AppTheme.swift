@@ -98,6 +98,15 @@ struct SectionPalette {
         accent: Color(red: 1.0, green: 0.55, blue: 0.3),
         layout: .cornerGlow
     )
+    /// Deep ultramarine indigo with a periwinkle accent: between the blue of
+    /// Applications and the violet of Smart Care, and used by nothing else.
+    static let driveOffload = SectionPalette(
+        primary: Color(red: 0.24, green: 0.2, blue: 0.74),
+        secondary: Color(red: 0.13, green: 0.1, blue: 0.5),
+        deep: Color(red: 0.03, green: 0.03, blue: 0.19),
+        accent: Color(red: 0.6, green: 0.62, blue: 1.0),
+        layout: .cornerGlow
+    )
     static let settings = SectionPalette(
         primary: Color(red: 0.3, green: 0.3, blue: 0.4),
         secondary: Color(red: 0.18, green: 0.18, blue: 0.26),
@@ -114,6 +123,7 @@ struct SectionPalette {
         case .apps: return .apps
         case .duplicates: return .duplicates
         case .spaceLens: return .spaceLens
+        case .driveOffload: return .driveOffload
         case .processes: return .processes
         case .similarPhotos: return .photos
         case .cleanup: return .cleanup
