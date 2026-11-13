@@ -73,6 +73,10 @@ struct AssistantPanel: View {
             lastActivity
                 .padding(.top, 14)
                 .modifier(Rise(appeared: appeared, delay: 0.12))
+
+            fullAnalysis
+                .padding(.top, 14)
+                .modifier(Rise(appeared: appeared, delay: 0.16))
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 16)
@@ -106,6 +110,33 @@ struct AssistantPanel: View {
                 .foregroundStyle(.white)
         }
         .padding(.vertical, 9)
+    }
+
+    /// Opens the Assistant's own screen, where the whole Mac is analyzed.
+    private var fullAnalysis: some View {
+        Button {
+            navigate(.assistant)
+            close()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: AssistantView.symbol)
+                    .font(.system(size: 12, weight: .semibold))
+                Text("Full analysis")
+                    .font(.system(size: 12.5, weight: .semibold))
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 9.5, weight: .bold))
+                    .opacity(0.6)
+            }
+            .foregroundStyle(.white.opacity(0.92))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(0.09)))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.white.opacity(0.12), lineWidth: 0.7))
+            .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .help("What uses the disk, what deserves attention and what to do about it")
     }
 
     private var lastActivity: some View {
@@ -394,7 +425,7 @@ private struct AssistantSuggestionsCarousel: View {
     // MARK: Catalog
 
     /// Most urgent first. Each entry only appears while it applies. Only the
-    /// three essentials: Smart Care, Advanced Cleanup and Antivirus.
+    /// essentials: Smart Care, Advanced Cleanup, Antivirus and the full analysis.
     private var all: [AssistantSuggestion] {
         var list: [AssistantSuggestion] = []
         let careState = appState.scanState(in: .smartCare)
@@ -409,6 +440,20 @@ private struct AssistantSuggestionsCarousel: View {
                 actionTitle: "Review",
                 remembers: false
             ) { navigate(.antivirus) })
+        }
+
+        // Never analyzed, or not in the last week.
+        let lastAnalysis = UserDefaults.standard.object(forKey: AssistantStore.lastAnalysisKey) as? Date ?? .distantPast
+        if !DemoMode.isActive, Date().timeIntervalSince(lastAnalysis) > 7 * 86_400 {
+            list.append(AssistantSuggestion(
+                id: "assistantAnalysis",
+                icon: AssistantView.symbol,
+                tint: SectionPalette.assistant.accent,
+                title: String(localized: "Analyze this Mac"),
+                detail: String(localized: "What uses the disk and what is worth cleaning, in one report."),
+                actionTitle: "Open",
+                remembers: false
+            ) { navigate(.assistant) })
         }
 
         if careState == .completed, appState.smartCareSelectedSize > 0 {

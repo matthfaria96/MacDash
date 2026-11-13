@@ -8,6 +8,8 @@ struct MainWindow: View {
     @FocusState private var focusedSection: AppSection?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var assistantOpen = false
+    /// Where the person was, so a reopen for Full Disk Access comes back there.
+    @AppStorage("MacDash.lastSection") private var lastSection = AppSection.smartCare.rawValue
 
     var body: some View {
         NavigationSplitView {
@@ -89,10 +91,20 @@ struct MainWindow: View {
         .onChange(of: appState.showUpdateSettings) { showUpdates in
             if showUpdates { selectSection(.settings) }
         }
+        .onChange(of: selectedSection) { section in
+            if let section { lastSection = section.rawValue }
+        }
         .onAppear {
             // Finishes interrupted moves and starts watching drives come and go.
             _ = DriveOffloadStore.shared
-            if appState.showUpdateSettings {
+            if UserDefaults.standard.bool(forKey: PermissionCoordinator.resumeKey) {
+                // Reopened to apply Full Disk Access: back to the same screen.
+                UserDefaults.standard.removeObject(forKey: PermissionCoordinator.resumeKey)
+                if let section = AppSection(rawValue: lastSection) {
+                    if section == .assistant { AssistantStore.shared.analyzeWhenShown = true }
+                    selectSection(section)
+                }
+            } else if appState.showUpdateSettings {
                 selectSection(.settings)
             } else if appState.pendingExternalApp != nil {
                 appState.applicationsTab = .uninstall
@@ -153,7 +165,10 @@ struct MainWindow: View {
         // A little more room between the window buttons and the first item.
         .safeAreaInset(edge: .top) { Color.clear.frame(height: 8) }
         .safeAreaInset(edge: .bottom) {
-            sidebarFooter
+            VStack(spacing: 0) {
+                diagnosisRow
+                sidebarFooter
+            }
         }
     }
 
@@ -205,7 +220,7 @@ struct MainWindow: View {
     }
 
     private var visibleSections: [AppSection] {
-        [.smartCare] + Self.mainSections + [.settings]
+        [.smartCare] + Self.mainSections + [.assistant, .settings]
     }
 
     private func closeAssistant() {
@@ -233,6 +248,7 @@ struct MainWindow: View {
     private func accessibilityIdentifier(for section: AppSection) -> String {
         switch section {
         case .smartCare: return "sidebar.smartCare"
+        case .assistant: return "sidebar.assistant"
         case .apps: return "sidebar.uninstaller"
         case .duplicates: return "sidebar.duplicates"
         case .spaceLens: return "sidebar.spaceLens"
@@ -295,6 +311,24 @@ struct MainWindow: View {
                     .frame(width: 0.75)
             }
             .ignoresSafeArea()
+    }
+
+    /// Diagnosis sits apart from the tools, above Settings: it looks at the
+    /// whole Mac and sends each finding to the tool that handles it.
+    private var diagnosisRow: some View {
+        Button {
+            selectSection(.assistant)
+        } label: {
+            DiagnosisSidebarRow(isSelected: selectedSection == .assistant, isCompact: sidebarIsCompact)
+        }
+        .buttonStyle(.plain)
+        .focused($focusedSection, equals: .assistant)
+        .accessibilityIdentifier("sidebar.assistant")
+        .accessibilityLabel(Text("Diagnosis"))
+        .help(Text("Diagnosis"))
+        .accessibilityAddTraits(selectedSection == .assistant ? .isSelected : [])
+        .padding(.horizontal, sidebarIsCompact ? 5 : 12)
+        .padding(.top, 10)
     }
 
     private var sidebarFooter: some View {
@@ -361,8 +395,10 @@ struct MainWindow: View {
     private func applyDebugLaunchSelection() {
         let defaults = UserDefaults.standard
         if defaults.bool(forKey: "DebugAssistant") { assistantOpen = true }
+        // `-DebugPermissionSheet YES` shows the Full Disk Access sheet.
+        if defaults.bool(forKey: "DebugPermissionSheet") { permission.requestAccess(context: .general) {} }
         let sections: [String: AppSection] = [
-            "smartCare": .smartCare, "apps": .apps, "cleanup": .cleanup, "protection": .protection, "antivirus": .antivirus,
+            "smartCare": .smartCare, "assistant": .assistant, "apps": .apps, "cleanup": .cleanup, "protection": .protection, "antivirus": .antivirus,
             "duplicates": .duplicates, "similarPhotos": .similarPhotos, "spaceLens": .spaceLens, "driveOffload": .driveOffload, "processes": .processes, "settings": .settings,
         ]
         guard let name = defaults.string(forKey: "DebugSection"), let section = sections[name] else { return }
@@ -373,6 +409,8 @@ struct MainWindow: View {
         }
         selectSection(section)
         if section == .smartCare, defaults.bool(forKey: "DebugScan") { appState.startSmartScan() }
+        // `-DebugSection assistant -DebugScan YES` starts an analysis on launch.
+        if section == .assistant, defaults.bool(forKey: "DebugScan") { AssistantStore.shared.analyze() }
         // `-DebugAntivirusScan deep` starts that Antivirus scan on launch.
         if let mode = defaults.string(forKey: "DebugAntivirusScan").flatMap(AntivirusScanMode.init(rawValue:)) {
             AntivirusStore.shared.start(mode)
@@ -401,6 +439,8 @@ struct MainWindow: View {
         switch selectedSection {
         case .smartCare:
             DashboardView { selectSection($0) }
+        case .assistant:
+            AssistantView { selectSection($0) }
         case .cleanup:
             CleanupHubView()
         case .apps:
@@ -445,6 +485,7 @@ struct SidebarItem {
     init(_ section: AppSection) {
         switch section {
         case .smartCare: (title, icon) = ("Smart Care", "desktopcomputer")
+        case .assistant: (title, icon) = ("Diagnosis", AssistantView.symbol)
         case .protection: (title, icon) = ("Protection", "hand.raised.fill")
         case .antivirus: (title, icon) = ("Antivirus", "shield.lefthalf.filled")
         case .apps: (title, icon) = ("Applications", "square.grid.2x2.fill")
@@ -456,6 +497,66 @@ struct SidebarItem {
         case .cleanup: (title, icon) = ("Advanced Cleanup", "wand.and.stars")
         case .settings: (title, icon) = ("Settings", "gearshape.fill")
         }
+    }
+}
+
+/// The Diagnosis entry: an aurora card, apart from the plain tool rows.
+private struct DiagnosisSidebarRow: View {
+    let isSelected: Bool
+    var isCompact = false
+    @ObservedObject private var store = AssistantStore.shared
+    @State private var hovering = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var gradient: LinearGradient {
+        LinearGradient(colors: SectionPalette.auroraColors, startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: AssistantView.symbol)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(gradient)
+                .frame(width: 32, height: 32)
+                .background(Circle().fill(Color.black.opacity(0.35)))
+                .overlay(Circle().strokeBorder(gradient.opacity(0.7), lineWidth: 1))
+                .shadow(color: SectionPalette.auroraColors[0].opacity(isSelected ? 0.6 : 0.25), radius: 6)
+            if !isCompact {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Diagnosis")
+                        .font(.system(size: 14.5, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    if let report = store.live, report.reclaimable > 0 {
+                        Text(AssistantRules.format(report.reclaimable))
+                            .font(.system(size: 10.5, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.white.opacity(0.6))
+                    } else if store.phase == .analyzing {
+                        Text("Analyzing…")
+                            .font(.system(size: 10.5, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
+                }
+                Spacer(minLength: 4)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 48, alignment: isCompact ? .center : .leading)
+        .padding(.horizontal, isCompact ? 0 : 10)
+        .background {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(gradient.opacity(isSelected ? 0.3 : (hovering ? 0.2 : 0.12)))
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.black.opacity(0.18))
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(gradient.opacity(isSelected ? 0.9 : 0.45), lineWidth: isSelected ? 1.2 : 0.8)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .animation(reduceMotion ? nil : MotionTokens.snappy, value: hovering)
+        .animation(reduceMotion ? nil : MotionTokens.snappy, value: isSelected)
+        .onHover { hovering = $0 }
     }
 }
 

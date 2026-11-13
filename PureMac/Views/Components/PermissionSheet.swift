@@ -137,8 +137,8 @@ struct PermissionSheet: View {
                 stepCell(number: 2, title: "Authenticate",
                          caption: "Touch ID or password.")
                 stepDivider
-                stepCell(number: 3, title: "Done",
-                         caption: "We auto-retry — no need to come back.")
+                stepCell(number: 3, title: "Reopen",
+                         caption: "Choose Quit & Reopen. MacDash comes back here.")
             }
             .padding(.vertical, 4)
             .background(
@@ -296,7 +296,8 @@ struct PermissionSheet: View {
                 Text(caption)
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
         }
@@ -340,6 +341,14 @@ struct PermissionSheet: View {
             Spacer()
 
             if !coordinator.hasFullDiskAccess {
+                // For when the person chose "Later" in System Settings:
+                // access only applies once MacDash reopens.
+                Button("Reopen MacDash") {
+                    coordinator.relaunch()
+                }
+                .controlSize(.regular)
+                .help("Access applies after MacDash reopens. It comes back to this screen.")
+
                 Button("I granted it — retry") {
                     coordinator.refreshStatus()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {

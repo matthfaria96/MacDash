@@ -46,6 +46,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        // System Settings sends this after Full Disk Access is turned on
+        // ("Quit & Reopen"), and the Dock sends it too.
+        NSAppleEventManager.shared().setEventHandler(
+            self, andSelector: #selector(handleQuitEvent(_:withReply:)),
+            forEventClass: AEEventClass(kCoreEventClass), andEventID: AEEventID(kAEQuitApplication)
+        )
+    }
+
+    /// Quits even with a sheet open, and remembers to come back to the same
+    /// place when the quit is the reopen that grants access.
+    @objc func handleQuitEvent(_ event: NSAppleEventDescriptor, withReply reply: NSAppleEventDescriptor) {
+        if PermissionCoordinator.shared.wantsResume {
+            UserDefaults.standard.set(true, forKey: PermissionCoordinator.resumeKey)
+        }
+        PermissionCoordinator.quitClosingSheets()
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         !UserDefaults.standard.bool(forKey: "settings.general.menuBarMonitor")
     }

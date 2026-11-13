@@ -13,6 +13,12 @@ import Foundation
 ///   moment the user toggles permission on.
 /// - Carries the failed-item batch across the prompt so the caller can re-run
 ///   the clean without the user having to re-select anything.
+extension Notification.Name {
+    /// Posted just before MacDash quits on request (Dock, System Settings'
+    /// "Quit & Reopen"), so screens can close their sheets.
+    static let macDashWillQuit = Notification.Name("MacDash.WillQuit")
+}
+
 @MainActor
 final class PermissionCoordinator: ObservableObject {
     static let shared = PermissionCoordinator()
@@ -118,6 +124,56 @@ final class PermissionCoordinator: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             FullDiskAccessManager.shared.openFullDiskAccessSettings()
         }
+    }
+
+    // MARK: - Reopening
+
+    /// Remembered across a relaunch: the app reopens where the person was,
+    /// and the screen that asked for access carries on.
+    static let resumeKey = "MacDash.resumeAfterAccess"
+
+    /// True when the next launch should go back to where access was asked for.
+    /// macOS only applies Full Disk Access after a reopen, so a quit in the
+    /// middle of a request is that reopen.
+    var wantsResume: Bool { isRequesting || waitingElsewhere }
+    /// Set by screens that wait for access without the sheet (Diagnosis).
+    var waitingElsewhere = false
+
+    /// Quits MacDash and opens it again once it has fully quit, for when the
+    /// person skipped "Quit & Reopen" in System Settings.
+    func relaunch() {
+        UserDefaults.standard.set(true, forKey: Self.resumeKey)
+        let pid = ProcessInfo.processInfo.processIdentifier
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/bin/sh")
+        // The bundle path goes in as $0, so no quoting is involved.
+        task.arguments = ["-c", "while /bin/kill -0 \(pid) 2>/dev/null; do /bin/sleep 0.2; done; /usr/bin/open \"$0\"", Bundle.main.bundlePath]
+        do {
+            try task.run()
+        } catch {
+            UserDefaults.standard.removeObject(forKey: Self.resumeKey)
+            return
+        }
+        Self.quitClosingSheets()
+    }
+
+    /// Quits even while a sheet is open. AppKit refuses to quit with a sheet
+    /// attached, which is what made System Settings' "Quit & Reopen" fail
+    /// while this permission sheet was showing.
+    static func quitClosingSheets() {
+        // SwiftUI shows a sheet again while the state behind it says so, so
+        // that state is cleared first, then the windows' sheets are ended.
+        shared.dismiss()
+        AssistantStore.shared.plan = nil
+        NotificationCenter.default.post(name: .macDashWillQuit, object: nil)
+        for window in NSApp.windows {
+            if let sheet = window.attachedSheet {
+                window.endSheet(sheet)
+                sheet.orderOut(nil)
+            }
+        }
+        // A moment for SwiftUI to take the sheets down before AppKit checks.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { NSApp.terminate(nil) }
     }
 
     func dismiss(callRetry: Bool = false) {

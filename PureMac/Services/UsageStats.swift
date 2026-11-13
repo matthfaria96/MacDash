@@ -15,6 +15,7 @@ final class UsageStats: ObservableObject {
         case duplicates
         case similarPhotos
         case spaceLens
+        case assistant
 
         var title: String {
             switch self {
@@ -25,6 +26,7 @@ final class UsageStats: ObservableObject {
             case .duplicates: return String(localized: "Duplicate Files")
             case .similarPhotos: return String(localized: "Similar Photos")
             case .spaceLens: return String(localized: "Space Lens")
+            case .assistant: return String(localized: "Assistant analysis")
             }
         }
 
@@ -37,6 +39,7 @@ final class UsageStats: ObservableObject {
             case .duplicates: return "doc.on.doc"
             case .similarPhotos: return "photo.stack"
             case .spaceLens: return "chart.pie"
+            case .assistant: return "stethoscope"
             }
         }
     }

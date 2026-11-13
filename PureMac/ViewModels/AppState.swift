@@ -5,8 +5,10 @@ import AppKit
 
 // InstalledApp is defined in AppInfoFetcher.swift
 
-enum AppSection: Hashable {
+/// The raw value is how a section is remembered across launches.
+enum AppSection: String, Hashable {
     case smartCare
+    case assistant
     case protection
     case antivirus
     case apps

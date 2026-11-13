@@ -34,6 +34,8 @@
 		771D321F4B03E7D3885332F3 /* SpaceLensRings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB6F554F6CC353F5B6C497E /* SpaceLensRings.swift */; };
 		5AB166D6612D7839B7A08222 /* SpaceLensApps.swift in Sources */ = {isa = PBXBuildFile; fileRef = B784450171D18434DB6F563E /* SpaceLensApps.swift */; };
 		3DC7B52F640641298F207C0C /* DriveOffloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EF7B8E9A5646FA85545AB2 /* DriveOffloadView.swift */; };
+		E7299E1BAC9C45FABF3E9258 /* AssistantReportViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62C39FECBE14BA380027895 /* AssistantReportViews.swift */; };
+		7F1F8BD3D5314815AC25156B /* AssistantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB8BDF43836457BA0B01CC2 /* AssistantView.swift */; };
 		F0DDFC9B632C42B738E70449 /* SpaceLensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC53F303E676EDF62AABF3E /* SpaceLensView.swift */; };
 		D97AA01591F6D14A0B97B4B2 /* ProcessesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E628BDA369A22145155CEDE /* ProcessesView.swift */; };
 		1D205E8B81F54C378F81C060 /* PerformanceOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78977F102B441CD922A1063 /* PerformanceOverview.swift */; };
@@ -54,6 +56,7 @@
 		4D33329ABDA67E35B3FC5B85 /* SimilarPhotoFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97348789EA68B1ABADB1421 /* SimilarPhotoFinder.swift */; };
 		EE1998ADD24388A0C91E62F9 /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31EEAF29E24D97774F62C45E /* AppVersion.swift */; };
 		8ECD621AE9EC4F5489307FCB /* DriveOffloadEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9166445502A942579D88809F /* DriveOffloadEngineTests.swift */; };
+		4CD5EAD387FD419C98EDB7A2 /* AssistantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DBB9D96F68A4CE6BFDA15EE /* AssistantTests.swift */; };
 		4FAAA6E9887181C4C0AA9F87 /* DuplicateFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D379BB1C513985CF9AB783D5 /* DuplicateFinderTests.swift */; };
 		535B23C0108C06475215B8E8 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB003A7751F05727DBFD1A5 /* AppTheme.swift */; };
 		8BE32E6773AC8348ED724D80 /* AssistantPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013BED619541F2B162584F5D /* AssistantPanel.swift */; };
@@ -97,6 +100,13 @@
 		5C4E11A0B7D2C3E4F5A6B703 /* SmartCareHome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C4E11A0B7D2C3E4F5A6B704 /* SmartCareHome.swift */; };
 		5C4E11A0B7D2C3E4F5A6B705 /* CleanupBundleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C4E11A0B7D2C3E4F5A6B706 /* CleanupBundleView.swift */; };
 		0339F252E20D49D6893B3208 /* DriveOffloadCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8987C7D365654037A4B3BFE8 /* DriveOffloadCatalog.swift */; };
+		0C6DF6F5727D44D38F9C0A1C /* AssistantDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624A76DEAE0B4CE3AEAE9333 /* AssistantDemo.swift */; };
+		91B23DD7C6034C77A9042A16 /* AssistantStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109031EF1EB147A896A27608 /* AssistantStore.swift */; };
+		1B71D1DB97914C938835E182 /* AssistantExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE58E18710C4A588AF35D0B /* AssistantExecutor.swift */; };
+		C5D4373FA2E148D18BD17FB9 /* AssistantRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A586E90823B4C68B06914B8 /* AssistantRules.swift */; };
+		8C12565C89D74DEFB151F5C8 /* AssistantScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88979370795548599D5DCB99 /* AssistantScanner.swift */; };
+		D9A963A6125B45BB83DF9CF3 /* AssistantCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7184ABDA35F3407489161E16 /* AssistantCatalog.swift */; };
+		1F5C82CF1A1A4FA9A6841574 /* AssistantModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF4962E9551D4D5A89A96AB1 /* AssistantModels.swift */; };
 		0DE25B9277074E968313C110 /* DriveOffloadEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183E3BBA82FE4EF582675390 /* DriveOffloadEngine.swift */; };
 		245B3A724E8B4FEA82B43E0F /* DriveOffloadStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C55417CC294FA9B16056C9 /* DriveOffloadStore.swift */; };
 		A549D8A39A9E5E70D91B90A6 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A3F22FCEF534DE4A2CAD0E /* Haptics.swift */; };
@@ -193,6 +203,13 @@
 		3BBCB7D8C9A325A7FFEEF391 /* ProcessResourceMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessResourceMonitorTests.swift; sourceTree = "<group>"; };
 		3D4FD34378988D430A582ED0 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		8987C7D365654037A4B3BFE8 /* DriveOffloadCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveOffloadCatalog.swift; sourceTree = "<group>"; };
+		624A76DEAE0B4CE3AEAE9333 /* AssistantDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assistant/AssistantDemo.swift; sourceTree = "<group>"; };
+		109031EF1EB147A896A27608 /* AssistantStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assistant/AssistantStore.swift; sourceTree = "<group>"; };
+		ECE58E18710C4A588AF35D0B /* AssistantExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assistant/AssistantExecutor.swift; sourceTree = "<group>"; };
+		3A586E90823B4C68B06914B8 /* AssistantRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assistant/AssistantRules.swift; sourceTree = "<group>"; };
+		88979370795548599D5DCB99 /* AssistantScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assistant/AssistantScanner.swift; sourceTree = "<group>"; };
+		7184ABDA35F3407489161E16 /* AssistantCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assistant/AssistantCatalog.swift; sourceTree = "<group>"; };
+		AF4962E9551D4D5A89A96AB1 /* AssistantModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assistant/AssistantModels.swift; sourceTree = "<group>"; };
 		183E3BBA82FE4EF582675390 /* DriveOffloadEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveOffloadEngine.swift; sourceTree = "<group>"; };
 		B1C55417CC294FA9B16056C9 /* DriveOffloadStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveOffloadStore.swift; sourceTree = "<group>"; };
 		40A3F22FCEF534DE4A2CAD0E /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
@@ -279,6 +296,7 @@
 		D00EEBBBA38CC4B3F8077E7D /* CleanupReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupReview.swift; sourceTree = "<group>"; };
 		FC676F8D0EB12F9D91667379 /* CleanupGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupGrouping.swift; sourceTree = "<group>"; };
 		9166445502A942579D88809F /* DriveOffloadEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveOffloadEngineTests.swift; sourceTree = "<group>"; };
+		1DBB9D96F68A4CE6BFDA15EE /* AssistantTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantTests.swift; sourceTree = "<group>"; };
 		D379BB1C513985CF9AB783D5 /* DuplicateFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateFinderTests.swift; sourceTree = "<group>"; };
 		D74E66594478F53363BCB0F9 /* SimulatorRuntimeSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorRuntimeSupport.swift; sourceTree = "<group>"; };
 		DB798781B99987F55D77E2E3 /* SystemMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitor.swift; sourceTree = "<group>"; };
@@ -295,6 +313,8 @@
 		5DB6F554F6CC353F5B6C497E /* SpaceLensRings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceLensRings.swift; sourceTree = "<group>"; };
 		B784450171D18434DB6F563E /* SpaceLensApps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceLensApps.swift; sourceTree = "<group>"; };
 		22EF7B8E9A5646FA85545AB2 /* DriveOffloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveOffloadView.swift; sourceTree = "<group>"; };
+		D62C39FECBE14BA380027895 /* AssistantReportViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantReportViews.swift; sourceTree = "<group>"; };
+		3BB8BDF43836457BA0B01CC2 /* AssistantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantView.swift; sourceTree = "<group>"; };
 		4EC53F303E676EDF62AABF3E /* SpaceLensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceLensView.swift; sourceTree = "<group>"; };
 		6E628BDA369A22145155CEDE /* ProcessesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessesView.swift; sourceTree = "<group>"; };
 		D78977F102B441CD922A1063 /* PerformanceOverview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceOverview.swift; sourceTree = "<group>"; };
@@ -347,6 +367,7 @@
 				6116C5E9B68F439F6B2E42E5 /* CleanupReviewTests.swift */,
 				D379BB1C513985CF9AB783D5 /* DuplicateFinderTests.swift */,
 				9166445502A942579D88809F /* DriveOffloadEngineTests.swift */,
+				1DBB9D96F68A4CE6BFDA15EE /* AssistantTests.swift */,
 				155CE1B8CDCCCA6F9FD028C1 /* LocalizationFilesTests.swift */,
 				0621A14395DCA19EC2995842 /* MonitoringLifecycleTests.swift */,
 				A5984F53676A523D97AF2A89 /* NodeCachePathTests.swift */,
@@ -385,6 +406,8 @@
 				F270D47D1DD94D4577482B90 /* ProtectionView.swift */,
 				4EC53F303E676EDF62AABF3E /* SpaceLensView.swift */,
 				22EF7B8E9A5646FA85545AB2 /* DriveOffloadView.swift */,
+				D62C39FECBE14BA380027895 /* AssistantReportViews.swift */,
+				3BB8BDF43836457BA0B01CC2 /* AssistantView.swift */,
 				B784450171D18434DB6F563E /* SpaceLensApps.swift */,
 				5DB6F554F6CC353F5B6C497E /* SpaceLensRings.swift */,
 				6E628BDA369A22145155CEDE /* ProcessesView.swift */,
@@ -452,6 +475,13 @@
 				B1C55417CC294FA9B16056C9 /* DriveOffloadStore.swift */,
 				183E3BBA82FE4EF582675390 /* DriveOffloadEngine.swift */,
 				8987C7D365654037A4B3BFE8 /* DriveOffloadCatalog.swift */,
+				624A76DEAE0B4CE3AEAE9333 /* AssistantDemo.swift */,
+				109031EF1EB147A896A27608 /* AssistantStore.swift */,
+				ECE58E18710C4A588AF35D0B /* AssistantExecutor.swift */,
+				3A586E90823B4C68B06914B8 /* AssistantRules.swift */,
+				88979370795548599D5DCB99 /* AssistantScanner.swift */,
+				7184ABDA35F3407489161E16 /* AssistantCatalog.swift */,
+				AF4962E9551D4D5A89A96AB1 /* AssistantModels.swift */,
 				913E3064AA9BD7BE94A315CF /* MenuBarController.swift */,
 				5C8619CA3ECD70CBBC96475C /* PerformanceInspector.swift */,
 				F9DCBD97CC88D77AE8DB01A4 /* PermissionCoordinator.swift */,
@@ -761,6 +791,13 @@
 				245B3A724E8B4FEA82B43E0F /* DriveOffloadStore.swift in Sources */,
 				0DE25B9277074E968313C110 /* DriveOffloadEngine.swift in Sources */,
 				0339F252E20D49D6893B3208 /* DriveOffloadCatalog.swift in Sources */,
+				0C6DF6F5727D44D38F9C0A1C /* AssistantDemo.swift in Sources */,
+				91B23DD7C6034C77A9042A16 /* AssistantStore.swift in Sources */,
+				1B71D1DB97914C938835E182 /* AssistantExecutor.swift in Sources */,
+				C5D4373FA2E148D18BD17FB9 /* AssistantRules.swift in Sources */,
+				8C12565C89D74DEFB151F5C8 /* AssistantScanner.swift in Sources */,
+				D9A963A6125B45BB83DF9CF3 /* AssistantCatalog.swift in Sources */,
+				1F5C82CF1A1A4FA9A6841574 /* AssistantModels.swift in Sources */,
 				9E87638A3F12C12D93995DA7 /* LanguageFilesScanner.swift in Sources */,
 				E60B0A2C5D0A6CAE35BF4DFB /* Locations.swift in Sources */,
 				DDDA5879006CB97D5D7BDD87 /* Logger.swift in Sources */,
@@ -782,6 +819,8 @@
 				0CC9A41781D1B1883279693E /* ProtectionView.swift in Sources */,
 				F0DDFC9B632C42B738E70449 /* SpaceLensView.swift in Sources */,
 				3DC7B52F640641298F207C0C /* DriveOffloadView.swift in Sources */,
+				E7299E1BAC9C45FABF3E9258 /* AssistantReportViews.swift in Sources */,
+				7F1F8BD3D5314815AC25156B /* AssistantView.swift in Sources */,
 				5AB166D6612D7839B7A08222 /* SpaceLensApps.swift in Sources */,
 				771D321F4B03E7D3885332F3 /* SpaceLensRings.swift in Sources */,
 				D97AA01591F6D14A0B97B4B2 /* ProcessesView.swift in Sources */,
@@ -824,6 +863,7 @@
 				6BCC5E3773DF2E9189F75A6B /* CleanupReviewTests.swift in Sources */,
 				4FAAA6E9887181C4C0AA9F87 /* DuplicateFinderTests.swift in Sources */,
 				8ECD621AE9EC4F5489307FCB /* DriveOffloadEngineTests.swift in Sources */,
+				4CD5EAD387FD419C98EDB7A2 /* AssistantTests.swift in Sources */,
 				CFA64F54CDBF8A4765E0068D /* LocalizationFilesTests.swift in Sources */,
 				20E0D6D821D0D1BFAC82E6E4 /* MonitoringLifecycleTests.swift in Sources */,
 				E4145581C55556DB43725FBB /* NodeCachePathTests.swift in Sources */,
@@ -941,7 +981,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -962,7 +1002,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PureMac/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.3.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -1068,7 +1108,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1083,7 +1123,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PureMac/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.3.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;

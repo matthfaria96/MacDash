@@ -107,6 +107,21 @@ struct SectionPalette {
         accent: Color(red: 0.74, green: 0.64, blue: 1.0),
         layout: .cornerGlow
     )
+    /// Diagnosis: an aurora over a night sky. Green light on one side, violet
+    /// on the other, near black in between: the only section with two hues,
+    /// since it draws on every other tool.
+    static let assistant = SectionPalette(
+        primary: Color(red: 0.05, green: 0.62, blue: 0.46),
+        secondary: Color(red: 0.04, green: 0.06, blue: 0.14),
+        deep: Color(red: 0.01, green: 0.02, blue: 0.06),
+        accent: Color(red: 0.45, green: 1.0, blue: 0.72),
+        layout: .aurora
+    )
+
+    /// The aurora's colors, for the few places that show them together.
+    static let auroraColors = [
+        Color(red: 0.4, green: 1.0, blue: 0.7), Color(red: 0.35, green: 0.85, blue: 1.0), Color(red: 0.72, green: 0.5, blue: 1.0),
+    ]
     static let settings = SectionPalette(
         primary: Color(red: 0.3, green: 0.3, blue: 0.4),
         secondary: Color(red: 0.18, green: 0.18, blue: 0.26),
@@ -118,6 +133,7 @@ struct SectionPalette {
     static func forSection(_ section: AppSection?) -> SectionPalette {
         switch section ?? .smartCare {
         case .smartCare: return .smartCare
+        case .assistant: return .assistant
         case .protection: return .protection
         case .antivirus: return .antivirus
         case .apps: return .apps
@@ -249,6 +265,9 @@ enum BackdropLayout {
     case cornerGlow
     /// Light on the left, wine-dark right side, darkest top right (magenta).
     case leftGlow
+    /// Two lights far apart on the color wheel over a near-black field, like
+    /// an aurora (Diagnosis).
+    case aurora
 
     struct Spot {
         let center: UnitPoint
@@ -270,6 +289,9 @@ enum BackdropLayout {
         case .leftGlow:
             return [Spot(center: UnitPoint(x: 0.12, y: 0.35), radius: 0.6, strength: 0.85),
                     Spot(center: UnitPoint(x: 0.35, y: 1.0), radius: 0.45, strength: 0.35)]
+        case .aurora:
+            return [Spot(center: UnitPoint(x: 0.18, y: -0.05), radius: 0.62, strength: 0.8),
+                    Spot(center: UnitPoint(x: 0.92, y: 0.12), radius: 0.55, strength: 0.75)]
         }
     }
 
@@ -290,6 +312,9 @@ enum BackdropLayout {
             return [Spot(center: UnitPoint(x: 1.0, y: 0.0), radius: 0.65, strength: 1.0),
                     Spot(center: UnitPoint(x: 1.0, y: 0.75), radius: 0.5, strength: 0.7),
                     Spot(center: UnitPoint(x: 0.0, y: 0.0), radius: 0.3, strength: 0.4)]
+        case .aurora:
+            return [Spot(center: UnitPoint(x: 0.5, y: 1.0), radius: 0.8, strength: 1.0),
+                    Spot(center: UnitPoint(x: 0.0, y: 0.75), radius: 0.45, strength: 0.7)]
         }
     }
 
@@ -300,6 +325,7 @@ enum BackdropLayout {
         case .topGlow: return -0.05
         case .cornerGlow: return -0.03
         case .leftGlow: return 0.03
+        case .aurora: return 0.3
         }
     }
 }
