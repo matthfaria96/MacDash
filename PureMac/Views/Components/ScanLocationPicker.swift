@@ -44,6 +44,10 @@ struct DiskCapacity: Equatable {
     var usedFraction: Double { total > 0 ? Double(used) / Double(total) : 0 }
 
     static func read(at url: URL) -> DiskCapacity? {
+        // MACDASH_DEMO=1: the startup disk shows the same fictional numbers as the rest of the demo.
+        if DemoMode.isActive, url.path == "/" {
+            return DiskCapacity(total: DemoMode.diskInfo.totalSpace, free: DemoMode.diskInfo.freeSpace)
+        }
         guard let values = try? url.resourceValues(forKeys: [
             .volumeTotalCapacityKey,
             .volumeAvailableCapacityForImportantUsageKey,

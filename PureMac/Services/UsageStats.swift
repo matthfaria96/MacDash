@@ -63,6 +63,17 @@ final class UsageStats: ObservableObject {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        if DemoMode.isActive {
+            // MACDASH_DEMO=1: fictional numbers, and nothing is saved.
+            let demo = DemoMode.usage
+            firstUse = Date().addingTimeInterval(-demo.daysAgo * 86_400)
+            bytesCleaned = demo.bytesCleaned
+            tasksRun = demo.tasksRun
+            lastFilesChecked = demo.filesChecked
+            lastActivity = Date().addingTimeInterval(-demo.lastActivityHoursAgo * 3_600)
+            lastActivityKind = .assistant
+            return
+        }
         let start = defaults.object(forKey: Key.firstUse) as? Date ?? Date()
         defaults.set(start, forKey: Key.firstUse)
         firstUse = start
@@ -104,6 +115,7 @@ final class UsageStats: ObservableObject {
     }
 
     private func save() {
+        guard !DemoMode.isActive else { return }
         defaults.set(NSNumber(value: bytesCleaned), forKey: Key.bytesCleaned)
         defaults.set(tasksRun, forKey: Key.tasksRun)
         defaults.set(lastFilesChecked, forKey: Key.lastFilesChecked)

@@ -58,6 +58,11 @@ final class AppLanguagePreferencesTests: XCTestCase {
         let suiteName = "PureMacTests.AppLanguagePreferences.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
+        // Emptying the suite leaves its file behind; remove both when done.
+        addTeardownBlock {
+            defaults.removePersistentDomain(forName: suiteName)
+            removePreferencesFile(suiteName)
+        }
         return (defaults, suiteName)
     }
 }

@@ -15,7 +15,10 @@ final class CleanupExclusionsTests: XCTestCase {
     func testExclusionsPersistNormalizedUniqueAbsolutePaths() throws {
         let name = "PureMacTests.Exclusions.\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: name))
-        defer { defaults.removePersistentDomain(forName: name) }
+        defer {
+            defaults.removePersistentDomain(forName: name)
+            removePreferencesFile(name)
+        }
         CleanupExclusions.add("/fixtures/data/../keep", in: defaults)
         CleanupExclusions.add("/fixtures/keep", in: defaults)
         CleanupExclusions.add("relative", in: defaults)
@@ -33,4 +36,13 @@ final class CleanupExclusionsTests: XCTestCase {
         XCTAssertTrue(CleanupExclusions.excludes(alias.appendingPathComponent("file").path, paths: [actual.path]))
         XCTAssertTrue(CleanupExclusions.excludes(actual.path, paths: [alias.path]))
     }
+}
+
+/// Deletes the file macOS keeps for a test's preference suite, which stays
+/// behind (empty) even after the suite is removed.
+func removePreferencesFile(_ suiteName: String) {
+    CFPreferencesAppSynchronize(suiteName as CFString)
+    let file = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Preferences/\(suiteName).plist")
+    try? FileManager.default.removeItem(at: file)
 }

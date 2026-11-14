@@ -35,6 +35,8 @@ updated (those AppState actions return early), and there is no menu bar item, Sp
 antivirus scheduler or Full Disk Access registration. A "scan" just shows the demo findings.
 - `MACDASH_DEMO_RESULTS=smartCare|cleanup` opens that screen with its findings already in.
 - `MACDASH_DEMO_REVIEW=<CleaningCategory raw value, e.g. "User Cache">` also opens its review.
+- `MACDASH_DEMO_WINDOW=1080x780` sizes the main window (the site's shots are 1080×780). History
+  shows fictional usage numbers in demo mode.
 - Debug builds also take `-DebugSection <section>` (and `-DebugTab`) to pick the sidebar section.
 Run a renamed copy, never the installed app: copy the Debug app, set `CFBundleIdentifier` to
 `com.macdash.app.showcase`, remove `NSServices` and `SUFeedURL`, `codesign --force --deep --sign -`,

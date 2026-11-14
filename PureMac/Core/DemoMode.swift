@@ -7,8 +7,34 @@ import AppKit
 /// registration either.
 /// - MACDASH_DEMO_RESULTS=smartCare|cleanup opens that screen with its findings already in.
 /// - MACDASH_DEMO_REVIEW=<category raw value, e.g. "User Cache"> also opens its review list.
+/// - MACDASH_DEMO_WINDOW=<width>x<height> sizes the main window, so shots keep one size.
 enum DemoMode {
     static let isActive = ProcessInfo.processInfo.environment["MACDASH_DEMO"] == "1"
+
+    /// The window size asked for with MACDASH_DEMO_WINDOW, in points.
+    static var windowSize: CGSize? {
+        guard isActive, let raw = ProcessInfo.processInfo.environment["MACDASH_DEMO_WINDOW"] else { return nil }
+        let parts = raw.lowercased().split(separator: "x").compactMap { Double($0) }
+        guard parts.count == 2, parts[0] > 0, parts[1] > 0 else { return nil }
+        return CGSize(width: parts[0], height: parts[1])
+    }
+
+    /// Gives the main window the asked size, keeping its top edge in place.
+    @MainActor
+    static func sizeMainWindow() {
+        guard let size = windowSize else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            for window in NSApp.windows where window.isVisible && window.styleMask.contains(.titled) {
+                var frame = window.frame
+                frame.origin.y += frame.height - size.height
+                frame.size = size
+                window.setFrame(frame, display: true)
+            }
+        }
+    }
+
+    /// Fictional History numbers: MacDash on this demo Mac for a few months.
+    static let usage = (daysAgo: 118.0, bytesCleaned: Int64(48_620_000_000), tasksRun: 37, filesChecked: 1_284_630, lastActivityHoursAgo: 2.0)
 
     static var initialResults: ScanScope? {
         switch ProcessInfo.processInfo.environment["MACDASH_DEMO_RESULTS"] {

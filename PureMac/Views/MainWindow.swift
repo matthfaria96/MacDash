@@ -104,6 +104,7 @@ struct MainWindow: View {
             #endif
             applyMenuBarNavigation()
             openRequestedFolder()
+            DemoMode.sizeMainWindow()
             // Scheduled antivirus scans; findings only wait for review.
             if !DemoMode.isActive { AntivirusStore.shared.startScheduler() }
         }
