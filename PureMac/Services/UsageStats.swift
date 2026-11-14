@@ -33,7 +33,7 @@ final class UsageStats: ObservableObject {
         var icon: String {
             switch self {
             case .smartCareScan: return "desktopcomputer"
-            case .advancedScan: return "wand.and.stars"
+            case .advancedScan: return "bubbles.and.sparkles.fill"
             case .cleanup: return "sparkles"
             case .uninstall: return "trash"
             case .duplicates: return "doc.on.doc"

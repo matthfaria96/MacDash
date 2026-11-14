@@ -170,7 +170,7 @@ struct GeneralCleanupRunView: View {
                 includesUnusedApps: appState.cleanupIncludesUnusedApps,
                 title: "Scanning",
                 accent: palette.accent,
-                orbSymbol: "wand.and.stars"
+                orbSymbol: "bubbles.and.sparkles.fill"
             )
             .transition(.opacity)
         case .results:
@@ -376,7 +376,7 @@ struct CleanupHubView: View {
                 HubHeader(
                     title: "Advanced Cleanup",
                     subtitle: "Large files, app leftovers and developer data. You choose what to scan and what to remove.",
-                    icon: "wand.and.stars",
+                    icon: "bubbles.and.sparkles.fill",
                     tint: SectionPalette.cleanup.accent
                 ) {
                     EmptyView()

@@ -82,10 +82,10 @@ struct SettingsView: View {
 
 // MARK: - Building blocks
 
-/// The look of every Settings page, in the manner of macOS System Settings:
+/// The look of every Settings page (and History), in the manner of macOS System Settings:
 /// one level of grouped rows on the backdrop, text first, native controls,
 /// and explanations as quiet footers.
-private enum SettingsStyle {
+enum SettingsStyle {
     static let columnWidth: CGFloat = 640
     static let sectionSpacing: CGFloat = 28
     static let corner: CGFloat = 12
@@ -98,7 +98,7 @@ private enum SettingsStyle {
 }
 
 /// A scrolling column of sections, centered with room to breathe.
-private struct SettingsPage<Content: View>: View {
+struct SettingsPage<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
@@ -116,7 +116,7 @@ private struct SettingsPage<Content: View>: View {
 }
 
 /// A titled group of rows with an optional footer.
-private struct SettingsSection<Content: View, Accessory: View>: View {
+struct SettingsSection<Content: View, Accessory: View>: View {
     let title: LocalizedStringKey
     var footer: Text?
     @ViewBuilder var accessory: Accessory
@@ -155,7 +155,7 @@ extension SettingsSection where Accessory == EmptyView {
 }
 
 /// One line: what it is on the left, the control on the right.
-private struct SettingsRow<Control: View>: View {
+struct SettingsRow<Control: View>: View {
     let title: Text
     var detail: Text?
     /// A monochrome symbol, only where rows name distinct things.
@@ -206,7 +206,7 @@ private struct SettingsRow<Control: View>: View {
 }
 
 /// A hairline between rows, starting where the text starts.
-private struct SettingsSeparator: View {
+struct SettingsSeparator: View {
     var indented = false
 
     var body: some View {
@@ -217,7 +217,7 @@ private struct SettingsSeparator: View {
     }
 }
 
-private extension View {
+extension View {
     func settingsSwitch() -> some View {
         labelsHidden().toggleStyle(.switch).controlSize(.small)
     }

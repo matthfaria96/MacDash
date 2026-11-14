@@ -909,7 +909,6 @@
 "The app couldn't be replaced: %@" = "تعذر استبدال التطبيق: %@";
 
 "Assistant" = "المساعد";
-"Your MacDash activity at a glance" = "نشاطك في MacDash بنظرة سريعة";
 "1 day with MacDash" = "يوم واحد مع MacDash";
 "%lld days with MacDash" = "%lld يومًا مع MacDash";
 "Since %@" = "منذ %@";
@@ -986,14 +985,9 @@
 "Ascending" = "تصاعدي";
 "Descending" = "تنازلي";
 "Suggestions" = "اقتراحات";
-"Suggestion %lld of %lld" = "اقتراح %lld من %lld";
-"New suggestions appear as your Mac changes." = "تظهر اقتراحات جديدة كلما تغيّر جهاز Mac.";
 "Turn on Full Disk Access" = "تشغيل الوصول الكامل إلى القرص";
 "Lets scans reach protected caches and app data." = "يسمح للفحص بالوصول إلى ذاكرات التخزين المؤقت وبيانات التطبيقات المحمية.";
 "Review possible threats" = "مراجعة التهديدات المحتملة";
-"Clean %@ of junk" = "تنظيف %@ من الملفات غير المفيدة";
-"Smart Care results are ready to review." = "نتائج العناية الذكية جاهزة للمراجعة.";
-"Run Smart Care" = "تشغيل العناية الذكية";
 "Find what fills your disk" = "اكتشف ما يملأ القرص";
 "Only %@ free. Space Lens maps the biggest folders." = "المساحة الحرة %@ فقط. يعرض Space Lens أكبر المجلدات.";
 "Check for app updates" = "البحث عن تحديثات التطبيقات";
@@ -1001,8 +995,6 @@
 "Check" = "تحقق";
 "Review startup items" = "مراجعة عناصر بدء التشغيل";
 "Fewer items starting with your Mac means a faster login." = "عناصر أقل عند بدء التشغيل تعني تسجيل دخول أسرع.";
-"Find apps you no longer use" = "العثور على التطبيقات التي لم تعد تستخدمها";
-"Advanced Cleanup lists apps left unopened for months." = "يعرض التنظيف المتقدم التطبيقات التي لم تُفتح منذ أشهر.";
 "Look for duplicate files" = "البحث عن الملفات المكررة";
 "Identical copies often hide in Downloads and Documents." = "غالبًا ما تختبئ النسخ المتطابقة في التنزيلات والمستندات.";
 
@@ -1326,7 +1318,6 @@
 "Couldn't read the saved antivirus data. A copy was kept at %@." = "تعذّرت قراءة بيانات مكافحة الفيروسات المحفوظة. تم الاحتفاظ بنسخة في %@.";
 "The command run as administrator failed: %@" = "فشل الأمر الذي تم تشغيله كمسؤول: %@";
 "Checks where junk builds up, then lets you choose what goes." = "يفحص الأماكن التي تتراكم فيها الملفات غير الضرورية، ثم تختار ما تريد حذفه.";
-"Junk, caches and mail files in one quick pass." = "الملفات غير الضرورية وذاكرات التخزين المؤقت وملفات البريد في فحص سريع واحد.";
 "Run an Antivirus scan" = "إجراء فحص مكافحة الفيروسات";
 "Clear scan history?" = "هل تريد مسح سجل الفحوصات؟";
 "Clear history" = "مسح السجل";
@@ -1731,10 +1722,6 @@
 "Delete this report?" = "هل تريد حذف هذا التقرير؟";
 "Delete all reports?" = "هل تريد حذف كل التقارير؟";
 "Review…" = "مراجعة…";
-"Analyze this Mac" = "تحليل هذا الـ Mac";
-"What uses the disk and what is worth cleaning, in one report." = "ما يشغل القرص وما يستحق التنظيف، في تقرير واحد.";
-"Full analysis" = "تحليل كامل";
-"What uses the disk, what deserves attention and what to do about it" = "ما يشغل القرص، وما يستحق الانتباه، وما يمكن فعله حياله";
 
 /* Diagnosis: layout and access flow */
 "Do now" = "افعل الآن";
@@ -1742,7 +1729,6 @@
 "Good to know" = "للعلم";
 "Healthy" = "سليم";
 "Attention" = "يحتاج انتباهًا";
-"Diagnosis" = "التشخيص";
 "Find what is using space and what is worth cleaning." = "اكتشف ما يشغل المساحة وما يستحق التنظيف.";
 "Full Disk Access is on. Analyze again to include every folder." = "الوصول الكامل للقرص مفعّل. حلّل مرة أخرى لتشمل كل المجلدات.";
 "Waiting for access…" = "بانتظار الوصول…";
@@ -1755,3 +1741,30 @@
 "Choose Quit & Reopen. MacDash comes back here." = "اختر «إنهاء وإعادة فتح». سيعود MacDash إلى هنا.";
 "Reopen" = "إعادة الفتح";
 "A few things are worth a look." = "بعض الأمور تستحق نظرة.";
+
+/* Assistant: folders and History */
+"Choose a folder to see what is inside it and what is worth cleaning." = "اختر مجلدًا لترى ما بداخله وما يستحق التنظيف.";
+"Analyze a Folder…" = "تحليل مجلد…";
+"Drop a folder to analyze it" = "أفلت مجلدًا لتحليله";
+"What is inside" = "ما بداخله";
+"Analyses" = "التحليلات";
+"What MacDash has done on this Mac, and every analysis it made." = "ما فعله MacDash على هذا الـ Mac، وكل تحليل أجراه.";
+"Your home folder." = "مجلد الحساب الرئيسي.";
+"A cloud storage folder. Its service keeps it in sync, so leave it to that service." = "مجلد تخزين سحابي. خدمته تبقيه متزامنًا، فاتركه لتلك الخدمة.";
+"A folder its project rebuilds: %@ brings it back." = "مجلد يعيد مشروعه إنشاءه: %@ يعيده.";
+"A folder its project rebuilds on the next build." = "مجلد يعيد مشروعه إنشاءه في عملية البناء التالية.";
+"Temporary files that apps rebuild on their own." = "ملفات مؤقتة تعيد التطبيقات إنشاءها بنفسها.";
+"macOS or an app relies on this folder. Leave it as it is." = "يعتمد macOS أو أحد التطبيقات على هذا المجلد. اتركه كما هو.";
+"A project with git. Last change: %@." = "مشروع يستخدم git. آخر تغيير: %@.";
+"A project with git." = "مشروع يستخدم git.";
+"Holds projects with build folders: %lld." = "مشاريع بمجلدات بناء: %lld.";
+"A regular folder. Its largest items are below." = "مجلد عادي. أكبر العناصر أدناه.";
+"This folder can be rebuilt: %@" = "يمكن إعادة إنشاء هذا المجلد: %@";
+"Building or installing again brings it back." = "إعادة البناء أو التثبيت تعيده.";
+"Other items" = "عناصر أخرى";
+"Only folders in your home folder or on another disk can be analyzed." = "لا يمكن تحليل إلا المجلدات داخل مجلد الحساب الرئيسي أو على قرص آخر.";
+"A project. Its build folders can be made again." = "مشروع. يمكن إعادة إنشاء مجلدات البناء الخاصة به.";
+"Back to the start. This report stays in History." = "العودة إلى البداية. يبقى هذا التقرير في «السجل».";
+"Nothing to clean in this folder." = "لا يوجد ما يُنظَّف في هذا المجلد.";
+"Antivirus lists them so you can decide about each one." = "يعرضها قسم «مكافحة الفيروسات» لتقرر بشأن كل منها.";
+"Open Antivirus to run a quick scan." = "افتح «مكافحة الفيروسات» لإجراء فحص سريع.";

@@ -909,7 +909,6 @@
 "The app couldn't be replaced: %@" = "Impossibile sostituire l’app: %@";
 
 "Assistant" = "Assistente";
-"Your MacDash activity at a glance" = "La tua attività in MacDash a colpo d’occhio";
 "1 day with MacDash" = "1 giorno con MacDash";
 "%lld days with MacDash" = "%lld giorni con MacDash";
 "Since %@" = "Dal %@";
@@ -986,14 +985,9 @@
 "Ascending" = "Crescente";
 "Descending" = "Decrescente";
 "Suggestions" = "Suggerimenti";
-"Suggestion %lld of %lld" = "Suggerimento %lld di %lld";
-"New suggestions appear as your Mac changes." = "Nuovi suggerimenti compaiono man mano che il Mac cambia.";
 "Turn on Full Disk Access" = "Attiva l'accesso completo al disco";
 "Lets scans reach protected caches and app data." = "Permette alle scansioni di raggiungere cache e dati delle app protetti.";
 "Review possible threats" = "Esamina possibili minacce";
-"Clean %@ of junk" = "Pulisci %@ di file inutili";
-"Smart Care results are ready to review." = "I risultati di Smart Care sono pronti da esaminare.";
-"Run Smart Care" = "Avvia Smart Care";
 "Find what fills your disk" = "Scopri cosa riempie il disco";
 "Only %@ free. Space Lens maps the biggest folders." = "Solo %@ liberi. Space Lens mostra le cartelle più grandi.";
 "Check for app updates" = "Cerca aggiornamenti delle app";
@@ -1001,8 +995,6 @@
 "Check" = "Controlla";
 "Review startup items" = "Esamina gli elementi di avvio";
 "Fewer items starting with your Mac means a faster login." = "Meno elementi all'avvio significano un login più rapido.";
-"Find apps you no longer use" = "Trova le app che non usi più";
-"Advanced Cleanup lists apps left unopened for months." = "La Pulizia avanzata elenca le app non aperte da mesi.";
 "Look for duplicate files" = "Cerca file duplicati";
 "Identical copies often hide in Downloads and Documents." = "Le copie identiche si nascondono spesso in Download e Documenti.";
 
@@ -1326,7 +1318,6 @@
 "Couldn't read the saved antivirus data. A copy was kept at %@." = "Impossibile leggere i dati salvati dell'antivirus. Una copia è stata conservata in %@.";
 "The command run as administrator failed: %@" = "Il comando eseguito come amministratore non è riuscito: %@";
 "Checks where junk builds up, then lets you choose what goes." = "Controlla dove si accumulano i file inutili, poi scegli tu cosa eliminare.";
-"Junk, caches and mail files in one quick pass." = "File inutili, cache e file di Mail in un unico passaggio rapido.";
 "Run an Antivirus scan" = "Esegui una scansione antivirus";
 "Clear scan history?" = "Cancellare la cronologia delle scansioni?";
 "Clear history" = "Cancella cronologia";
@@ -1731,10 +1722,6 @@
 "Delete this report?" = "Eliminare questo report?";
 "Delete all reports?" = "Eliminare tutti i report?";
 "Review…" = "Esamina…";
-"Analyze this Mac" = "Analizza questo Mac";
-"What uses the disk and what is worth cleaning, in one report." = "Cosa occupa il disco e cosa vale la pena pulire, in un unico report.";
-"Full analysis" = "Analisi completa";
-"What uses the disk, what deserves attention and what to do about it" = "Cosa occupa il disco, cosa merita attenzione e cosa fare";
 
 /* Diagnosis: layout and access flow */
 "Do now" = "Da fare ora";
@@ -1742,7 +1729,6 @@
 "Good to know" = "Buono a sapersi";
 "Healthy" = "In salute";
 "Attention" = "Da controllare";
-"Diagnosis" = "Diagnosi";
 "Find what is using space and what is worth cleaning." = "Scopri cosa occupa spazio e cosa conviene pulire.";
 "Full Disk Access is on. Analyze again to include every folder." = "L’accesso completo al disco è attivo. Analizza di nuovo per includere tutte le cartelle.";
 "Waiting for access…" = "In attesa dell’accesso…";
@@ -1755,3 +1741,30 @@
 "Choose Quit & Reopen. MacDash comes back here." = "Scegli «Esci e riapri». MacDash torna qui.";
 "Reopen" = "Riapri";
 "A few things are worth a look." = "Alcune cose meritano un’occhiata.";
+
+/* Assistant: folders and History */
+"Choose a folder to see what is inside it and what is worth cleaning." = "Scegli una cartella per vedere cosa contiene e cosa conviene pulire.";
+"Analyze a Folder…" = "Analizza una cartella…";
+"Drop a folder to analyze it" = "Trascina qui una cartella per analizzarla";
+"What is inside" = "Cosa contiene";
+"Analyses" = "Analisi";
+"What MacDash has done on this Mac, and every analysis it made." = "Cosa ha fatto MacDash su questo Mac, e ogni analisi.";
+"Your home folder." = "La tua cartella Inizio.";
+"A cloud storage folder. Its service keeps it in sync, so leave it to that service." = "Una cartella di archiviazione cloud. Il suo servizio la mantiene sincronizzata, lasciala a quel servizio.";
+"A folder its project rebuilds: %@ brings it back." = "Una cartella che il progetto ricrea: %@ la riporta.";
+"A folder its project rebuilds on the next build." = "Una cartella che il progetto ricrea alla prossima build.";
+"Temporary files that apps rebuild on their own." = "File temporanei che le app ricreano da sole.";
+"macOS or an app relies on this folder. Leave it as it is." = "macOS o un’app dipende da questa cartella. Lasciala com’è.";
+"A project with git. Last change: %@." = "Un progetto con git. Ultima modifica: %@.";
+"A project with git." = "Un progetto con git.";
+"Holds projects with build folders: %lld." = "Contiene progetti con cartelle di build: %lld.";
+"A regular folder. Its largest items are below." = "Una cartella normale. Gli elementi più grandi sono qui sotto.";
+"This folder can be rebuilt: %@" = "Questa cartella si può ricreare: %@";
+"Building or installing again brings it back." = "Ricompilare o reinstallare la riporta.";
+"Other items" = "Altri elementi";
+"Only folders in your home folder or on another disk can be analyzed." = "Si possono analizzare solo cartelle nella tua cartella Inizio o su un altro disco.";
+"A project. Its build folders can be made again." = "Un progetto. Le sue cartelle di build si possono ricreare.";
+"Back to the start. This report stays in History." = "Torna all’inizio. Questo report resta in «Cronologia».";
+"Nothing to clean in this folder." = "Niente da pulire in questa cartella.";
+"Antivirus lists them so you can decide about each one." = "L’antivirus li elenca così puoi decidere per ciascuno.";
+"Open Antivirus to run a quick scan." = "Apri l’antivirus per una scansione rapida.";

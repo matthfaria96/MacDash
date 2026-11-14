@@ -173,7 +173,7 @@ private struct TourScene: View {
 
     private let features = [
         Feature(icon: "desktopcomputer", palette: .smartCare, title: "Smart Care", detail: "One scan for caches, system junk, the Trash and Mail."),
-        Feature(icon: "wand.and.stars", palette: .cleanup, title: "Advanced Cleanup", detail: "Large files, app leftovers and apps you no longer open."),
+        Feature(icon: "bubbles.and.sparkles.fill", palette: .cleanup, title: "Advanced Cleanup", detail: "Large files, app leftovers and apps you no longer open."),
         Feature(icon: "square.grid.2x2.fill", palette: .apps, title: "Applications", detail: "Uninstall completely, manage startup items, update apps."),
         Feature(icon: "hand.raised.fill", palette: .protection, title: "Protection", detail: "App permissions, security checks, Wi-Fi and browser extensions."),
         Feature(icon: "shield.lefthalf.filled", palette: .antivirus, title: "Antivirus", detail: "Checks your files for malware, now or on a schedule."),

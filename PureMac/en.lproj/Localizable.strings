@@ -911,7 +911,6 @@
 "The app couldn't be replaced: %@" = "The app couldn't be replaced: %@";
 
 "Assistant" = "Assistant";
-"Your MacDash activity at a glance" = "Your MacDash activity at a glance";
 "1 day with MacDash" = "1 day with MacDash";
 "%lld days with MacDash" = "%lld days with MacDash";
 "Since %@" = "Since %@";
@@ -988,14 +987,9 @@
 "Ascending" = "Ascending";
 "Descending" = "Descending";
 "Suggestions" = "Suggestions";
-"Suggestion %lld of %lld" = "Suggestion %lld of %lld";
-"New suggestions appear as your Mac changes." = "New suggestions appear as your Mac changes.";
 "Turn on Full Disk Access" = "Turn on Full Disk Access";
 "Lets scans reach protected caches and app data." = "Lets scans reach protected caches and app data.";
 "Review possible threats" = "Review possible threats";
-"Clean %@ of junk" = "Clean %@ of junk";
-"Smart Care results are ready to review." = "Smart Care results are ready to review.";
-"Run Smart Care" = "Run Smart Care";
 "Find what fills your disk" = "Find what fills your disk";
 "Only %@ free. Space Lens maps the biggest folders." = "Only %@ free. Space Lens maps the biggest folders.";
 "Check for app updates" = "Check for app updates";
@@ -1003,8 +997,6 @@
 "Check" = "Check";
 "Review startup items" = "Review startup items";
 "Fewer items starting with your Mac means a faster login." = "Fewer items starting with your Mac means a faster login.";
-"Find apps you no longer use" = "Find apps you no longer use";
-"Advanced Cleanup lists apps left unopened for months." = "Advanced Cleanup lists apps left unopened for months.";
 "Look for duplicate files" = "Look for duplicate files";
 "Identical copies often hide in Downloads and Documents." = "Identical copies often hide in Downloads and Documents.";
 
@@ -1328,7 +1320,6 @@
 "Couldn't read the saved antivirus data. A copy was kept at %@." = "Couldn't read the saved antivirus data. A copy was kept at %@.";
 "The command run as administrator failed: %@" = "The command run as administrator failed: %@";
 "Checks where junk builds up, then lets you choose what goes." = "Checks where junk builds up, then lets you choose what goes.";
-"Junk, caches and mail files in one quick pass." = "Junk, caches and mail files in one quick pass.";
 "Run an Antivirus scan" = "Run an Antivirus scan";
 "Clear scan history?" = "Clear scan history?";
 "Clear history" = "Clear history";
@@ -1733,10 +1724,6 @@
 "Delete this report?" = "Delete this report?";
 "Delete all reports?" = "Delete all reports?";
 "Review…" = "Review…";
-"Analyze this Mac" = "Analyze this Mac";
-"What uses the disk and what is worth cleaning, in one report." = "What uses the disk and what is worth cleaning, in one report.";
-"Full analysis" = "Full analysis";
-"What uses the disk, what deserves attention and what to do about it" = "What uses the disk, what deserves attention and what to do about it";
 
 /* Diagnosis: layout and access flow */
 "Do now" = "Do now";
@@ -1744,7 +1731,6 @@
 "Good to know" = "Good to know";
 "Healthy" = "Healthy";
 "Attention" = "Attention";
-"Diagnosis" = "Diagnosis";
 "Find what is using space and what is worth cleaning." = "Find what is using space and what is worth cleaning.";
 "Full Disk Access is on. Analyze again to include every folder." = "Full Disk Access is on. Analyze again to include every folder.";
 "Waiting for access…" = "Waiting for access…";
@@ -1757,3 +1743,30 @@
 "Choose Quit & Reopen. MacDash comes back here." = "Choose Quit & Reopen. MacDash comes back here.";
 "Reopen" = "Reopen";
 "A few things are worth a look." = "A few things are worth a look.";
+
+/* Assistant: folders and History */
+"Choose a folder to see what is inside it and what is worth cleaning." = "Choose a folder to see what is inside it and what is worth cleaning.";
+"Analyze a Folder…" = "Analyze a Folder…";
+"Drop a folder to analyze it" = "Drop a folder to analyze it";
+"What is inside" = "What is inside";
+"Analyses" = "Analyses";
+"What MacDash has done on this Mac, and every analysis it made." = "What MacDash has done on this Mac, and every analysis it made.";
+"Your home folder." = "Your home folder.";
+"A cloud storage folder. Its service keeps it in sync, so leave it to that service." = "A cloud storage folder. Its service keeps it in sync, so leave it to that service.";
+"A folder its project rebuilds: %@ brings it back." = "A folder its project rebuilds: %@ brings it back.";
+"A folder its project rebuilds on the next build." = "A folder its project rebuilds on the next build.";
+"Temporary files that apps rebuild on their own." = "Temporary files that apps rebuild on their own.";
+"macOS or an app relies on this folder. Leave it as it is." = "macOS or an app relies on this folder. Leave it as it is.";
+"A project with git. Last change: %@." = "A project with git. Last change: %@.";
+"A project with git." = "A project with git.";
+"Holds projects with build folders: %lld." = "Holds projects with build folders: %lld.";
+"A regular folder. Its largest items are below." = "A regular folder. Its largest items are below.";
+"This folder can be rebuilt: %@" = "This folder can be rebuilt: %@";
+"Building or installing again brings it back." = "Building or installing again brings it back.";
+"Other items" = "Other items";
+"Only folders in your home folder or on another disk can be analyzed." = "Only folders in your home folder or on another disk can be analyzed.";
+"A project. Its build folders can be made again." = "A project. Its build folders can be made again.";
+"Back to the start. This report stays in History." = "Back to the start. This report stays in History.";
+"Nothing to clean in this folder." = "Nothing to clean in this folder.";
+"Antivirus lists them so you can decide about each one." = "Antivirus lists them so you can decide about each one.";
+"Open Antivirus to run a quick scan." = "Open Antivirus to run a quick scan.";

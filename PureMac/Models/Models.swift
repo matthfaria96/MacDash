@@ -242,7 +242,7 @@ enum CleanupBundle: String, CaseIterable, Identifiable, Hashable {
 
     var icon: String {
         switch self {
-        case .systemSweep: return "wand.and.stars"
+        case .systemSweep: return "bubbles.and.sparkles.fill"
         case .devAI: return "chevron.left.forwardslash.chevron.right"
         case .virtualization: return "server.rack"
         }

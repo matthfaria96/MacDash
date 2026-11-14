@@ -91,10 +91,14 @@ enum AssistantRules {
     static func findings(_ facts: AssistantFacts, folderSizes: [String: Int64], baselines: [Baseline]) -> [AssistantFinding] {
         let low = isDiskLow(facts)
         var list: [AssistantFinding] = []
-        list += [diskFinding(facts), forecastFinding(facts, baselines: baselines)].compactMap { $0 }
-        list += [growthFinding(facts, folderSizes: folderSizes, baselines: baselines)].compactMap { $0 }
-        list += [projectsFinding(facts, diskLow: low)].compactMap { $0 }
-        list += facts.editors.compactMap { editorFinding($0, diskLow: low) }
+        // The disk as a whole only matters when the whole Mac is analyzed.
+        if facts.scope == nil {
+            list += [diskFinding(facts), forecastFinding(facts, baselines: baselines)].compactMap { $0 }
+            list += [growthFinding(facts, folderSizes: folderSizes, baselines: baselines)].compactMap { $0 }
+            list += [antivirusFinding(facts)].compactMap { $0 }
+        }
+        list += [scopeArtifactFinding(facts), projectsFinding(facts, diskLow: low)].compactMap { $0 }
+        list += facts.editors.compactMap { editorFinding($0, diskLow: low, focused: facts.scope != nil) }
         list += [
             claudeFinding(facts, diskLow: low), offloadFinding(facts, diskLow: low), devCachesFinding(facts, diskLow: low),
             appCachesFinding(facts, diskLow: low), unusedAppsFinding(facts, diskLow: low), xcodeFinding(facts, diskLow: low),
@@ -104,6 +108,12 @@ enum AssistantRules {
         return list.sorted {
             ($0.severity.rank, -max($0.reclaimable, $0.total)) < ($1.severity.rank, -max($1.reclaimable, $1.total))
         }
+    }
+
+    /// The smallest amount worth a finding. When one folder is analyzed the
+    /// bar is a tenth: it is a smaller place, and the person asked about it.
+    static func floor(_ bytes: Int64, _ facts: AssistantFacts) -> Int64 {
+        facts.scope == nil ? bytes : bytes / 10
     }
 
     static func severity(_ bytes: Int64, diskLow: Bool) -> AssistantSeverity {
@@ -184,6 +194,33 @@ enum AssistantRules {
         )
     }
 
+    // MARK: Antivirus
+
+    /// Threats waiting for a decision, or a scan that is overdue. Antivirus
+    /// handles both; the Assistant only points there.
+    static func antivirusFinding(_ facts: AssistantFacts) -> AssistantFinding? {
+        guard let antivirus = facts.antivirus else { return nil }
+        if antivirus.pendingThreats > 0 {
+            return AssistantFinding(
+                id: "security.threats", area: .security, severity: .attention, symbol: "shield.lefthalf.filled",
+                title: String(localized: "Review possible threats"),
+                explanation: String(format: String(localized: "%lld items are waiting for your decision. Nothing was moved."),
+                                    Int64(antivirus.pendingThreats)),
+                recommendation: String(localized: "Antivirus lists them so you can decide about each one."),
+                action: .openTool, tool: .antivirus
+            )
+        }
+        let overdue = facts.now.timeIntervalSince(antivirus.lastScan ?? .distantPast) > 7 * 86_400
+        guard overdue, !antivirus.isScanning else { return nil }
+        return AssistantFinding(
+            id: "security.scan", area: .security, severity: .suggestion, symbol: "shield.lefthalf.filled",
+            title: String(localized: "Run an Antivirus scan"),
+            explanation: AntivirusScanMode.quick.scopeDescription,
+            recommendation: String(localized: "Open Antivirus to run a quick scan."),
+            action: .openTool, tool: .antivirus
+        )
+    }
+
     // MARK: Growth
 
     static func growthFinding(_ facts: AssistantFacts, folderSizes: [String: Int64], baselines: [Baseline]) -> AssistantFinding? {
@@ -230,6 +267,21 @@ enum AssistantRules {
 
     // MARK: Projects
 
+    /// The analyzed folder is itself build output.
+    static func scopeArtifactFinding(_ facts: AssistantFacts) -> AssistantFinding? {
+        guard let artifact = facts.scopeArtifact, artifact.item.size > 0 else { return nil }
+        let back = artifact.command.map { String(format: String(localized: "comes back with %@"), $0) }
+            ?? String(localized: "rebuilt on the next build")
+        let finding = AssistantFinding(
+            id: "scope.artifact", area: .projects, severity: .suggestion, symbol: "hammer.fill",
+            title: String(format: String(localized: "This folder can be rebuilt: %@"), format(artifact.item.size)),
+            explanation: String(localized: "Folders such as node_modules, target and build are made from your code and can be made again. They are what makes Documents grow when you work with VS Code and Claude Code."),
+            recommendation: String(localized: "Building or installing again brings it back."),
+            action: .trash
+        )
+        return finish(finding, targets: [target(artifact.item, note: back, suggested: true, rule: AssistantCatalog.Rule.artifact)], diskLow: false)
+    }
+
     static func projectsFinding(_ facts: AssistantFacts, diskLow: Bool) -> AssistantFinding? {
         guard !facts.artifacts.isEmpty else { return nil }
         let idleAfter = diskLow ? AssistantCatalog.idleProjectDaysWhenFull : AssistantCatalog.idleProjectDays
@@ -251,7 +303,7 @@ enum AssistantRules {
                           rule: AssistantCatalog.Rule.artifact)
         }
         let total = targets.reduce(Int64(0)) { $0 + $1.size }
-        guard total >= 200 * Limits.megabyte else { return nil }
+        guard total >= floor(200 * Limits.megabyte, facts) else { return nil }
         let finding = AssistantFinding(
             id: "projects.artifacts", area: .projects, severity: .suggestion, symbol: "hammer.fill",
             title: String(format: String(localized: "%@ of build folders and dependencies in your projects"), format(total)),
@@ -264,7 +316,7 @@ enum AssistantRules {
 
     // MARK: Editors
 
-    static func editorFinding(_ editor: AssistantFacts.EditorFacts, diskLow: Bool) -> AssistantFinding? {
+    static func editorFinding(_ editor: AssistantFacts.EditorFacts, diskLow: Bool, focused: Bool = false) -> AssistantFinding? {
         let minimum = 5 * Limits.megabyte
         var targets: [AssistantTarget] = []
         targets += editor.oldExtensions.map {
@@ -281,7 +333,7 @@ enum AssistantRules {
         }
         targets = targets.filter { $0.size >= minimum }
         let total = targets.reduce(Int64(0)) { $0 + $1.size }
-        guard total >= 100 * Limits.megabyte else { return nil }
+        guard total >= (focused ? 10 : 100) * Limits.megabyte else { return nil }
         var finding = AssistantFinding(
             id: "editor." + editor.key, area: .editors, severity: .suggestion, symbol: "chevron.left.forwardslash.chevron.right",
             title: String(format: String(localized: "%@ keeps %@ it no longer needs"), editor.name, format(total)),
@@ -315,7 +367,7 @@ enum AssistantRules {
         }
         targets = targets.filter { $0.size >= Limits.megabyte }
         let total = targets.reduce(Int64(0)) { $0 + $1.size }
-        guard total >= 100 * Limits.megabyte else { return nil }
+        guard total >= floor(100 * Limits.megabyte, facts) else { return nil }
         let finding = AssistantFinding(
             id: "claude.code", area: .claude, severity: .suggestion, symbol: "cpu.fill",
             title: String(format: String(localized: "Claude Code: %@ in old sessions and versions"), format(total)),
@@ -340,7 +392,7 @@ enum AssistantRules {
             return target(item, note: note, suggested: known, rule: AssistantCatalog.Rule.devCache)
         }
         let total = targets.reduce(Int64(0)) { $0 + $1.size }
-        guard total >= 300 * Limits.megabyte else { return nil }
+        guard total >= floor(300 * Limits.megabyte, facts) else { return nil }
         let finding = AssistantFinding(
             id: "devtools.caches", area: .devTools, severity: .suggestion, symbol: "shippingbox.fill",
             title: String(format: String(localized: "Package manager caches: %@"), format(total)),
@@ -356,7 +408,7 @@ enum AssistantRules {
             target($0, note: String(localized: "Rebuilt by the app when needed"), suggested: true, rule: AssistantCatalog.Rule.chromiumCache)
         }
         let total = targets.reduce(Int64(0)) { $0 + $1.size }
-        guard total >= 200 * Limits.megabyte else { return nil }
+        guard total >= floor(200 * Limits.megabyte, facts) else { return nil }
         let finding = AssistantFinding(
             id: "apps.chromium", area: .caches, severity: .suggestion, symbol: "internaldrive.fill",
             title: String(format: String(localized: "App caches outside the usual folder: %@"), format(total)),
@@ -370,9 +422,9 @@ enum AssistantRules {
     // MARK: Handled by other tools
 
     static func offloadFinding(_ facts: AssistantFacts, diskLow: Bool) -> AssistantFinding? {
-        let items = facts.offload.filter { $0.size >= Limits.gigabyte }
+        let items = facts.offload.filter { $0.size >= floor(Limits.gigabyte, facts) }
         let total = items.reduce(Int64(0)) { $0 + $1.size }
-        guard total >= 2 * Limits.gigabyte else { return nil }
+        guard total >= floor(2 * Limits.gigabyte, facts) else { return nil }
         let finding = AssistantFinding(
             id: "offload.folders", area: .devTools, severity: .suggestion, symbol: "externaldrive.connected.to.line.below.fill",
             title: String(format: String(localized: "%@ can move to an external drive"), format(total)),
@@ -498,6 +550,47 @@ enum AssistantRules {
         finding.reclaimable = 0
         finding.severity = diskLow ? .suggestion : .info
         return finding
+    }
+
+    // MARK: - One folder
+
+    static func folderReport(from facts: AssistantFacts, duration: TimeInterval, appVersion: String) -> AssistantReport {
+        var report = AssistantReport(date: facts.now)
+        let folder = facts.scope ?? facts.home
+        report.duration = duration
+        report.appVersion = appVersion
+        report.diskTotal = facts.diskTotal
+        report.diskFree = facts.diskFree
+        report.filesChecked = facts.filesChecked
+        report.scope = folder
+        report.scopeSize = facts.sizes[folder] ?? 0
+        report.headline = facts.scopeSummary
+        report.usage = folderUsage(facts, folder: folder)
+        report.findings = findings(facts, folderSizes: [:], baselines: [])
+        report.probes = [
+            AssistantProbe(id: AssistantStep.folders.rawValue, title: (folder as NSString).lastPathComponent,
+                           detail: String(format: String(localized: "%lld files measured, %@"), Int64(facts.filesChecked), format(report.scopeSize ?? 0))),
+            AssistantProbe(id: AssistantStep.projects.rawValue, title: String(localized: "Projects"),
+                           detail: String(format: String(localized: "Build folders found: %lld"), Int64(facts.artifacts.count))),
+        ]
+        return report
+    }
+
+    /// The largest things right inside the folder, each with its own largest.
+    static func folderUsage(_ facts: AssistantFacts, folder: String) -> [AssistantUsage] {
+        let inside = children(of: folder, in: facts.sizes)
+        let shown = inside.prefix(9)
+        var slices = shown.map { child in
+            AssistantUsage(id: child.path, title: child.name, symbol: "folder.fill", bytes: child.size,
+                           items: children(of: child.path, in: facts.sizes).prefix(6).map {
+                               AssistantUsage.Item(name: $0.name, path: $0.path, bytes: $0.size)
+                           })
+        }
+        let rest = (facts.sizes[folder] ?? 0) - shown.reduce(Int64(0)) { $0 + $1.size }
+        if rest > Limits.megabyte {
+            slices.append(AssistantUsage(id: "other", title: String(localized: "Other items"), symbol: "doc.fill", bytes: rest))
+        }
+        return slices
     }
 
     // MARK: - What uses the disk

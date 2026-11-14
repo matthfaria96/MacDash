@@ -133,7 +133,7 @@ struct PremiumIconSpec {
         switch true {
         case has("desktopcomputer", "display", "macwindow", "laptopcomputer"):
             return PremiumIconSpec(shape: .squircle, glyph: symbol, glyphScale: 0.52, badge: ("sparkles", .circle, nil))
-        case has("wand.and.stars", "sparkles", "sparkle"):
+        case has("wand.and.stars", "sparkles", "sparkle", "bubbles.and.sparkles"):
             return PremiumIconSpec(shape: .hexagon, glyph: symbol, glyphScale: 0.46)
         case has("square.grid", "app.badge", "app.dashed", "app.fill", "apps"):
             return PremiumIconSpec(shape: .blob, glyph: symbol, glyphScale: 0.44)
@@ -502,7 +502,7 @@ extension View {
 /// in each theme color to a PNG, for design review.
 enum PremiumIconGallery {
     static let symbols = [
-        "desktopcomputer", "wand.and.stars", "square.grid.2x2.fill", "hand.raised.fill", "waveform.path.ecg.rectangle.fill",
+        "desktopcomputer", "bubbles.and.sparkles.fill", "square.grid.2x2.fill", "hand.raised.fill", "waveform.path.ecg.rectangle.fill",
         "chart.pie.fill", "doc.on.doc.fill", "photo.stack.fill", "trash.fill", "internaldrive.fill", "wifi",
         "envelope.fill", "power", "exclamationmark.triangle.fill", "wrench.and.screwdriver.fill", "arrow.up",
         "puzzlepiece.extension.fill", "clock.fill", "lock.open.fill", "folder.fill", "battery.75", "magnifyingglass"

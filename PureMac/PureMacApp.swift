@@ -55,6 +55,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
     }
 
+    /// macdash://analyze?path=… from the Finder menu. The window's onOpenURL
+    /// may get the same link; the second call finds nothing left to do.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls where AssistantStore.handle(url) {
+            NSApp.activate(ignoringOtherApps: true)
+        }
+    }
+
     /// Quits even with a sheet open, and remembers to come back to the same
     /// place when the quit is the reopen that grants access.
     @objc func handleQuitEvent(_ event: NSAppleEventDescriptor, withReply reply: NSAppleEventDescriptor) {
@@ -174,11 +182,16 @@ struct PureMacApp: App {
                 }
             }
             .preferredColorScheme(.dark)
+            // A macdash:// link from Finder goes to the open window instead of
+            // opening a second one.
+            .handlesExternalEvents(preferring: ["macdash"], allowing: ["*"])
+            .onOpenURL { _ = AssistantStore.handle($0) }
             // Record the openWindow action so the menu-bar popover can reopen
             // this window after it's been closed (the popover lives outside the
             // scene graph and can't use openWindow itself).
             .background(WindowOpenerCapture())
         }
+        .handlesExternalEvents(matching: ["macdash"])
         .windowStyle(.automatic)
         .windowToolbarStyle(.unified)
         .windowResizability(.contentMinSize)

@@ -909,7 +909,6 @@
 "The app couldn't be replaced: %@" = "アプリを置き換えられませんでした：%@";
 
 "Assistant" = "アシスタント";
-"Your MacDash activity at a glance" = "MacDash でのアクティビティをひと目で";
 "1 day with MacDash" = "MacDash と 1 日";
 "%lld days with MacDash" = "MacDash と %lld 日";
 "Since %@" = "%@ から";
@@ -986,14 +985,9 @@
 "Ascending" = "昇順";
 "Descending" = "降順";
 "Suggestions" = "おすすめ";
-"Suggestion %lld of %lld" = "おすすめ %lld/%lld";
-"New suggestions appear as your Mac changes." = "Mac の状態に合わせて新しいおすすめが表示されます。";
 "Turn on Full Disk Access" = "フルディスクアクセスをオンにする";
 "Lets scans reach protected caches and app data." = "保護されたキャッシュや App のデータもスキャンできるようになります。";
 "Review possible threats" = "脅威の可能性を確認";
-"Clean %@ of junk" = "%@ の不要ファイルを削除";
-"Smart Care results are ready to review." = "スマートケアの結果を確認できます。";
-"Run Smart Care" = "スマートケアを実行";
 "Find what fills your disk" = "ディスクを占めているものを確認";
 "Only %@ free. Space Lens maps the biggest folders." = "空きは %@ だけです。Space Lens で大きなフォルダを確認できます。";
 "Check for app updates" = "App のアップデートを確認";
@@ -1001,8 +995,6 @@
 "Check" = "確認";
 "Review startup items" = "起動項目を確認";
 "Fewer items starting with your Mac means a faster login." = "起動項目が少ないほどログインが速くなります。";
-"Find apps you no longer use" = "使わなくなった App を探す";
-"Advanced Cleanup lists apps left unopened for months." = "詳細クリーンアップで数か月開いていない App を一覧できます。";
 "Look for duplicate files" = "重複ファイルを探す";
 "Identical copies often hide in Downloads and Documents." = "同じファイルのコピーはダウンロードや書類に隠れがちです。";
 
@@ -1326,7 +1318,6 @@
 "Couldn't read the saved antivirus data. A copy was kept at %@." = "保存されたウイルス対策データを読み込めませんでした。コピーを %@ に保存しました。";
 "The command run as administrator failed: %@" = "管理者として実行したコマンドが失敗しました: %@";
 "Checks where junk builds up, then lets you choose what goes." = "不要ファイルがたまる場所を確認し、削除するものを選べます。";
-"Junk, caches and mail files in one quick pass." = "不要ファイル、キャッシュ、メールのファイルを1回ですばやく確認します。";
 "Run an Antivirus scan" = "ウイルス対策スキャンを実行";
 "Clear scan history?" = "スキャン履歴を消去しますか？";
 "Clear history" = "履歴を消去";
@@ -1731,10 +1722,6 @@
 "Delete this report?" = "このレポートを削除しますか？";
 "Delete all reports?" = "すべてのレポートを削除しますか？";
 "Review…" = "確認…";
-"Analyze this Mac" = "この Mac を分析";
-"What uses the disk and what is worth cleaning, in one report." = "ディスクを使っているものと、クリーンアップする価値のあるものを 1 つのレポートで確認できます。";
-"Full analysis" = "完全な分析";
-"What uses the disk, what deserves attention and what to do about it" = "ディスクを使っているもの、注意が必要なもの、その対処方法";
 
 /* Diagnosis: layout and access flow */
 "Do now" = "今すぐ対応";
@@ -1742,7 +1729,6 @@
 "Good to know" = "参考情報";
 "Healthy" = "良好";
 "Attention" = "要注意";
-"Diagnosis" = "診断";
 "Find what is using space and what is worth cleaning." = "何が容量を使っていて、何を片付ける価値があるかを調べます。";
 "Full Disk Access is on. Analyze again to include every folder." = "フルディスクアクセスがオンになりました。すべてのフォルダを含めるにはもう一度分析してください。";
 "Waiting for access…" = "アクセスを待っています…";
@@ -1755,3 +1741,30 @@
 "Choose Quit & Reopen. MacDash comes back here." = "「終了して再度開く」を選んでください。MacDash はここに戻ります。";
 "Reopen" = "開き直す";
 "A few things are worth a look." = "いくつか確認しておきたい点があります。";
+
+/* Assistant: folders and History */
+"Choose a folder to see what is inside it and what is worth cleaning." = "フォルダを選ぶと、中身と片付ける価値があるものがわかります。";
+"Analyze a Folder…" = "フォルダを分析…";
+"Drop a folder to analyze it" = "フォルダをドロップして分析";
+"What is inside" = "中身";
+"Analyses" = "分析";
+"What MacDash has done on this Mac, and every analysis it made." = "このMacでMacDashが行ったことと、これまでのすべての分析。";
+"Your home folder." = "ホームフォルダです。";
+"A cloud storage folder. Its service keeps it in sync, so leave it to that service." = "クラウドストレージのフォルダです。サービスが同期しているので、そのサービスに任せてください。";
+"A folder its project rebuilds: %@ brings it back." = "プロジェクトが作り直すフォルダです。%@ で元に戻ります。";
+"A folder its project rebuilds on the next build." = "次のビルドでプロジェクトが作り直すフォルダです。";
+"Temporary files that apps rebuild on their own." = "Appが自動的に作り直す一時ファイルです。";
+"macOS or an app relies on this folder. Leave it as it is." = "macOSまたはAppがこのフォルダを使っています。そのままにしてください。";
+"A project with git. Last change: %@." = "gitのプロジェクトです。最終変更: %@。";
+"A project with git." = "gitのプロジェクトです。";
+"Holds projects with build folders: %lld." = "ビルドフォルダのあるプロジェクト: %lld";
+"A regular folder. Its largest items are below." = "一般的なフォルダです。大きい項目は下にあります。";
+"This folder can be rebuilt: %@" = "このフォルダは作り直せます: %@";
+"Building or installing again brings it back." = "ビルドやインストールをやり直すと元に戻ります。";
+"Other items" = "その他の項目";
+"Only folders in your home folder or on another disk can be analyzed." = "分析できるのは、ホームフォルダ内か別のディスク上のフォルダだけです。";
+"A project. Its build folders can be made again." = "プロジェクトです。ビルドフォルダは作り直せます。";
+"Back to the start. This report stays in History." = "最初に戻ります。このレポートは「履歴」に残ります。";
+"Nothing to clean in this folder." = "このフォルダに片付けるものはありません。";
+"Antivirus lists them so you can decide about each one." = "「ウイルス対策」が一覧にするので、1つずつ判断できます。";
+"Open Antivirus to run a quick scan." = "「ウイルス対策」を開いてクイックスキャンを実行してください。";

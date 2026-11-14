@@ -474,6 +474,93 @@ final class AssistantTests: XCTestCase {
         XCTAssertFalse(report.headline.isEmpty)
     }
 
+    func testAntivirusRemindersFollowItsState() {
+        var facts = makeFacts()
+        XCTAssertNil(AssistantRules.antivirusFinding(facts))
+        facts.antivirus = AntivirusState(pendingThreats: 2, lastScan: facts.now, isScanning: false)
+        XCTAssertEqual(AssistantRules.antivirusFinding(facts)?.id, "security.threats")
+        XCTAssertEqual(AssistantRules.antivirusFinding(facts)?.tool, .antivirus)
+        facts.antivirus = AntivirusState(pendingThreats: 0, lastScan: facts.now.addingTimeInterval(-86_400), isScanning: false)
+        XCTAssertNil(AssistantRules.antivirusFinding(facts))
+        facts.antivirus = AntivirusState(pendingThreats: 0, lastScan: nil, isScanning: false)
+        XCTAssertEqual(AssistantRules.antivirusFinding(facts)?.id, "security.scan")
+        facts.antivirus = AntivirusState(pendingThreats: 0, lastScan: nil, isScanning: true)
+        XCTAssertNil(AssistantRules.antivirusFinding(facts))
+        // A folder's report says nothing about Antivirus.
+        facts.antivirus = AntivirusState(pendingThreats: 3, lastScan: nil, isScanning: false)
+        facts.scope = "/Users/test/Documents"
+        XCTAssertFalse(AssistantRules.findings(facts, folderSizes: [:], baselines: []).contains { $0.area == .security })
+    }
+
+    // MARK: One folder
+
+    private func folderOptions() -> AssistantScanner.Options {
+        AssistantScanner.Options(home: home, applicationRoots: [], fullDiskAccess: true, runningAppPaths: [], unusedMonths: 6)
+    }
+
+    func testFolderAnalysisFindsBuildFoldersRightInsideIt() throws {
+        let project = try folder("Documents/site")
+        try write("Documents/site/package.json")
+        try write("Documents/site/node_modules/lib/index.js", bytes: 30_000_000)
+        try write("Documents/site/src/app.js", bytes: 2_000)
+
+        let facts = try XCTUnwrap(AssistantScanner.gatherFolder(project, options: folderOptions(), cancel: AssistantCancelFlag()) { _, _ in })
+        XCTAssertEqual(facts.scope, project)
+        XCTAssertEqual(facts.artifacts.map(\.name), ["node_modules"])
+        XCTAssertNil(facts.scopeArtifact)
+
+        let report = AssistantRules.folderReport(from: facts, duration: 1, appVersion: "test")
+        XCTAssertEqual(report.scope, project)
+        XCTAssertGreaterThanOrEqual(report.scopeSize ?? 0, 30_000_000)
+        XCTAssertEqual(report.usage.first?.title, "node_modules")
+        XCTAssertTrue(report.findings.contains { $0.id == "projects.artifacts" })
+        // The disk as a whole is not part of a folder's report.
+        XCTAssertFalse(report.findings.contains { $0.id.hasPrefix("disk.") })
+        XCTAssertTrue(report.folderSizes.isEmpty)
+    }
+
+    func testFolderThatIsItselfBuildOutputCanGoToTheTrash() throws {
+        try write("Documents/site/package.json")
+        try write("Documents/site/node_modules/a/package.json")
+        try write("Documents/site/node_modules/a/node_modules/b.js", bytes: 5_000_000)
+        let modules = home + "/Documents/site/node_modules"
+
+        let facts = try XCTUnwrap(AssistantScanner.gatherFolder(modules, options: folderOptions(), cancel: AssistantCancelFlag()) { _, _ in })
+        XCTAssertNotNil(facts.scopeArtifact)
+        // What sits inside a build folder is part of it, not a separate find.
+        XCTAssertTrue(facts.artifacts.isEmpty)
+        let report = AssistantRules.folderReport(from: facts, duration: 1, appVersion: "test")
+        let finding = try XCTUnwrap(report.findings.first { $0.id == "scope.artifact" })
+        XCTAssertEqual(finding.targets.map(\.path), [modules])
+        XCTAssertEqual(AssistantExecutor.check(finding, context: context()).ready.count, 1)
+    }
+
+    func testFolderSummaryNamesWhatTheFolderIs() throws {
+        var facts = AssistantFacts(home: home)
+        XCTAssertEqual(AssistantScanner.summary(of: home + "/Library/Caches/com.example", facts: facts),
+                       String(localized: "Temporary files that apps rebuild on their own."))
+        XCTAssertEqual(AssistantScanner.summary(of: home + "/Library/Mail", facts: facts),
+                       String(localized: "macOS or an app relies on this folder. Leave it as it is."))
+        let repo = try folder("Documents/tool")
+        try git(["init", "-q"], in: repo)
+        XCTAssertTrue(AssistantScanner.summary(of: repo, facts: facts).contains("git"))
+        facts.now = Date()
+        XCTAssertEqual(AssistantScanner.summary(of: try folder("Documents/notes"), facts: facts),
+                       String(localized: "A regular folder. Its largest items are below."))
+    }
+
+    func testFinderLinksOnlyReachFoldersInHomeOrOnOtherDisks() throws {
+        let inside = try folder("Documents/site")
+        let file = try write("Documents/readme.txt")
+        XCTAssertEqual(AssistantStore.acceptedFolder(inside, home: home), inside)
+        XCTAssertEqual(AssistantStore.acceptedFolder(inside + "/../site", home: home), inside)
+        XCTAssertNil(AssistantStore.acceptedFolder(file, home: home))
+        XCTAssertNil(AssistantStore.acceptedFolder(home + "/missing", home: home))
+        XCTAssertNil(AssistantStore.acceptedFolder("/System/Library", home: home))
+        XCTAssertNil(AssistantStore.acceptedFolder("Documents/site", home: home))
+        XCTAssertNil(AssistantStore.acceptedFolder(home + "/../../etc", home: home))
+    }
+
     // MARK: Reports on disk
 
     func testReportsRoundTripAndListNewestFirst() throws {

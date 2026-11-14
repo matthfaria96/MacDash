@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Diagnosis: one screen that says how the Mac is doing, where the space
 /// went and what to do first. It works from fixed rules on this Mac alone.
@@ -15,12 +16,13 @@ struct AssistantView: View {
     @ObservedObject private var store = AssistantStore.shared
     @ObservedObject private var permission = PermissionCoordinator.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var showsHistory = false
-    @State private var openedReportID: UUID?
     @State private var showsHandled = false
     @State private var detailsReport: AssistantReport?
+    @State private var isDropTargeted = false
 
     static let symbol = "stethoscope"
+    /// Both ways in share one width, so they read as a pair.
+    private static let entryWidth: CGFloat = 250
     private var accent: Color { SectionPalette.assistant.accent }
 
     var body: some View {
@@ -39,7 +41,17 @@ struct AssistantView: View {
         }
         .animation(reduceMotion ? nil : MotionTokens.gentle, value: store.phase)
         .animation(reduceMotion ? nil : MotionTokens.gentle, value: store.message)
-        .animation(reduceMotion ? nil : MotionTokens.gentle, value: showsHistory)
+        .overlay {
+            if isDropTargeted {
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .strokeBorder(accent, style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
+                    .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(accent.opacity(0.08)))
+                    .overlay(Label("Drop a folder to analyze it", systemImage: "folder.badge.questionmark").font(.headline))
+                    .padding(12)
+                    .allowsHitTesting(false)
+            }
+        }
+        .onDrop(of: [UTType.fileURL], isTargeted: $isDropTargeted, perform: handleDrop)
         .sheet(item: $store.plan) { _ in
             AssistantPlanSheet(store: store, accent: accent)
         }
@@ -49,7 +61,7 @@ struct AssistantView: View {
     }
 
     #if DEBUG
-    /// Debug builds only: `-DebugAssistant recommendations|review|history|report|details`
+    /// Debug builds only: `-DebugAssistant recommendations|review|details`
     /// opens that state once results are in, so screenshots don't need clicks.
     private func applyDebugLaunchState(_ proxy: ScrollViewProxy) {
         guard let state = UserDefaults.standard.string(forKey: "DebugAssistant") else { return }
@@ -61,10 +73,6 @@ struct AssistantView: View {
             case "recommendations": proxy.scrollTo("recommendations", anchor: .top)
             case "review":
                 if let finding = store.live?.findings.first(where: { $0.action == .trash }) { store.review(finding.id) }
-            case "history": showsHistory = true
-            case "report":
-                openedReportID = store.history.last?.id
-                showsHistory = true
             case "details": detailsReport = store.live
             default: break
             }
@@ -79,19 +87,11 @@ struct AssistantView: View {
                 if let message = store.message {
                     messageBanner(message)
                 }
-                if showsHistory {
-                    AssistantHistoryView(
-                        store: store, openedReportID: $openedReportID, accent: accent,
-                        analyzeAgain: { showsHistory = false; openedReportID = nil; store.analyze() },
-                        showDetails: { detailsReport = $0 }
-                    )
-                } else {
-                    switch store.phase {
-                    case .idle: idle
-                    case .analyzing: AssistantAnalyzingPanel(store: store)
-                    case .results:
-                        if let report = store.live { results(report) } else { idle }
-                    }
+                switch store.phase {
+                case .idle: idle
+                case .analyzing: AssistantAnalyzingPanel(store: store)
+                case .results:
+                    if let report = store.live { results(report) } else { idle }
                 }
             }
             .padding(24)
@@ -106,7 +106,7 @@ struct AssistantView: View {
     private var topBar: some View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Diagnosis")
+                Text("Assistant")
                     .font(.system(size: 28, weight: .semibold, design: .rounded))
                     .tracking(-0.5)
                     .foregroundStyle(.white)
@@ -118,35 +118,50 @@ struct AssistantView: View {
                 }
             }
             Spacer(minLength: 8)
-            if showsHistory {
+            if store.phase == .results {
+                // Back to the first screen, where the Mac or a folder can be
+                // chosen again; the report stays in History.
                 Button {
-                    if openedReportID != nil { openedReportID = nil } else { showsHistory = false }
+                    withAnimation(reduceMotion ? nil : MotionTokens.gentle) { store.startOver() }
                 } label: {
-                    Label("Back", systemImage: "chevron.left")
+                    Label("Start over", systemImage: "arrow.uturn.backward")
                 }
                 .buttonStyle(GlassButtonStyle())
-            } else {
+                .disabled(store.isMoving)
+                .keyboardShortcut(.cancelAction)
+                .help("Back to the start. This report stays in History.")
                 Button {
-                    openedReportID = nil
-                    showsHistory = true
+                    store.analyzeAgain()
                 } label: {
-                    Image(systemName: "clock.arrow.circlepath")
+                    Label("Analyze Again", systemImage: "arrow.clockwise")
                 }
-                .buttonStyle(GlassIconButtonStyle())
-                .disabled(store.phase == .analyzing)
-                .help("History")
-                .accessibilityLabel(Text("History"))
-                if store.phase == .results {
-                    Button {
-                        store.analyze()
-                    } label: {
-                        Label("Analyze Again", systemImage: "arrow.clockwise")
-                    }
-                    .buttonStyle(GlassButtonStyle())
-                    .disabled(store.isMoving)
-                }
+                .buttonStyle(GlassButtonStyle())
+                .disabled(store.isMoving)
             }
         }
+    }
+
+    /// Picks a folder to analyze on its own.
+    private func chooseFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents")
+        panel.prompt = String(localized: "Analyze")
+        panel.message = String(localized: "Choose a folder to see what is inside it and what is worth cleaning.")
+        if panel.runModal() == .OK, let url = panel.url { store.analyze(folder: url.path) }
+    }
+
+    private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
+        guard store.phase != .analyzing, !store.isMoving,
+              let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) })
+        else { return false }
+        _ = provider.loadObject(ofClass: URL.self) { url, _ in
+            guard let url else { return }
+            Task { @MainActor in AssistantStore.shared.analyze(folder: url.path) }
+        }
+        return true
     }
 
     private func promise(_ symbol: String, _ text: LocalizedStringKey) -> some View {
@@ -182,69 +197,63 @@ struct AssistantView: View {
 
     @ViewBuilder
     private var idle: some View {
-        AuroraPanel {
-            VStack(spacing: 18) {
-                AuroraOrb(size: 118) {
+        // One calm block: the emblem, one sentence, then the two ways in,
+        // stacked, with room around everything.
+        AuroraPanel(padding: 0) {
+            VStack(spacing: 0) {
+                AuroraOrb(size: 136) {
                     Image(systemName: Self.symbol)
-                        .font(.system(size: 42, weight: .medium))
+                        .font(.system(size: 48, weight: .medium))
                         .foregroundStyle(.white)
                 }
-                VStack(spacing: 6) {
+                .padding(.bottom, 34)
+
+                VStack(spacing: 10) {
                     Text("Find what is using space and what is worth cleaning.")
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(.system(size: 21, weight: .semibold, design: .rounded))
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                     Text("Usually under a minute. Nothing is changed.")
-                        .font(.system(size: 12.5))
+                        .font(.system(size: 13))
                         .foregroundStyle(.white.opacity(0.6))
                 }
-                Button {
-                    store.analyze()
-                } label: {
-                    Label("Analyze This Mac", systemImage: "play.fill")
+                .frame(maxWidth: 560)
+                .padding(.bottom, 36)
+
+                VStack(spacing: 12) {
+                    Button {
+                        store.analyze()
+                    } label: {
+                        Label("Analyze This Mac", systemImage: "play.fill")
+                            .frame(width: Self.entryWidth)
+                    }
+                    .buttonStyle(GlassProminentButtonStyle(large: true))
+                    .keyboardShortcut(.defaultAction)
+
+                    Button(action: chooseFolder) {
+                        // The glass style pads 6 pt less on each side than the
+                        // prominent one, so the label is wider by that much.
+                        Label("Analyze a Folder…", systemImage: "folder")
+                            .font(.system(size: 14, weight: .semibold))
+                            .frame(width: Self.entryWidth + 12)
+                            .padding(.vertical, 3)
+                    }
+                    .buttonStyle(GlassButtonStyle())
+                    .controlSize(.large)
                 }
-                .buttonStyle(GlassProminentButtonStyle(large: true))
-                .keyboardShortcut(.defaultAction)
+
+                Label("Drop a folder to analyze it", systemImage: "arrow.down.to.line")
+                    .font(.system(size: 11.5))
+                    .foregroundStyle(.white.opacity(0.4))
+                    .padding(.top, 16)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
+            .padding(.horizontal, 32)
+            .padding(.vertical, 56)
+            .frame(maxWidth: .infinity, minHeight: 500)
         }
         if needsAccess {
             AssistantAccessCard(onGranted: { store.analyze() })
         }
-        if let last = store.history.first {
-            lastReportRow(last)
-        }
-    }
-
-    private func lastReportRow(_ report: AssistantReport) -> some View {
-        Button {
-            openedReportID = report.id
-            showsHistory = true
-        } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "doc.text.fill")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(accent)
-                Text(String(format: String(localized: "Last analysis: %@"), report.date.formatted(date: .abbreviated, time: .shortened)))
-                    .font(.system(size: 12.5, weight: .medium))
-                if report.reclaimable > 0 {
-                    Text(AssistantRules.format(report.reclaimable))
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(GlassPanelBackground(cornerRadius: 14))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Results
@@ -261,7 +270,9 @@ struct AssistantView: View {
             }
         }
 
-        AssistantUsageBar(report: report)
+        if report.usage.contains(where: { $0.bytes > 0 }) {
+            AssistantUsageBar(report: report)
+        }
 
         let open = report.findings.filter { $0.status.isOpen && $0.action != .advice }
         VStack(alignment: .leading, spacing: 16) {
@@ -269,7 +280,7 @@ struct AssistantView: View {
             if open.isEmpty {
                 HStack(spacing: 10) {
                     Image(systemName: "checkmark.seal.fill").foregroundStyle(Tint.green)
-                    Text("Your Mac is in good shape.").foregroundStyle(.secondary)
+                    Text(report.scope == nil ? "Your Mac is in good shape." : "Nothing to clean in this folder.").foregroundStyle(.secondary)
                     Spacer()
                 }
                 .font(.system(size: 13))
@@ -568,11 +579,29 @@ struct AssistantHealthHero: View {
         }
     }
 
-    private var used: Double { report.diskTotal > 0 ? Double(report.diskUsed) / Double(report.diskTotal) : 0 }
+    /// For the Mac, how full the disk is; for a folder, its share of what is used.
+    /// For the Mac, what the selected suggestions recover. For a folder the
+    /// person asked about, everything in it that could go, selected or not.
+    private var recoverable: Int64 {
+        guard report.scope != nil else { return report.reclaimable }
+        return report.findings.filter { $0.status.isOpen && $0.action == .trash }.reduce(0) { $0 + $1.total }
+    }
+
+    private var used: Double {
+        if let size = report.scopeSize {
+            return report.diskUsed > 0 ? min(1, Double(size) / Double(report.diskUsed)) : 0
+        }
+        return report.diskTotal > 0 ? Double(report.diskUsed) / Double(report.diskTotal) : 0
+    }
 
     /// The disk warning and forecast are said here, not repeated as cards.
     /// The amount that can come back is in the ring, so the words don't repeat it.
     private var lines: (main: String, second: String) {
+        if let scope = report.scope {
+            let name = (scope as NSString).lastPathComponent
+            let size = AssistantRules.format(report.scopeSize ?? 0)
+            return (name + " · " + size, report.headline)
+        }
         let disk = report.findings.first { $0.id == "disk.low" }
         let forecast = report.findings.first { $0.id == "disk.forecast" }
         let free = String(format: String(localized: "%@ free of %@"), AssistantRules.format(report.diskFree), AssistantRules.format(report.diskTotal))
@@ -605,6 +634,13 @@ struct AssistantHealthHero: View {
                     .background(Capsule().fill(tint.opacity(0.15)))
 
                     VStack(alignment: .leading, spacing: 4) {
+                        if let scope = report.scope {
+                            Label(AssistantFormat.path(scope), systemImage: "folder.fill")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.5))
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
                         Text(lines.main)
                             .font(.system(size: 19, weight: .semibold, design: .rounded))
                             .fixedSize(horizontal: false, vertical: true)
@@ -616,7 +652,8 @@ struct AssistantHealthHero: View {
 
                     HStack(spacing: 10) {
                         stat(AssistantRules.format(report.movedBytes), "Moved to Trash", "trash")
-                        stat(report.count(.pending, .partial).formatted(), "Pending", "list.bullet")
+                        // The same count as the list below; disk notes are said above.
+                        stat(report.findings.filter { $0.status.isOpen && $0.action != .advice }.count.formatted(), "Pending", "list.bullet")
                     }
 
                     Button(action: showDetails) {
@@ -646,7 +683,7 @@ struct AssistantHealthHero: View {
                 .rotationEffect(.degrees(-90))
                 .shadow(color: tint.opacity(0.5), radius: 8)
             VStack(spacing: 2) {
-                Text(AssistantRules.format(report.reclaimable))
+                Text(AssistantRules.format(recoverable))
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .minimumScaleFactor(0.6)
@@ -706,14 +743,25 @@ struct AssistantUsageBar: View {
         "system": Color.white.opacity(0.22),
     ]
 
-    private func color(_ id: String) -> Color { Self.colors[id] ?? Color.white.opacity(0.4) }
+    /// A folder's contents have no fixed kinds, so they take colors in turn.
+    private static let cycle: [Color] = [
+        Color(red: 0.4, green: 1.0, blue: 0.7), Color(red: 0.45, green: 0.7, blue: 1.0), Color(red: 0.72, green: 0.5, blue: 1.0),
+        Color(red: 1.0, green: 0.62, blue: 0.3), Color(red: 0.95, green: 0.45, blue: 0.8), Color(red: 0.35, green: 0.85, blue: 1.0),
+        Color(red: 1.0, green: 0.82, blue: 0.35), Color(red: 0.3, green: 0.9, blue: 0.85), Color(red: 1.0, green: 0.45, blue: 0.55),
+    ]
+
+    private func color(_ id: String) -> Color {
+        if let fixed = Self.colors[id] { return fixed }
+        if let index = slices.firstIndex(where: { $0.id == id }) { return Self.cycle[index % Self.cycle.count] }
+        return Color.white.opacity(0.4)
+    }
 
     private var slices: [AssistantUsage] { report.usage.filter { $0.bytes > 0 } }
     private var total: Int64 { max(slices.reduce(0) { $0 + $1.bytes }, 1) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("What is using the disk").font(.system(size: 18, weight: .semibold, design: .rounded))
+            Text(report.scope == nil ? "What is using the disk" : "What is inside").font(.system(size: 18, weight: .semibold, design: .rounded))
             VStack(alignment: .leading, spacing: 16) {
                 GeometryReader { geometry in
                     HStack(spacing: 2) {

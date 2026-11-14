@@ -7,7 +7,6 @@ struct MainWindow: View {
     @AppStorage("MacTidy.SidebarCompact") private var sidebarIsCompact = false
     @FocusState private var focusedSection: AppSection?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var assistantOpen = false
     /// Where the person was, so a reopen for Full Disk Access comes back there.
     @AppStorage("MacDash.lastSection") private var lastSection = AppSection.smartCare.rawValue
 
@@ -40,7 +39,9 @@ struct MainWindow: View {
             }
             // The Assistant sits in the same corner on every screen.
             ToolbarItem(placement: .primaryAction) {
-                AssistantToolbarButton(isOpen: $assistantOpen, tint: selectedPalette.accent)
+                AssistantToolbarButton(isSelected: selectedSection == .assistant, tint: selectedPalette.accent) {
+                    selectSection(.assistant)
+                }
             }
             // The current section's name sits centered in a see-through title bar.
             if #available(macOS 26.0, *) {
@@ -48,24 +49,6 @@ struct MainWindow: View {
                     .sharedBackgroundVisibility(.hidden)
             } else {
                 ToolbarItem(placement: .principal) { sectionTitle }
-            }
-        }
-        .overlay(alignment: .topTrailing) {
-            if assistantOpen {
-                ZStack(alignment: .topTrailing) {
-                    // A click anywhere else closes it.
-                    Color.black.opacity(0.001)
-                        .ignoresSafeArea()
-                        .onTapGesture { closeAssistant() }
-                    AssistantPanel(tint: selectedPalette.accent, navigate: { selectSection($0) }) { closeAssistant() }
-                        .padding(.top, 6)
-                        .padding(.trailing, 14)
-                        .transition(
-                            reduceMotion
-                                ? .opacity
-                                : .scale(scale: 0.08, anchor: .topTrailing).combined(with: .opacity)
-                        )
-                }
             }
         }
         .navigationTitle("MacDash")
@@ -90,6 +73,9 @@ struct MainWindow: View {
         }
         .onChange(of: appState.showUpdateSettings) { showUpdates in
             if showUpdates { selectSection(.settings) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: AssistantStore.folderRequested)) { _ in
+            openRequestedFolder()
         }
         .onChange(of: selectedSection) { section in
             if let section { lastSection = section.rawValue }
@@ -117,6 +103,7 @@ struct MainWindow: View {
             applyDebugLaunchSelection()
             #endif
             applyMenuBarNavigation()
+            openRequestedFolder()
             // Scheduled antivirus scans; findings only wait for review.
             if !DemoMode.isActive { AntivirusStore.shared.startScheduler() }
         }
@@ -166,7 +153,7 @@ struct MainWindow: View {
         .safeAreaInset(edge: .top) { Color.clear.frame(height: 8) }
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 0) {
-                diagnosisRow
+                historyRow
                 sidebarFooter
             }
         }
@@ -220,13 +207,15 @@ struct MainWindow: View {
     }
 
     private var visibleSections: [AppSection] {
-        [.smartCare] + Self.mainSections + [.assistant, .settings]
+        [.smartCare] + Self.mainSections + [.history, .settings]
     }
 
-    private func closeAssistant() {
-        withAnimation(reduceMotion ? .easeOut(duration: 0.15) : .spring(response: 0.36, dampingFraction: 0.9)) {
-            assistantOpen = false
-        }
+    /// A folder sent from Finder's "Analyze with MacDash".
+    private func openRequestedFolder() {
+        guard let path = AssistantStore.pendingFolder else { return }
+        AssistantStore.pendingFolder = nil
+        selectSection(.assistant)
+        AssistantStore.shared.analyze(folder: path)
     }
 
     /// A destination picked in the menu bar panel, possibly before this
@@ -249,6 +238,7 @@ struct MainWindow: View {
         switch section {
         case .smartCare: return "sidebar.smartCare"
         case .assistant: return "sidebar.assistant"
+        case .history: return "sidebar.history"
         case .apps: return "sidebar.uninstaller"
         case .duplicates: return "sidebar.duplicates"
         case .spaceLens: return "sidebar.spaceLens"
@@ -313,22 +303,28 @@ struct MainWindow: View {
             .ignoresSafeArea()
     }
 
-    /// Diagnosis sits apart from the tools, above Settings: it looks at the
-    /// whole Mac and sends each finding to the tool that handles it.
-    private var diagnosisRow: some View {
+    /// What MacDash has done and kept, next to Settings.
+    private var historyRow: some View {
         Button {
-            selectSection(.assistant)
+            selectSection(.history)
         } label: {
-            DiagnosisSidebarRow(isSelected: selectedSection == .assistant, isCompact: sidebarIsCompact)
+            SidebarNavRow(
+                label: "History",
+                icon: HistoryView.symbol,
+                tint: SectionPalette.settings.accent,
+                badge: nil,
+                isSelected: selectedSection == .history,
+                isCompact: sidebarIsCompact
+            )
         }
         .buttonStyle(.plain)
-        .focused($focusedSection, equals: .assistant)
-        .accessibilityIdentifier("sidebar.assistant")
-        .accessibilityLabel(Text("Diagnosis"))
-        .help(Text("Diagnosis"))
-        .accessibilityAddTraits(selectedSection == .assistant ? .isSelected : [])
+        .focused($focusedSection, equals: .history)
+        .accessibilityIdentifier("sidebar.history")
+        .accessibilityLabel(Text("History"))
+        .help(Text("History"))
+        .accessibilityAddTraits(selectedSection == .history ? .isSelected : [])
         .padding(.horizontal, sidebarIsCompact ? 5 : 12)
-        .padding(.top, 10)
+        .padding(.top, 12)
     }
 
     private var sidebarFooter: some View {
@@ -349,7 +345,8 @@ struct MainWindow: View {
         .accessibilityIdentifier("sidebar.settings")
         .accessibilityAddTraits(selectedSection == .settings ? .isSelected : [])
         .padding(.horizontal, sidebarIsCompact ? 5 : 12)
-        .padding(.vertical, 12)
+        .padding(.top, 2)
+        .padding(.bottom, 12)
     }
 
     @ViewBuilder
@@ -394,12 +391,11 @@ struct MainWindow: View {
     /// screen directly, so screenshots don't need clicks.
     private func applyDebugLaunchSelection() {
         let defaults = UserDefaults.standard
-        if defaults.bool(forKey: "DebugAssistant") { assistantOpen = true }
         // `-DebugPermissionSheet YES` shows the Full Disk Access sheet.
         if defaults.bool(forKey: "DebugPermissionSheet") { permission.requestAccess(context: .general) {} }
         let sections: [String: AppSection] = [
             "smartCare": .smartCare, "assistant": .assistant, "apps": .apps, "cleanup": .cleanup, "protection": .protection, "antivirus": .antivirus,
-            "duplicates": .duplicates, "similarPhotos": .similarPhotos, "spaceLens": .spaceLens, "driveOffload": .driveOffload, "processes": .processes, "settings": .settings,
+            "duplicates": .duplicates, "similarPhotos": .similarPhotos, "spaceLens": .spaceLens, "driveOffload": .driveOffload, "processes": .processes, "history": .history, "settings": .settings,
         ]
         guard let name = defaults.string(forKey: "DebugSection"), let section = sections[name] else { return }
         if let tab = defaults.string(forKey: "DebugTab") {
@@ -441,6 +437,10 @@ struct MainWindow: View {
             DashboardView { selectSection($0) }
         case .assistant:
             AssistantView { selectSection($0) }
+        case .history:
+            // Like Settings: plain system symbols.
+            HistoryView { selectSection($0) }
+                .environment(\.premiumIconsEnabled, false)
         case .cleanup:
             CleanupHubView()
         case .apps:
@@ -485,7 +485,8 @@ struct SidebarItem {
     init(_ section: AppSection) {
         switch section {
         case .smartCare: (title, icon) = ("Smart Care", "desktopcomputer")
-        case .assistant: (title, icon) = ("Diagnosis", AssistantView.symbol)
+        case .assistant: (title, icon) = ("Assistant", AssistantView.symbol)
+        case .history: (title, icon) = ("History", HistoryView.symbol)
         case .protection: (title, icon) = ("Protection", "hand.raised.fill")
         case .antivirus: (title, icon) = ("Antivirus", "shield.lefthalf.filled")
         case .apps: (title, icon) = ("Applications", "square.grid.2x2.fill")
@@ -494,69 +495,9 @@ struct SidebarItem {
         case .driveOffload: (title, icon) = ("Drive Offload", DriveOffloadView.symbol)
         case .processes: (title, icon) = ("Processes", "waveform.path.ecg.rectangle.fill")
         case .similarPhotos: (title, icon) = ("Similar Photos", "photo.stack.fill")
-        case .cleanup: (title, icon) = ("Advanced Cleanup", "wand.and.stars")
+        case .cleanup: (title, icon) = ("Advanced Cleanup", "bubbles.and.sparkles.fill")
         case .settings: (title, icon) = ("Settings", "gearshape.fill")
         }
-    }
-}
-
-/// The Diagnosis entry: an aurora card, apart from the plain tool rows.
-private struct DiagnosisSidebarRow: View {
-    let isSelected: Bool
-    var isCompact = false
-    @ObservedObject private var store = AssistantStore.shared
-    @State private var hovering = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private var gradient: LinearGradient {
-        LinearGradient(colors: SectionPalette.auroraColors, startPoint: .topLeading, endPoint: .bottomTrailing)
-    }
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: AssistantView.symbol)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(gradient)
-                .frame(width: 32, height: 32)
-                .background(Circle().fill(Color.black.opacity(0.35)))
-                .overlay(Circle().strokeBorder(gradient.opacity(0.7), lineWidth: 1))
-                .shadow(color: SectionPalette.auroraColors[0].opacity(isSelected ? 0.6 : 0.25), radius: 6)
-            if !isCompact {
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("Diagnosis")
-                        .font(.system(size: 14.5, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                    if let report = store.live, report.reclaimable > 0 {
-                        Text(AssistantRules.format(report.reclaimable))
-                            .font(.system(size: 10.5, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
-                            .foregroundStyle(.white.opacity(0.6))
-                    } else if store.phase == .analyzing {
-                        Text("Analyzing…")
-                            .font(.system(size: 10.5, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.6))
-                    }
-                }
-                Spacer(minLength: 4)
-            }
-        }
-        .frame(maxWidth: .infinity, minHeight: 48, alignment: isCompact ? .center : .leading)
-        .padding(.horizontal, isCompact ? 0 : 10)
-        .background {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(gradient.opacity(isSelected ? 0.3 : (hovering ? 0.2 : 0.12)))
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color.black.opacity(0.18))
-        }
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(gradient.opacity(isSelected ? 0.9 : 0.45), lineWidth: isSelected ? 1.2 : 0.8)
-        )
-        .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .animation(reduceMotion ? nil : MotionTokens.snappy, value: hovering)
-        .animation(reduceMotion ? nil : MotionTokens.snappy, value: isSelected)
-        .onHover { hovering = $0 }
     }
 }
 

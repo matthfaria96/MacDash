@@ -379,7 +379,8 @@ struct AssistantHistoryView: View {
     @ObservedObject var store: AssistantStore
     @Binding var openedReportID: UUID?
     let accent: Color
-    let analyzeAgain: () -> Void
+    /// Runs the report's kind of analysis again (the Mac, or its folder).
+    let analyzeAgain: (AssistantReport) -> Void
     var showDetails: (AssistantReport) -> Void = { _ in }
 
     @State private var pendingDelete: AssistantReport?
@@ -421,74 +422,59 @@ struct AssistantHistoryView: View {
 
     // MARK: List
 
+    /// Grouped rows, like Settings: the date and what was found on the left,
+    /// open and delete on the right.
     private var list: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("History").font(.system(size: 16, weight: .semibold))
-                    Text(String(format: String(localized: "One report per analysis. MacDash keeps the latest %lld."), Int64(AssistantStore.reportLimit)))
+        SettingsSection(
+            title: "Analyses",
+            footer: Text(String(format: String(localized: "One report per analysis. MacDash keeps the latest %lld."), Int64(AssistantStore.reportLimit)))
+        ) {
+            if !store.history.isEmpty {
+                Menu {
+                    Button("Older Than 30 Days") { store.deleteOlder(thanDays: 30) }
+                    Button("All Reports…", role: .destructive) { confirmsDeleteAll = true }
+                } label: {
+                    Label("Delete", systemImage: "trash")
                         .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
                 }
-                Spacer()
-                if !store.history.isEmpty {
-                    Menu {
-                        Button("Older Than 30 Days") { store.deleteOlder(thanDays: 30) }
-                        Button("All Reports…", role: .destructive) { confirmsDeleteAll = true }
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                    .menuStyle(.borderlessButton)
-                    .fixedSize()
-                }
+                .menuStyle(.borderlessButton)
+                .fixedSize()
             }
+        } content: {
             if !store.isHistoryLoaded {
-                placeholder { ProgressView().controlSize(.small); Text("Loading reports…").foregroundStyle(.secondary) }
+                SettingsRow("Loading reports…") { ProgressView().controlSize(.small) }
             } else if store.history.isEmpty {
-                placeholder {
-                    Image(systemName: "tray").foregroundStyle(.secondary)
-                    Text("No reports yet. Each analysis you run is kept here.").foregroundStyle(.secondary)
-                }
+                SettingsRow("No reports yet. Each analysis you run is kept here.", symbol: "tray") { EmptyView() }
             } else {
-                CardSurface(padding: 0, elevation: .flat) {
-                    VStack(spacing: 0) {
-                        ForEach(Array(store.history.enumerated()), id: \.element.id) { index, report in
-                            row(report)
-                            if index < store.history.count - 1 { Divider().opacity(0.25).padding(.leading, 60) }
-                        }
-                    }
+                ForEach(Array(store.history.enumerated()), id: \.element.id) { index, report in
+                    if index > 0 { SettingsSeparator(indented: true) }
+                    row(report)
                 }
             }
         }
     }
 
     private func row(_ report: AssistantReport) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 4) {
             Button {
                 openedReportID = report.id
             } label: {
-                HStack(spacing: 12) {
-                    CategoryBadge(systemName: "doc.text.fill", tint: accent, size: 32)
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 6) {
-                            Text(report.date.formatted(date: .abbreviated, time: .shortened))
-                                .font(.system(size: 13.5, weight: .semibold))
-                            if report.id == store.live?.id {
-                                StatusChip(label: String(localized: "Current"), tint: accent)
-                            }
+                SettingsRow(
+                    verbatim: report.date.formatted(date: .abbreviated, time: .shortened),
+                    detail: report.headline + "\n" + tally(report),
+                    symbol: report.scope == nil ? "desktopcomputer" : "folder"
+                ) {
+                    HStack(spacing: 8) {
+                        if report.id == store.live?.id {
+                            StatusChip(label: String(localized: "Current"), tint: accent)
                         }
-                        Text(report.headline)
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                        Text(tally(report))
-                            .font(.system(size: 11.5).monospacedDigit())
-                            .foregroundStyle(.tertiary)
+                        if let scope = report.scope {
+                            Text(verbatim: (scope as NSString).lastPathComponent).settingsValue().lineLimit(1)
+                        }
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(SettingsStyle.tertiary)
                     }
-                    Spacer(minLength: 8)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(.secondary)
                 }
                 .contentShape(Rectangle())
             }
@@ -497,13 +483,16 @@ struct AssistantHistoryView: View {
                 pendingDelete = report
             } label: {
                 Image(systemName: "trash")
+                    .font(.system(size: 12))
+                    .foregroundStyle(SettingsStyle.secondary)
+                    .frame(width: 28, height: 28)
+                    .contentShape(Rectangle())
             }
-            .buttonStyle(GlassIconButtonStyle())
+            .buttonStyle(.plain)
             .help("Delete this report")
             .accessibilityLabel(Text("Delete this report"))
+            .padding(.trailing, 8)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 11)
     }
 
     private func tally(_ report: AssistantReport) -> String {
@@ -545,7 +534,7 @@ struct AssistantHistoryView: View {
                 .buttonStyle(GlassIconButtonStyle())
                 .help("Delete this report")
                 .accessibilityLabel(Text("Delete this report"))
-                Button("Analyze Again", action: analyzeAgain)
+                Button("Analyze Again") { analyzeAgain(report) }
                     .buttonStyle(GlassProminentButtonStyle())
             }
         }

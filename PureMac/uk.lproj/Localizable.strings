@@ -909,7 +909,6 @@
 "The app couldn't be replaced: %@" = "Не вдалося замінити застосунок: %@";
 
 "Assistant" = "Помічник";
-"Your MacDash activity at a glance" = "Ваша активність у MacDash з першого погляду";
 "1 day with MacDash" = "1 день з MacDash";
 "%lld days with MacDash" = "%lld дн. з MacDash";
 "Since %@" = "З %@";
@@ -986,14 +985,9 @@
 "Ascending" = "За зростанням";
 "Descending" = "За спаданням";
 "Suggestions" = "Поради";
-"Suggestion %lld of %lld" = "Порада %lld з %lld";
-"New suggestions appear as your Mac changes." = "Нові поради з'являтимуться в міру змін на Mac.";
 "Turn on Full Disk Access" = "Увімкнути повний доступ до диска";
 "Lets scans reach protected caches and app data." = "Дозволяє перевіркам дістатися захищених кешів і даних програм.";
 "Review possible threats" = "Переглянути можливі загрози";
-"Clean %@ of junk" = "Очистити %@ непотребу";
-"Smart Care results are ready to review." = "Результати Smart Care готові до перегляду.";
-"Run Smart Care" = "Запустити Smart Care";
 "Find what fills your disk" = "Дізнатися, що займає диск";
 "Only %@ free. Space Lens maps the biggest folders." = "Вільно лише %@. Space Lens покаже найбільші папки.";
 "Check for app updates" = "Перевірити оновлення програм";
@@ -1001,8 +995,6 @@
 "Check" = "Перевірити";
 "Review startup items" = "Переглянути об'єкти автозапуску";
 "Fewer items starting with your Mac means a faster login." = "Менше об'єктів під час запуску — швидший вхід.";
-"Find apps you no longer use" = "Знайти програми, якими ви більше не користуєтеся";
-"Advanced Cleanup lists apps left unopened for months." = "Розширене очищення покаже програми, не відкриті місяцями.";
 "Look for duplicate files" = "Пошукати дублікати файлів";
 "Identical copies often hide in Downloads and Documents." = "Однакові копії часто ховаються в Завантаженнях і Документах.";
 
@@ -1326,7 +1318,6 @@
 "Couldn't read the saved antivirus data. A copy was kept at %@." = "Не вдалося прочитати збережені дані антивіруса. Копію збережено в %@.";
 "The command run as administrator failed: %@" = "Команда від імені адміністратора завершилася помилкою: %@";
 "Checks where junk builds up, then lets you choose what goes." = "Перевіряє, де накопичується сміття, а потім ви обираєте, що видалити.";
-"Junk, caches and mail files in one quick pass." = "Сміття, кеші та файли Пошти за один швидкий прохід.";
 "Run an Antivirus scan" = "Запустити антивірусну перевірку";
 "Clear scan history?" = "Очистити історію перевірок?";
 "Clear history" = "Очистити історію";
@@ -1731,10 +1722,6 @@
 "Delete this report?" = "Видалити цей звіт?";
 "Delete all reports?" = "Видалити всі звіти?";
 "Review…" = "Переглянути…";
-"Analyze this Mac" = "Проаналізувати цей Mac";
-"What uses the disk and what is worth cleaning, in one report." = "Що займає диск і що варто очистити — в одному звіті.";
-"Full analysis" = "Повний аналіз";
-"What uses the disk, what deserves attention and what to do about it" = "Що займає диск, що заслуговує на увагу й що з цим робити";
 
 /* Diagnosis: layout and access flow */
 "Do now" = "Зробити зараз";
@@ -1742,7 +1729,6 @@
 "Good to know" = "Корисно знати";
 "Healthy" = "Усе гаразд";
 "Attention" = "Потребує уваги";
-"Diagnosis" = "Діагностика";
 "Find what is using space and what is worth cleaning." = "Дізнайтеся, що займає місце і що варто очистити.";
 "Full Disk Access is on. Analyze again to include every folder." = "Повний доступ до диска ввімкнено. Проаналізуйте знову, щоб охопити всі папки.";
 "Waiting for access…" = "Очікування доступу…";
@@ -1755,3 +1741,30 @@
 "Choose Quit & Reopen. MacDash comes back here." = "Виберіть «Завершити й відкрити знову». MacDash повернеться сюди.";
 "Reopen" = "Відкрити знову";
 "A few things are worth a look." = "Дещо варто перевірити.";
+
+/* Assistant: folders and History */
+"Choose a folder to see what is inside it and what is worth cleaning." = "Виберіть папку, щоб побачити, що в ній і що варто очистити.";
+"Analyze a Folder…" = "Аналізувати папку…";
+"Drop a folder to analyze it" = "Перетягніть папку, щоб проаналізувати її";
+"What is inside" = "Що всередині";
+"Analyses" = "Аналізи";
+"What MacDash has done on this Mac, and every analysis it made." = "Що MacDash зробив на цьому Mac, і кожен проведений аналіз.";
+"Your home folder." = "Ваша папка користувача.";
+"A cloud storage folder. Its service keeps it in sync, so leave it to that service." = "Папка хмарного сховища. Її служба тримає її синхронізованою, тож залиште це їй.";
+"A folder its project rebuilds: %@ brings it back." = "Папка, яку проєкт створює знову: %@ поверне її.";
+"A folder its project rebuilds on the next build." = "Папка, яку проєкт створює знову під час наступної збірки.";
+"Temporary files that apps rebuild on their own." = "Тимчасові файли, які програми створюють знову самі.";
+"macOS or an app relies on this folder. Leave it as it is." = "macOS або програма залежить від цієї папки. Залиште її як є.";
+"A project with git. Last change: %@." = "Проєкт із git. Остання зміна: %@.";
+"A project with git." = "Проєкт із git.";
+"Holds projects with build folders: %lld." = "Проєктів із папками збірки: %lld.";
+"A regular folder. Its largest items are below." = "Звичайна папка. Найбільші об’єкти нижче.";
+"This folder can be rebuilt: %@" = "Цю папку можна створити знову: %@";
+"Building or installing again brings it back." = "Повторна збірка або встановлення поверне її.";
+"Other items" = "Інші об’єкти";
+"Only folders in your home folder or on another disk can be analyzed." = "Аналізувати можна лише папки в папці користувача або на іншому диску.";
+"A project. Its build folders can be made again." = "Проєкт. Його папки збірки можна створити знову.";
+"Back to the start. This report stays in History." = "Повернутися на початок. Цей звіт лишається в розділі «Історія».";
+"Nothing to clean in this folder." = "У цій папці нічого очищати.";
+"Antivirus lists them so you can decide about each one." = "Антивірус покаже їх, щоб ви вирішили щодо кожного.";
+"Open Antivirus to run a quick scan." = "Відкрийте Антивірус для швидкої перевірки.";

@@ -1,15 +1,16 @@
 # MacDash
 
 SwiftUI cleanup app for macOS 13+. Xcode project `PureMac.xcodeproj` (scheme `PureMac`, internal
-names still PureMac); `scripts/dev.sh build|run|test`. The project is not file-system synchronized:
-new Swift files must be added to `project.pbxproj` (and kept in line with `project.yml`).
+names still PureMac); `scripts/dev.sh build|run|test`. `project.yml` is the source: after adding files or targets, run
+`xcodegen generate` (it rewrites `project.pbxproj`; don't edit that by hand).
 
-## Diagnosis (`PureMac/Services/Assistant`, `Views/Tools/Assistant*.swift`)
+## Assistant (`PureMac/Services/Assistant`, `Views/Tools/Assistant*.swift`)
 
-Shown as "Diagnosis" in a row of its own above Settings (`AppSection.assistant` internally); the
-toolbar "Assistant" button is the separate quick panel and links to it. Its look is the aurora
-palette (`SectionPalette.assistant`, `auroraColors`), the only section with two hues.
-
+Opened by the toolbar "Assistant" button (`AppSection.assistant`, no sidebar row); its look is the
+aurora palette (`SectionPalette.assistant`). Past analyses and MacDash's usage numbers live in the
+History section (`HistoryView`, above Settings). One folder can be analyzed on its own: from the
+screen, by dropping it there, or from Finder's right-click "Analyze with MacDash" (the
+`MacDashFinder` Finder Sync extension, which only builds the menu and opens `macdash://analyze?path=`).
 A diagnosis that runs on fixed rules, with no model and no network. It only works while an analysis
 runs: no timer, no file watching, nothing at launch.
 - `AssistantScanner` measures (one pass over the home folder), `AssistantRules` turns the numbers
@@ -40,9 +41,9 @@ Run a renamed copy, never the installed app: copy the Debug app, set `CFBundleId
 `defaults write com.macdash.app.showcase MacTidy.OnboardingComplete -bool true` (and
 `settings.general.menuBarMonitor -bool false`), then
 `open -g -n --env CFFIXED_USER_HOME=<temp home> --env MACDASH_DEMO=1 <copy> --args -AppleLanguages "(en)" -DebugSection smartCare`.
-Avoid Protection, Processes' app list, the Assistant toolbar panel and the Wi‑Fi note in Settings:
+Avoid Protection, Processes' app list, History's usage numbers and the Wi‑Fi note in Settings:
 they read the real Mac (permissions, running apps, usage stats, user name). The Assistant screen
 itself is safe: `-DebugSection assistant -DebugScan YES` shows a fictional analysis (`AssistantDemo`),
-and `-DebugAssistant recommendations|review|history|report|details` opens that state of it.
+and `-DebugAssistant recommendations|review|details` opens that state of it.
 `-DebugPermissionSheet YES` shows the Full Disk Access sheet. Afterwards quit it,
 `defaults delete com.macdash.app.showcase`, delete the temp home and `lsregister -u` the copy.

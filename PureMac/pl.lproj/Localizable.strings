@@ -909,7 +909,6 @@
 "The app couldn't be replaced: %@" = "Nie udało się zastąpić aplikacji: %@";
 
 "Assistant" = "Asystent";
-"Your MacDash activity at a glance" = "Twoja aktywność w MacDash w skrócie";
 "1 day with MacDash" = "1 dzień z MacDash";
 "%lld days with MacDash" = "%lld dni z MacDash";
 "Since %@" = "Od %@";
@@ -986,14 +985,9 @@
 "Ascending" = "Rosnąco";
 "Descending" = "Malejąco";
 "Suggestions" = "Sugestie";
-"Suggestion %lld of %lld" = "Sugestia %lld z %lld";
-"New suggestions appear as your Mac changes." = "Nowe sugestie pojawią się, gdy Twój Mac się zmieni.";
 "Turn on Full Disk Access" = "Włącz pełny dostęp do dysku";
 "Lets scans reach protected caches and app data." = "Pozwala skanom dotrzeć do chronionych pamięci podręcznych i danych aplikacji.";
 "Review possible threats" = "Przejrzyj możliwe zagrożenia";
-"Clean %@ of junk" = "Wyczyść %@ śmieci";
-"Smart Care results are ready to review." = "Wyniki Smart Care są gotowe do przejrzenia.";
-"Run Smart Care" = "Uruchom Smart Care";
 "Find what fills your disk" = "Sprawdź, co zajmuje dysk";
 "Only %@ free. Space Lens maps the biggest folders." = "Wolne tylko %@. Space Lens pokazuje największe foldery.";
 "Check for app updates" = "Sprawdź uaktualnienia aplikacji";
@@ -1001,8 +995,6 @@
 "Check" = "Sprawdź";
 "Review startup items" = "Przejrzyj elementy startowe";
 "Fewer items starting with your Mac means a faster login." = "Mniej elementów przy starcie to szybsze logowanie.";
-"Find apps you no longer use" = "Znajdź nieużywane aplikacje";
-"Advanced Cleanup lists apps left unopened for months." = "Zaawansowane czyszczenie pokazuje aplikacje nieotwierane od miesięcy.";
 "Look for duplicate files" = "Poszukaj duplikatów plików";
 "Identical copies often hide in Downloads and Documents." = "Identyczne kopie często kryją się w Pobranych i Dokumentach.";
 
@@ -1326,7 +1318,6 @@
 "Couldn't read the saved antivirus data. A copy was kept at %@." = "Nie udało się odczytać zapisanych danych antywirusa. Kopię zachowano w %@.";
 "The command run as administrator failed: %@" = "Polecenie uruchomione jako administrator nie powiodło się: %@";
 "Checks where junk builds up, then lets you choose what goes." = "Sprawdza, gdzie gromadzą się śmieci, a potem Ty wybierasz, co usunąć.";
-"Junk, caches and mail files in one quick pass." = "Śmieci, pamięć podręczna i pliki Poczty w jednym szybkim przebiegu.";
 "Run an Antivirus scan" = "Uruchom skanowanie antywirusowe";
 "Clear scan history?" = "Wyczyścić historię skanowań?";
 "Clear history" = "Wyczyść historię";
@@ -1731,10 +1722,6 @@
 "Delete this report?" = "Usunąć ten raport?";
 "Delete all reports?" = "Usunąć wszystkie raporty?";
 "Review…" = "Przejrzyj…";
-"Analyze this Mac" = "Przeanalizuj tego Maca";
-"What uses the disk and what is worth cleaning, in one report." = "Co zajmuje dysk i co warto wyczyścić, w jednym raporcie.";
-"Full analysis" = "Pełna analiza";
-"What uses the disk, what deserves attention and what to do about it" = "Co zajmuje dysk, co wymaga uwagi i co z tym zrobić";
 
 /* Diagnosis: layout and access flow */
 "Do now" = "Zrób teraz";
@@ -1742,7 +1729,6 @@
 "Good to know" = "Dobrze wiedzieć";
 "Healthy" = "W dobrej kondycji";
 "Attention" = "Do sprawdzenia";
-"Diagnosis" = "Diagnoza";
 "Find what is using space and what is worth cleaning." = "Sprawdź, co zajmuje miejsce i co warto wyczyścić.";
 "Full Disk Access is on. Analyze again to include every folder." = "Pełny dostęp do dysku jest włączony. Przeanalizuj ponownie, aby uwzględnić wszystkie foldery.";
 "Waiting for access…" = "Oczekiwanie na dostęp…";
@@ -1755,3 +1741,30 @@
 "Choose Quit & Reopen. MacDash comes back here." = "Wybierz „Zakończ i otwórz ponownie”. MacDash wróci tutaj.";
 "Reopen" = "Otwórz ponownie";
 "A few things are worth a look." = "Kilka rzeczy warto sprawdzić.";
+
+/* Assistant: folders and History */
+"Choose a folder to see what is inside it and what is worth cleaning." = "Wybierz folder, aby zobaczyć, co w nim jest i co warto wyczyścić.";
+"Analyze a Folder…" = "Analizuj folder…";
+"Drop a folder to analyze it" = "Upuść folder, aby go przeanalizować";
+"What is inside" = "Zawartość";
+"Analyses" = "Analizy";
+"What MacDash has done on this Mac, and every analysis it made." = "Co MacDash zrobił na tym Macu i każda wykonana analiza.";
+"Your home folder." = "Twój folder domowy.";
+"A cloud storage folder. Its service keeps it in sync, so leave it to that service." = "Folder magazynu w chmurze. Jego usługa go synchronizuje, więc zostaw to jej.";
+"A folder its project rebuilds: %@ brings it back." = "Folder odtwarzany przez projekt: %@ go przywraca.";
+"A folder its project rebuilds on the next build." = "Folder odtwarzany przez projekt przy następnej kompilacji.";
+"Temporary files that apps rebuild on their own." = "Pliki tymczasowe, które aplikacje odtwarzają same.";
+"macOS or an app relies on this folder. Leave it as it is." = "macOS lub aplikacja korzysta z tego folderu. Zostaw go bez zmian.";
+"A project with git. Last change: %@." = "Projekt z git. Ostatnia zmiana: %@.";
+"A project with git." = "Projekt z git.";
+"Holds projects with build folders: %lld." = "Projekty z folderami kompilacji: %lld.";
+"A regular folder. Its largest items are below." = "Zwykły folder. Największe elementy są poniżej.";
+"This folder can be rebuilt: %@" = "Ten folder można odtworzyć: %@";
+"Building or installing again brings it back." = "Ponowna kompilacja lub instalacja go przywraca.";
+"Other items" = "Inne elementy";
+"Only folders in your home folder or on another disk can be analyzed." = "Można analizować tylko foldery w folderze domowym lub na innym dysku.";
+"A project. Its build folders can be made again." = "Projekt. Jego foldery kompilacji można odtworzyć.";
+"Back to the start. This report stays in History." = "Wróć do początku. Ten raport zostaje w sekcji „Historia”.";
+"Nothing to clean in this folder." = "W tym folderze nie ma nic do wyczyszczenia.";
+"Antivirus lists them so you can decide about each one." = "Antywirus wyświetla je, aby można było zdecydować o każdym z nich.";
+"Open Antivirus to run a quick scan." = "Otwórz Antywirus, aby wykonać szybkie skanowanie.";

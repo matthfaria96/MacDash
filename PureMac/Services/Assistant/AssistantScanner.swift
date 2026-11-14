@@ -92,8 +92,24 @@ struct AssistantFacts: Sendable {
     var apps: [App] = []
     var applicationsTotal: Int64 = 0
     var unusedMonths = 6
+    /// What Antivirus knows, read when the analysis starts; nil when not given.
+    var antivirus: AntivirusState?
+    /// Set when one folder was analyzed instead of the whole Mac.
+    var scope: String?
+    /// What that folder is, in one sentence.
+    var scopeSummary = ""
+    /// The folder itself, when it is something its project rebuilds.
+    var scopeArtifact: Artifact?
 
     func size(_ relative: String) -> Int64 { sizes[home + "/" + relative] ?? 0 }
+}
+
+/// Antivirus' state when an analysis starts. Antivirus does its own scans;
+/// the Assistant only reminds of it.
+struct AntivirusState: Sendable {
+    var pendingThreats: Int
+    var lastScan: Date?
+    var isScanning: Bool
 }
 
 enum AssistantStep: String, CaseIterable, Sendable {
@@ -149,6 +165,7 @@ final class AssistantTreeWalk: @unchecked Sendable {
     private let tracked: Set<String>
     private let expand: Set<String>
     private let appSupport: String
+    private let detectAtRoot: Bool
     private let cancel: AssistantCancelFlag
     private let onFolder: @Sendable (String) -> Void
 
@@ -169,10 +186,12 @@ final class AssistantTreeWalk: @unchecked Sendable {
         skip: Set<String>,
         tracked: Set<String>,
         expand: Set<String>,
+        detectAtRoot: Bool = false,
         cancel: AssistantCancelFlag,
         onFolder: @escaping @Sendable (String) -> Void
     ) {
         self.root = root
+        self.detectAtRoot = detectAtRoot
         self.skip = skip
         self.tracked = tracked
         self.expand = expand
@@ -184,7 +203,9 @@ final class AssistantTreeWalk: @unchecked Sendable {
 
     @discardableResult
     func run() -> Int64 {
-        let total = walk(root, depth: 0, detect: false)
+        // Under the home folder, projects are looked for below its top
+        // folders; when one folder is analyzed, right inside it.
+        let total = walk(root, depth: 0, detect: detectAtRoot)
         lock.lock(); sizes[root] = total; lock.unlock()
         return total
     }
@@ -231,7 +252,7 @@ final class AssistantTreeWalk: @unchecked Sendable {
             let child = path + "/" + name
             if skip.contains(child) { continue }
             var childDetect: Bool
-            if depth == 0 {
+            if depth == 0, !detectAtRoot {
                 childDetect = !name.hasPrefix(".") && !AssistantCatalog.nonProjectRoots.contains(name)
             } else {
                 childDetect = detect && depth + 1 < AssistantCatalog.projectDepth && !name.hasPrefix(".")
@@ -319,6 +340,7 @@ enum AssistantScanner {
         var runningAppPaths: Set<String>
         var unusedMonths: Int
         var now = Date()
+        var antivirus: AntivirusState?
         /// More folders to leave unread.
         var alsoSkip: Set<String> = []
     }
@@ -332,6 +354,7 @@ enum AssistantScanner {
         let home = options.home
         var facts = AssistantFacts(home: home, now: options.now)
         facts.unusedMonths = options.unusedMonths
+        facts.antivirus = options.antivirus
 
         progress(.disk, "")
         if let space = DirectoryLister.volumeSpace(home) {
@@ -396,6 +419,118 @@ enum AssistantScanner {
             paths.insert(support + "/" + name)
         }
         return paths
+    }
+
+    // MARK: One folder
+
+    /// Measures one folder and what is inside it, with the same rules as the
+    /// whole-Mac analysis. Nil when cancelled.
+    static func gatherFolder(
+        _ folder: String,
+        options: Options,
+        cancel: AssistantCancelFlag,
+        progress: @escaping @Sendable (AssistantStep, String) -> Void
+    ) -> AssistantFacts? {
+        let home = options.home
+        var facts = AssistantFacts(home: home, now: options.now)
+        facts.scope = folder
+        progress(.disk, "")
+        if let space = DirectoryLister.volumeSpace(home) {
+            facts.diskTotal = space.total
+            facts.diskFree = space.available
+        }
+
+        progress(.folders, "")
+        let walk = AssistantTreeWalk(
+            root: folder, skip: [home + "/Library/CloudStorage", home + "/Library/Mobile Documents"],
+            tracked: trackedPaths(home: home), expand: expandedPaths(home: home), detectAtRoot: true, cancel: cancel
+        ) { path in progress(.folders, path) }
+        walk.run()
+        guard !cancel.isCancelled else { return nil }
+        facts.sizes = walk.sizes
+        facts.filesChecked = walk.files
+
+        progress(.projects, "")
+        facts.artifacts = artifacts(from: walk.candidates, home: home, now: options.now, cancel: cancel) { progress(.projects, $0) }
+        if let identity = identity(of: folder), identity.isDirectory, isStillArtifact(folder, home: home) {
+            let name = (folder as NSString).lastPathComponent
+            let parent = (folder as NSString).deletingLastPathComponent
+            let project = projectRoot(for: parent, repository: nil, home: home)
+            facts.scopeArtifact = AssistantFacts.Artifact(
+                item: AssistantFacts.Measured(path: folder, label: displayName(of: project, home: home) + " › " + name,
+                                              size: walk.sizes[folder] ?? 0, fileID: identity.fileID,
+                                              modified: identity.modified, isDirectory: true),
+                name: name, project: project,
+                lastActivity: lastActivity(project: project, isRepository: FileManager.default.fileExists(atPath: project + "/.git"), home: home),
+                command: AssistantCatalog.artifacts[name]?.first?.command
+            )
+        }
+        // Inside a build folder, nested ones are part of it, not separate finds.
+        if facts.scopeArtifact != nil { facts.artifacts = [] }
+        guard !cancel.isCancelled else { return nil }
+
+        // What the home-wide checks know, kept to what lies inside the folder.
+        progress(.tools, "")
+        func inside(_ path: String) -> Bool { path == folder || path.hasPrefix(folder + "/") }
+        let sizes = facts.sizes
+        facts.editors = AssistantCatalog.editors.compactMap { editorFacts($0, home: home, sizes: sizes) }.map { editor in
+            var editor = editor
+            editor.oldExtensions = editor.oldExtensions.filter { inside($0.path) }
+            editor.regenerating = editor.regenerating.filter { inside($0.path) }
+            editor.caches = editor.caches.filter { inside($0.path) }
+            editor.orphanWorkspaces = editor.orphanWorkspaces.filter { inside($0.path) }
+            return editor
+        }
+        var claude = claudeFacts(home: home, sizes: sizes, now: options.now)
+        claude.oldVersions = claude.oldVersions.filter { inside($0.path) }
+        claude.sessions = claude.sessions.filter { inside($0.item.path) }
+        claude.history = claude.history.filter { inside($0.path) }
+        claude.desktopCaches = claude.desktopCaches.filter { inside($0.path) }
+        claude.sessionsTotal = inside(home + "/" + AssistantCatalog.Claude.projects) ? (sizes[home + "/" + AssistantCatalog.Claude.projects] ?? 0) : 0
+        facts.claude = claude
+        facts.chromiumCaches = chromiumCaches(home: home, sizes: sizes).filter { inside($0.path) }
+        facts.devCaches = devCaches(home: home, sizes: sizes).filter { inside($0.path) }
+        facts.offload = offloadFolders(home: home, sizes: sizes).filter { inside($0.path) }
+        facts.scopeSummary = summary(of: folder, facts: facts)
+        guard !cancel.isCancelled else { return nil }
+        progress(.verdict, "")
+        return facts
+    }
+
+    /// What a folder is, in one sentence: the first rule that fits.
+    static func summary(of folder: String, facts: AssistantFacts) -> String {
+        let home = facts.home
+        let relative = folder.hasPrefix(home + "/") ? String(folder.dropFirst(home.count + 1)) : nil
+        if folder == home { return String(localized: "Your home folder.") }
+        if ProviderPaths.isProviderOwned(folder, homeDirectory: URL(fileURLWithPath: home, isDirectory: true)) {
+            return String(localized: "A cloud storage folder. Its service keeps it in sync, so leave it to that service.")
+        }
+        if let artifact = facts.scopeArtifact {
+            return artifact.command.map { String(format: String(localized: "A folder its project rebuilds: %@ brings it back."), $0) }
+                ?? String(localized: "A folder its project rebuilds on the next build.")
+        }
+        if let relative, let entry = DriveOffloadCatalog.entries.first(where: { $0.relativePath == relative }) {
+            return entry.detail
+        }
+        if let relative, relative == "Library/Caches" || relative.hasPrefix("Library/Caches/") {
+            return String(localized: "Temporary files that apps rebuild on their own.")
+        }
+        if let relative, OffloadSafety.protectedPrefixes.contains(where: { relative == $0 || relative.hasPrefix($0 + "/") }) || relative == "Library" {
+            return String(localized: "macOS or an app relies on this folder. Leave it as it is.")
+        }
+        if FileManager.default.fileExists(atPath: folder + "/.git") {
+            let last = lastActivity(project: folder, isRepository: true, home: home)
+            return last.map { String(format: String(localized: "A project with git. Last change: %@."), $0.formatted(date: .abbreviated, time: .omitted)) }
+                ?? String(localized: "A project with git.")
+        }
+        let projects = Set(facts.artifacts.map(\.project))
+        if projects == [folder] {
+            return String(localized: "A project. Its build folders can be made again.")
+        }
+        if !projects.isEmpty {
+            return String(format: String(localized: "Holds projects with build folders: %lld."), Int64(projects.count))
+        }
+        return String(localized: "A regular folder. Its largest items are below.")
     }
 
     // MARK: Which deeper folders keep their size

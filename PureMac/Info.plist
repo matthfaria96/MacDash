@@ -4,54 +4,53 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>MacDash</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleName</key>
 	<string>MacDash</string>
-	<key>CFBundleDisplayName</key>
-	<string>MacDash</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.macdash.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>macdash</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
-	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2026 Matheus Faria. GNU AGPL v3.0.</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>MacDash uses Apple Events to reveal files in Finder and to manage your login items through System Events.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>MacDash reads the battery level of your connected keyboards, mice and headphones to show it in the menu bar panel.</string>
 	<key>NSDesktopFolderUsageDescription</key>
 	<string>MacDash needs access to your Desktop to find junk and orphaned files.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>MacDash needs access to your Documents to find junk and orphaned files.</string>
 	<key>NSDownloadsFolderUsageDescription</key>
 	<string>MacDash needs access to your Downloads to find junk and orphaned files.</string>
-	<key>NSRemovableVolumesUsageDescription</key>
-	<string>MacDash needs access to removable volumes to scan for junk files.</string>
-	<key>NSSystemAdministrationUsageDescription</key>
-	<string>MacDash needs system administration access to clean caches and uninstall apps completely.</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2026 Matheus Faria. GNU AGPL v3.0.</string>
 	<key>NSLocationUsageDescription</key>
 	<string>MacDash uses this only to show the name of your Wi-Fi network. macOS treats network names as location information; MacDash never reads where you are.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>MacDash uses this only to show the name of your Wi-Fi network. macOS treats network names as location information; MacDash never reads where you are.</string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>MacDash reads the battery level of your connected keyboards, mice and headphones to show it in the menu bar panel.</string>
-	<key>NSAppleEventsUsageDescription</key>
-	<string>MacDash uses Apple Events to reveal files in Finder and to manage your login items through System Events.</string>
-	<key>SUFeedURL</key>
-	<string>https://witchmymac.com/appcast/macdash.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>yhoDaYLDki5BV0c44pefouDhxbliuGqLKxXKXXK1Pb0=</string>
-	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>SUScheduledCheckInterval</key>
-	<integer>86400</integer>
-	<key>SUAutomaticallyUpdate</key>
-	<false/>
+	<key>NSRemovableVolumesUsageDescription</key>
+	<string>MacDash needs access to removable volumes to scan for junk files.</string>
 	<key>NSServices</key>
 	<array>
 		<dict>
@@ -63,7 +62,7 @@
 			<key>NSMessage</key>
 			<string>uninstallApp</string>
 			<key>NSPortName</key>
-		<string>MacDash</string>
+			<string>MacDash</string>
 			<key>NSRequiredContext</key>
 			<dict/>
 			<key>NSSendFileTypes</key>
@@ -72,5 +71,17 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSSystemAdministrationUsageDescription</key>
+	<string>MacDash needs system administration access to clean caches and uninstall apps completely.</string>
+	<key>SUAutomaticallyUpdate</key>
+	<false/>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUFeedURL</key>
+	<string>https://witchmymac.com/appcast/macdash.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>yhoDaYLDki5BV0c44pefouDhxbliuGqLKxXKXXK1Pb0=</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 </dict>
 </plist>

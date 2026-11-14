@@ -909,7 +909,6 @@
 "The app couldn't be replaced: %@" = "無法取代該 App：%@";
 
 "Assistant" = "助理";
-"Your MacDash activity at a glance" = "一覽你在 MacDash 中的活動";
 "1 day with MacDash" = "與 MacDash 相伴 1 天";
 "%lld days with MacDash" = "與 MacDash 相伴 %lld 天";
 "Since %@" = "自 %@ 起";
@@ -986,14 +985,9 @@
 "Ascending" = "遞增";
 "Descending" = "遞減";
 "Suggestions" = "建議";
-"Suggestion %lld of %lld" = "第 %lld 則，共 %lld 則";
-"New suggestions appear as your Mac changes." = "新的建議會隨著你的 Mac 變化而出現。";
 "Turn on Full Disk Access" = "開啟完整磁碟取用權限";
 "Lets scans reach protected caches and app data." = "讓掃描能存取受保護的快取和 App 資料。";
 "Review possible threats" = "檢視可能的威脅";
-"Clean %@ of junk" = "清理 %@ 垃圾";
-"Smart Care results are ready to review." = "智慧照護結果已可檢視。";
-"Run Smart Care" = "執行智慧照護";
 "Find what fills your disk" = "查看是什麼佔滿了磁碟";
 "Only %@ free. Space Lens maps the biggest folders." = "僅剩 %@ 可用。Space Lens 可顯示最大的檔案夾。";
 "Check for app updates" = "檢查 App 更新";
@@ -1001,8 +995,6 @@
 "Check" = "檢查";
 "Review startup items" = "檢視啟動項目";
 "Fewer items starting with your Mac means a faster login." = "啟動項目越少，登入越快。";
-"Find apps you no longer use" = "尋找不再使用的 App";
-"Advanced Cleanup lists apps left unopened for months." = "進階清理會列出數月未開啟的 App。";
 "Look for duplicate files" = "尋找重複檔案";
 "Identical copies often hide in Downloads and Documents." = "相同的副本常常藏在「下載項目」和「文件」中。";
 
@@ -1326,7 +1318,6 @@
 "Couldn't read the saved antivirus data. A copy was kept at %@." = "無法讀取已儲存的防毒資料。已在 %@ 保留一份副本。";
 "The command run as administrator failed: %@" = "以管理者身分執行的指令失敗：%@";
 "Checks where junk builds up, then lets you choose what goes." = "檢查垃圾堆積的位置，再由你選擇要清除哪些。";
-"Junk, caches and mail files in one quick pass." = "一次快速檢查垃圾、快取和「郵件」檔案。";
 "Run an Antivirus scan" = "執行病毒掃描";
 "Clear scan history?" = "要清除掃描記錄嗎？";
 "Clear history" = "清除記錄";
@@ -1731,10 +1722,6 @@
 "Delete this report?" = "要刪除此報告嗎？";
 "Delete all reports?" = "要刪除所有報告嗎？";
 "Review…" = "檢視…";
-"Analyze this Mac" = "分析這台 Mac";
-"What uses the disk and what is worth cleaning, in one report." = "一份報告，告訴你什麼佔用了磁碟、什麼值得清理。";
-"Full analysis" = "完整分析";
-"What uses the disk, what deserves attention and what to do about it" = "什麼佔用了磁碟、什麼值得留意，以及該怎麼處理";
 
 /* Diagnosis: layout and access flow */
 "Do now" = "立即處理";
@@ -1742,7 +1729,6 @@
 "Good to know" = "知道就好";
 "Healthy" = "良好";
 "Attention" = "需要注意";
-"Diagnosis" = "診斷";
 "Find what is using space and what is worth cleaning." = "找出是什麼在佔用空間，以及哪些值得清理。";
 "Full Disk Access is on. Analyze again to include every folder." = "完整磁碟取用權已開啟。重新分析以包含所有檔案夾。";
 "Waiting for access…" = "正在等待取用權…";
@@ -1755,3 +1741,30 @@
 "Choose Quit & Reopen. MacDash comes back here." = "選擇「結束並重新開啟」。MacDash 會回到這裡。";
 "Reopen" = "重新開啟";
 "A few things are worth a look." = "有幾項值得看一看。";
+
+/* Assistant: folders and History */
+"Choose a folder to see what is inside it and what is worth cleaning." = "選擇一個檔案夾，看看裡面有什麼、哪些值得清理。";
+"Analyze a Folder…" = "分析檔案夾…";
+"Drop a folder to analyze it" = "拖入檔案夾即可分析";
+"What is inside" = "裡面有什麼";
+"Analyses" = "分析記錄";
+"What MacDash has done on this Mac, and every analysis it made." = "MacDash 在這台 Mac 上做過的事，以及每一次分析。";
+"Your home folder." = "你的個人專屬檔案夾。";
+"A cloud storage folder. Its service keeps it in sync, so leave it to that service." = "雲端儲存檔案夾。由其服務保持同步，請交給該服務處理。";
+"A folder its project rebuilds: %@ brings it back." = "由專案重新產生的檔案夾：%@ 可以還原它。";
+"A folder its project rebuilds on the next build." = "由專案在下次建置時重新產生的檔案夾。";
+"Temporary files that apps rebuild on their own." = "App 會自行重新產生的暫存檔案。";
+"macOS or an app relies on this folder. Leave it as it is." = "macOS 或某個 App 依賴此檔案夾。請保持原狀。";
+"A project with git. Last change: %@." = "使用 git 的專案。最近更改：%@。";
+"A project with git." = "使用 git 的專案。";
+"Holds projects with build folders: %lld." = "包含建置檔案夾的專案：%lld 個。";
+"A regular folder. Its largest items are below." = "一般檔案夾。最大的項目列在下方。";
+"This folder can be rebuilt: %@" = "此檔案夾可以重新產生：%@";
+"Building or installing again brings it back." = "重新建置或安裝即可還原。";
+"Other items" = "其他項目";
+"Only folders in your home folder or on another disk can be analyzed." = "只能分析個人專屬檔案夾內或其他磁碟上的檔案夾。";
+"A project. Its build folders can be made again." = "一個專案。它的建置檔案夾可以重新產生。";
+"Back to the start. This report stays in History." = "回到開始。此報告仍保留在「歷史記錄」中。";
+"Nothing to clean in this folder." = "此檔案夾中沒有需要清理的內容。";
+"Antivirus lists them so you can decide about each one." = "「防毒」會列出它們，供你逐一決定。";
+"Open Antivirus to run a quick scan." = "打開「防毒」進行快速掃描。";

@@ -33,6 +33,7 @@ enum AssistantArea: String, Codable, CaseIterable, Sendable {
     case devTools
     case apps
     case caches
+    case security
 }
 
 /// What can be done about a finding.
@@ -53,6 +54,7 @@ enum AssistantTool: String, Codable, Sendable {
     case apps
     case driveOffload
     case spaceLens
+    case antivirus
 
     var section: AppSection {
         switch self {
@@ -61,6 +63,7 @@ enum AssistantTool: String, Codable, Sendable {
         case .apps: return .apps
         case .driveOffload: return .driveOffload
         case .spaceLens: return .spaceLens
+        case .antivirus: return .antivirus
         }
     }
 
@@ -71,6 +74,7 @@ enum AssistantTool: String, Codable, Sendable {
         case .apps: return String(localized: "Applications")
         case .driveOffload: return String(localized: "Drive Offload")
         case .spaceLens: return String(localized: "Space Lens")
+        case .antivirus: return String(localized: "Antivirus")
         }
     }
 }
@@ -213,6 +217,10 @@ struct AssistantReport: Codable, Identifiable, Sendable {
     var filesChecked = 0
     /// True when macOS kept folders out of reach (no Full Disk Access).
     var limitedAccess = false
+    /// The folder this analysis looked at; nil for the whole Mac.
+    var scope: String?
+    /// Size of that folder.
+    var scopeSize: Int64?
 
     var diskUsed: Int64 { max(0, diskTotal - diskFree) }
 

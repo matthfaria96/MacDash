@@ -42,8 +42,12 @@ final class AssistantStore: ObservableObject {
 
     /// Older reports are removed automatically beyond this many.
     static let reportLimit = 100
-    /// When the last analysis finished, for the toolbar panel's suggestion.
-    static let lastAnalysisKey = "assistant.lastAnalysis"
+
+    /// A folder sent from Finder before the window was there to show it
+    /// (MacDash was closed). The window picks it up when it appears.
+    static var pendingFolder: String?
+    /// Posted when Finder sends a folder while MacDash is open.
+    static let folderRequested = Notification.Name("MacDash.AnalyzeFolder")
 
     private let folder: URL
     private let home: String
@@ -58,7 +62,46 @@ final class AssistantStore: ObservableObject {
 
     // MARK: - Analysis
 
+    /// The folders a link from Finder may ask about: inside the home folder or
+    /// on another disk. Nil when the path isn't a folder there.
+    nonisolated static func acceptedFolder(_ path: String, home: String) -> String? {
+        guard path.hasPrefix("/") else { return nil }
+        let standard = URL(fileURLWithPath: path).standardizedFileURL.path
+        guard standard.hasPrefix(home + "/") || standard == home || standard.hasPrefix("/Volumes/") else { return nil }
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: standard, isDirectory: &isDirectory), isDirectory.boolValue else { return nil }
+        return standard
+    }
+
+    /// Handles macdash://analyze?path=… from the Finder menu.
+    static func handle(_ url: URL) -> Bool {
+        guard url.scheme == "macdash", url.host == "analyze",
+              let path = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "path" })?.value
+        else { return false }
+        pendingFolder = path
+        NotificationCenter.default.post(name: folderRequested, object: nil)
+        return true
+    }
+
+    /// Analyzes one folder instead of the whole Mac.
+    func analyze(folder path: String) {
+        guard let accepted = Self.acceptedFolder(path, home: home) else {
+            message = Message(text: String(localized: "Only folders in your home folder or on another disk can be analyzed."), isError: true)
+            return
+        }
+        analyze(scope: accepted)
+    }
+
     func analyze() {
+        analyze(scope: nil)
+    }
+
+    /// Runs the same kind of analysis as the one on screen, again.
+    func analyzeAgain() {
+        if let scope = live?.scope { analyze(folder: scope) } else { analyze() }
+    }
+
+    private func analyze(scope: String?) {
         guard phase != .analyzing else { return }
         message = nil
         plan = nil
@@ -75,6 +118,11 @@ final class AssistantStore: ObservableObject {
         let folder = folder
         let running = Set(NSWorkspace.shared.runningApplications.compactMap { $0.bundleURL?.resolvingSymlinksInPath().path })
         let months = UnusedAppsFinder.configuredMonths
+        let antivirus = AntivirusState(
+            pendingThreats: AntivirusStore.shared.pending.count,
+            lastScan: AntivirusStore.shared.lastCompletedScan,
+            isScanning: AntivirusStore.shared.isScanning
+        )
         let started = Date()
         let reporter = ProgressReporter { [weak self] step, detail in
             Task { @MainActor [weak self] in
@@ -89,17 +137,26 @@ final class AssistantStore: ObservableObject {
                 applicationRoots: ["/Applications", home + "/Applications"],
                 fullDiskAccess: FullDiskAccessManager.shared.hasFullDiskAccess,
                 runningAppPaths: running,
-                unusedMonths: months
+                unusedMonths: months,
+                antivirus: antivirus
             )
-            let facts = AssistantScanner.gather(options, cancel: flag) { reporter.report($0, $1) }
             let earlier = Self.readReports(in: folder)
-            let report = facts.map {
-                AssistantRules.report(
-                    from: $0,
-                    baselines: earlier.map { AssistantRules.Baseline(date: $0.date, diskFree: $0.diskFree, folderSizes: $0.folderSizes) },
-                    duration: Date().timeIntervalSince(started),
-                    appVersion: AppVersion.marketing
-                )
+            let report: AssistantReport?
+            if let scope {
+                let facts = AssistantScanner.gatherFolder(scope, options: options, cancel: flag) { reporter.report($0, $1) }
+                report = facts.map {
+                    AssistantRules.folderReport(from: $0, duration: Date().timeIntervalSince(started), appVersion: AppVersion.marketing)
+                }
+            } else {
+                let facts = AssistantScanner.gather(options, cancel: flag) { reporter.report($0, $1) }
+                // Only whole-Mac analyses say what grew; a folder's report covers too little.
+                let baselines = earlier.filter { $0.scope == nil }.map {
+                    AssistantRules.Baseline(date: $0.date, diskFree: $0.diskFree, folderSizes: $0.folderSizes)
+                }
+                report = facts.map {
+                    AssistantRules.report(from: $0, baselines: baselines, duration: Date().timeIntervalSince(started),
+                                          appVersion: AppVersion.marketing)
+                }
             }
             await self?.finishAnalysis(report, id: id, earlier: earlier)
         }
@@ -134,7 +191,6 @@ final class AssistantStore: ObservableObject {
         save(report)
         prune()
         phase = .results
-        UserDefaults.standard.set(report.date, forKey: Self.lastAnalysisKey)
         UsageStats.shared.recordScan(.assistant, filesChecked: report.filesChecked)
     }
 

@@ -18,6 +18,7 @@ enum AppSection: String, Hashable {
     case spaceLens
     case driveOffload
     case processes
+    case history
     case settings
 }
 
