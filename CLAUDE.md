@@ -43,8 +43,9 @@ Run a renamed copy, never the installed app: copy the Debug app, set `CFBundleId
 `defaults write com.macdash.app.showcase MacTidy.OnboardingComplete -bool true` (and
 `settings.general.menuBarMonitor -bool false`), then
 `open -g -n --env CFFIXED_USER_HOME=<temp home> --env MACDASH_DEMO=1 <copy> --args -AppleLanguages "(en)" -DebugSection smartCare`.
-Avoid Protection, Processes' app list, History's usage numbers and the Wi‑Fi note in Settings:
-they read the real Mac (permissions, running apps, usage stats, user name). The Assistant screen
+Avoid Protection, Processes' app list and Health card, History's usage numbers and the Wi‑Fi note in Settings:
+they read the real Mac (permissions, running apps, disks and backup, usage stats, user name).
+`-DebugHealth backup` (or `drive:disk0`, `memory`, `temperature`) opens that Health item's details. The Assistant screen
 itself is safe: `-DebugSection assistant -DebugScan YES` shows a fictional analysis (`AssistantDemo`),
 and `-DebugAssistant recommendations|review|details` opens that state of it.
 `-DebugPermissionSheet YES` shows the Full Disk Access sheet. Afterwards quit it,

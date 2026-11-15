@@ -184,7 +184,7 @@ final class SystemInspectionModel: ObservableObject {
     }
 
     static func openTimeMachineSettings() {
-        guard let url = URL(string: "x-apple.systempreferences:com.apple.TimeMachine-Settings.extension") else { return }
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.Time-Machine-Settings.extension") else { return }
         NSWorkspace.shared.open(url)
     }
 }

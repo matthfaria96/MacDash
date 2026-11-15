@@ -1,8 +1,9 @@
 import AppKit
 import SwiftUI
 
-/// Processes: the Mac's vitals as four tiles that unfold into details,
-/// anything heavy in the background, then the user's own apps. Sampling only runs while this screen
+/// Processes: the Mac's vitals as four tiles that unfold into details, the
+/// health of its disks and backup, anything heavy in the background, then
+/// the user's own apps. Sampling only runs while this screen
 /// is open and MacDash is the frontmost app.
 struct ProcessesView: View {
     @StateObject private var performance = PerformanceModel()
@@ -31,6 +32,8 @@ struct ProcessesView: View {
                 }
 
                 PerformanceOverview(model: performance)
+
+                HealthOverview(performance: performance, isActive: appIsActive)
 
                 if !performance.background.isEmpty {
                     BackgroundActivityCard(model: performance)
