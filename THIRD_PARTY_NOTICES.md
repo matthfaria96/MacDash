@@ -10,8 +10,7 @@ AGPL as part of MacDash.
 
 - Source: https://github.com/momenbasel/PureMac
 - License: MIT
-- Used in: the project this app started from (scanning, cleaning, app
-  uninstalling and the overall app structure)
+- Used in: parts of the scanning, cleaning and app uninstalling code
 
 ```
 MIT License
@@ -42,13 +41,13 @@ SOFTWARE.
 - Source: https://github.com/iliyami/MacSai
 - License: BSD 3-Clause
 - Used in:
-  - `PureMac/Services/SparkleUpdateChecker.swift`: Sparkle appcast parsing and version comparison
-  - `PureMac/Services/LaunchItemControl.swift`: login item handling
-  - `PureMac/Services/UnusedAppsFinder.swift`: unused app detection rules
-  - `PureMac/Services/AppPermissionsReader.swift`: TCC permission reading
-  - `PureMac/Services/BrowserExtensionsScanner.swift`: browser extension discovery and safe removal
-  - `PureMac/Services/SavedWiFiNetworks.swift`: saved Wi-Fi network listing and removal
-  - `PureMac/Services/SpaceLensScanner.swift`: squarified treemap layout and file categories
+  - `MacDash/Features/Applications/Updates/SparkleUpdateChecker.swift`: Sparkle appcast parsing and version comparison
+  - `MacDash/Features/Applications/Startup/LaunchItemControl.swift`: login item handling
+  - `MacDash/Features/Applications/Uninstaller/UnusedAppsFinder.swift`: unused app detection rules
+  - `MacDash/Features/Protection/AppPermissionsReader.swift`: TCC permission reading
+  - `MacDash/Features/Protection/BrowserExtensionsScanner.swift`: browser extension discovery and safe removal
+  - `MacDash/Features/Protection/SavedWiFiNetworks.swift`: saved Wi-Fi network listing and removal
+  - `MacDash/Features/SpaceLens/SpaceLensScanner.swift`: squarified treemap layout and file categories
 
 ```
 BSD 3-Clause License
@@ -86,8 +85,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 - Source: https://github.com/jaysahastrabudhe/kitesail
 - License: MIT
 - Used in:
-  - `PureMac/Services/MemoryInsights.swift`: memory breakdown, per-app footprint and memory diagnosis
-  - `PureMac/Views/Tools/PerformanceOverview.swift`: memory screen layout
+  - `MacDash/Features/Processes/MemoryInsights.swift`: memory breakdown, per-app footprint and memory diagnosis
+  - `MacDash/Features/Processes/PerformanceOverview.swift`: memory screen layout
 
 ```
 MIT License
@@ -119,7 +118,7 @@ SOFTWARE.
 - Copyright (c) Adileo Barone
 - License: GNU Affero General Public License v3.0 (https://www.gnu.org/licenses/agpl-3.0.html)
 - Used in:
-  - `PureMac/Views/Tools/SpaceLensRings.swift`: sunburst geometry, layout,
+  - `MacDash/Features/SpaceLens/SpaceLensRings.swift`: sunburst geometry, layout,
     hit testing and the zoom animation, ported from `src/ui/sunburst.rs`
 
 ## Disk Audit
@@ -128,7 +127,7 @@ SOFTWARE.
 - Copyright (C) 2026 Stephen Wiseman
 - License: GNU General Public License v3.0 or later (https://www.gnu.org/licenses/gpl-3.0.html)
 - Used in:
-  - `PureMac/Services/AppFootprintScanner.swift`: per-app footprint (bundle
+  - `MacDash/Features/SpaceLens/AppFootprintScanner.swift`: per-app footprint (bundle
     plus Library folders) and the table of well-known extra locations,
     ported from `src-tauri/src/app_resolver.rs`
 
@@ -138,8 +137,8 @@ SOFTWARE.
 - Copyright (c) 2019 Serhiy Mytrovtsiy
 - License: MIT
 - Used in:
-  - `PureMac/Services/MenuBarReadout.swift`: the stacked menu bar readout style
-  - `PureMac/Services/HardwareSensors.swift`: the SMC structure layout
+  - `MacDash/Features/MenuBar/MenuBarReadout.swift`: the stacked menu bar readout style
+  - `MacDash/Shared/System/HardwareSensors.swift`: the SMC structure layout
 
 ## Performance Monitor
 
@@ -147,8 +146,8 @@ SOFTWARE.
 - Copyright (c) 2026 inequitas
 - License: MIT
 - Used in:
-  - `PureMac/Services/HardwareSensors.swift`: GPU load, disk activity, fans and system power
-  - `PureMac/Services/MenuBarReadout.swift`: template drawing and fixed slot widths for the menu bar readout
+  - `MacDash/Shared/System/HardwareSensors.swift`: GPU load, disk activity, fans and system power
+  - `MacDash/Features/MenuBar/MenuBarReadout.swift`: template drawing and fixed slot widths for the menu bar readout
 
 ## Sparkle
 
@@ -156,4 +155,4 @@ SOFTWARE.
 - Copyright (c) 2006-2013 Andy Matuschak and the Sparkle contributors
 - License: MIT
 - Used in:
-  - `PureMac/Core/AppUpdater.swift`: MacDash's own in-app updates (Check for Updates…); the framework ships in `Contents/Frameworks/Sparkle.framework`
+  - `MacDash/App/AppUpdater.swift`: MacDash's own in-app updates (Check for Updates…); the framework ships in `Contents/Frameworks/Sparkle.framework`

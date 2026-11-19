@@ -1,4 +1,7 @@
-name: PureMac
+# The Xcode project is generated from this file: after adding, moving or
+# renaming files or targets, run `xcodegen generate`. Never edit
+# MacDash.xcodeproj by hand. Layout: docs/ARCHITECTURE.md.
+name: MacDash
 options:
   bundleIdPrefix: com.macdash
   deploymentTarget:
@@ -20,21 +23,21 @@ settings:
     ONLY_ACTIVE_ARCH: "NO"
     CODE_SIGN_IDENTITY: "Apple Development"
     CODE_SIGN_STYLE: "Automatic"
-    CODE_SIGN_ENTITLEMENTS: "PureMac/PureMac.entitlements"
-    INFOPLIST_FILE: "PureMac/Info.plist"
+    CODE_SIGN_ENTITLEMENTS: "MacDash/Resources/MacDash.entitlements"
+    INFOPLIST_FILE: "MacDash/Resources/Info.plist"
     PRODUCT_BUNDLE_IDENTIFIER: "com.macdash.app"
-    MARKETING_VERSION: "1.5.0"
-    CURRENT_PROJECT_VERSION: "8"
+    MARKETING_VERSION: "1.6.0"
+    CURRENT_PROJECT_VERSION: "13"
     GENERATE_INFOPLIST_FILE: "NO"
     ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
     COMBINE_HIDPI_IMAGES: "YES"
 
 targets:
-  PureMac:
+  MacDash:
     type: application
     platform: macOS
     sources:
-      - PureMac
+      - MacDash
     dependencies:
       - package: Sparkle
       # "Analyze with MacDash" in Finder's right-click menu, embedded in PlugIns.
@@ -42,9 +45,12 @@ targets:
     settings:
       base:
         PRODUCT_NAME: MacDash
-        PRODUCT_MODULE_NAME: PureMac
+        PRODUCT_MODULE_NAME: MacDash
         SWIFT_EMIT_LOC_STRINGS: "YES"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+        # Apple Intelligence (Assistant chat) exists on macOS 26+ only; weak so
+        # MacDash still launches on macOS 13-15.
+        OTHER_LDFLAGS: "$(inherited) -weak_framework FoundationModels"
 
   MacDashFinder:
     type: app-extension
@@ -64,28 +70,27 @@ targets:
         SKIP_INSTALL: "YES"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks"
 
-  PureMacTests:
+  MacDashTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - PureMacTests
+      - MacDashTests
     dependencies:
-      - target: PureMac
+      - target: MacDash
     settings:
       base:
-        PRODUCT_NAME: PureMacTests
-        PRODUCT_MODULE_NAME: PureMacTests
-        # The app is built as MacDash.app, not after its target name.
+        PRODUCT_NAME: MacDashTests
+        PRODUCT_MODULE_NAME: MacDashTests
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/MacDash.app/Contents/MacOS/MacDash"
         CODE_SIGNING_ALLOWED: "NO"
         CODE_SIGNING_REQUIRED: "NO"
 
 schemes:
-  PureMac:
+  MacDash:
     build:
       targets:
-        PureMac: all
-        PureMacTests: [test]
+        MacDash: all
+        MacDashTests: [test]
     test:
       targets:
-        - name: PureMacTests
+        - name: MacDashTests

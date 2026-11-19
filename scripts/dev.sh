@@ -15,7 +15,7 @@ cd "$ROOT"
 
 build() {
   local log
-  log=$(xcodebuild -project PureMac.xcodeproj -scheme PureMac -configuration Debug \
+  log=$(xcodebuild -project MacDash.xcodeproj -scheme MacDash -configuration Debug \
     -derivedDataPath build/derived -skipMacroValidation \
     CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO DEVELOPMENT_TEAM= CODE_SIGN_STYLE=Manual \
     build 2>&1) || true
@@ -36,7 +36,7 @@ case "${1:-run}" in
     echo "Opened $APP"
     ;;
   test)
-    xcodebuild -project PureMac.xcodeproj -scheme PureMac -configuration Debug \
+    xcodebuild -project MacDash.xcodeproj -scheme MacDash -configuration Debug \
       -derivedDataPath build/derived-tests -skipMacroValidation \
       CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO DEVELOPMENT_TEAM= \
       test | grep -E "error: -\[|Executed [0-9]+ tests.*seconds$|TEST (SUCCEEDED|FAILED)"

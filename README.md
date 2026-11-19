@@ -2,7 +2,7 @@
 
 **English** · [Português](README.pt-BR.md)
 
-A native macOS app (SwiftUI) for cleaning and maintenance: Smart Care, Advanced Cleanup, Applications (uninstall, login items and updates), Protection (app permissions, security checks, Wi‑Fi and browser extensions), Processes, Space Lens, Duplicate Files and Similar Photos.
+A native macOS app (SwiftUI) for cleaning and maintenance: Smart Care (an Essential scan in one click, or a Complete one that adds large files, app leftovers and developer data), the Assistant (an offline diagnosis of the whole Mac or one folder, and questions answered by Apple Intelligence on the Mac), Applications (uninstall, login items and updates), Protection (app permissions, security checks, Wi‑Fi and browser extensions), Antivirus, Processes, Space Lens, Drive Offload, Duplicate Finder and Similar Photos.
 
 Nothing is removed without your approval: every scan ends on a review screen.
 
@@ -32,7 +32,7 @@ scripts/dev.sh build   # builds only
 scripts/dev.sh test    # runs the tests
 ```
 
-The app ends up in `build/derived/Build/Products/Debug/MacDash.app`. The Xcode project is `PureMac.xcodeproj` (scheme `PureMac`). The project's internal names are still `PureMac`; the product is `MacDash.app`, with bundle ID `com.macdash.app`. Requires macOS 13 or later.
+The app ends up in `build/derived/Build/Products/Debug/MacDash.app` (bundle ID `com.macdash.app`). The Xcode project `MacDash.xcodeproj` is generated from [`project.yml`](project.yml) with `xcodegen generate`. How the code is organized: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Permissions
 
@@ -49,9 +49,6 @@ Wi‑Fi passwords live in the system keychain: macOS asks for your Mac account's
 
 MacDash is free software, Copyright (C) 2026 Matheus Faria, under the **GNU AGPL v3.0** license ([`LICENSE`](LICENSE)). You may use, study, modify and redistribute it; anyone who distributes a modified version must publish its source under the same license.
 
-- Based on [PureMac](https://github.com/momenbasel/PureMac), MIT license (notice in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)).
-- Features adapted from [Mac Sai](https://github.com/iliyami/MacSai), 3-clause BSD license ([`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)).
-- Space Lens rings adapted from [SquirrelDisk](https://github.com/adileo/squirreldisk) (AGPL-3.0) and per-app size adapted from [Disk Audit](https://github.com/srwiseman/diskaudit-macos) (GPL-3.0).
-- The other credits (Kitesail, Stats, Performance Monitor) are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and in Settings › Open source licenses.
+- MacDash includes open-source components under their own licenses (MIT, BSD, GPL and AGPL). Their notices are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and in the app, under Settings › About › Open-source licenses.
 - The antivirus was written from scratch. It contains no code, rules or databases from any commercial product; it uses the EICAR test pattern and its own rules.
 - Other product names mentioned belong to their owners; MacDash is not affiliated with them.
